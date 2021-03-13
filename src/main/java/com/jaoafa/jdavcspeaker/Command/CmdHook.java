@@ -61,7 +61,7 @@ public class CmdHook {
             }
             cmd.onCommand(jda, guild, channel, member, message, args);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            ErrorReporter.report("コマンドが見つかりません！",null,channel);
+            System.out.println("CMD NOT FOUND!");
         }
     }
 }

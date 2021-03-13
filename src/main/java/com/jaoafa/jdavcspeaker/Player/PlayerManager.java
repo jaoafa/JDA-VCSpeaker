@@ -34,7 +34,6 @@ public class PlayerManager {
     }
 
     private void play(GuildMusicManager musicManager, AudioTrack track) {
-        System.out.println("queue....");
         musicManager.scheduler.queue(track);
     }
 
