@@ -44,7 +44,7 @@ public class PlayerManager {
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                track.setUserData(channel.getGuild().getId());
+                System.out.println("Track Loaded on PlayerManager");
                 play(musicManager,track);
             }
 

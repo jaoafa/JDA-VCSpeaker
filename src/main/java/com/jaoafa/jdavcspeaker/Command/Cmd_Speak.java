@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -71,13 +72,35 @@ public class Cmd_Speak implements CmdInterface {
                 //AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
                 //AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
-                //AudioPlayerManager manager = new DefaultAudioPlayerManager();
-                //AudioSourceManagers.registerLocalSource(manager);
-                //AudioPlayer messagePlayer = manager.createPlayer();
-                //AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
-                //AudioManager audioManager = guild.getAudioManager();
-                //audioManager.setSendingHandler(sendHandler);
+                AudioPlayerManager manager = new DefaultAudioPlayerManager();
+                AudioSourceManagers.registerLocalSource(manager);
+                AudioPlayer messagePlayer = manager.createPlayer();
+                AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
+                AudioManager audioManager = guild.getAudioManager();
+                audioManager.setSendingHandler(sendHandler);
                 PlayerManager.getINSTANCE().loadAndPlay(message.getTextChannel(),"./speak.wav");
+                manager.loadItemOrdered(PlayerManager.getINSTANCE().getGuildMusicManager(guild),"./speak.wav", new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack audioTrack) {
+                        System.out.println("Track Loaded on Speak.java");
+                        messagePlayer.playTrack(audioTrack);
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+
+                    }
+
+                    @Override
+                    public void noMatches() {
+
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException e) {
+                        System.out.println("loadfailed on Speak.java");
+                    }
+                });
                 //manager.loadItem("./speak.wav",);
                 //再生
                 //AudioPlayerManager manager = new DefaultAudioPlayerManager();
