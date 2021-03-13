@@ -68,7 +68,6 @@ public class Cmd_Speak implements CmdInterface {
                 AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
                 AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
-                audioTrack.setUserData("vcspeaker");
                 AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 //AudioSourceManagers.registerLocalSource(manager);
                 AudioPlayer messagePlayer = manager.createPlayer();
