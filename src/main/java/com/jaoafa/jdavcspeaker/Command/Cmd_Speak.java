@@ -4,9 +4,12 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Player.AudioPlayerSendHandler;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Util.JSONUtil;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.JDA;
@@ -66,7 +69,7 @@ public class Cmd_Speak implements CmdInterface {
                     e.printStackTrace();
                 }
                 AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
-                AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
+                //AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
                 AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 //AudioSourceManagers.registerLocalSource(manager);
@@ -74,6 +77,28 @@ public class Cmd_Speak implements CmdInterface {
                 AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
                 AudioManager audioManager = guild.getAudioManager();
                 audioManager.setSendingHandler(sendHandler);
+                AudioLoadResultHandler handler = new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack track) {
+                        messagePlayer.playTrack(track);
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist playlist) {
+                        return;
+                    }
+
+                    @Override
+                    public void noMatches() {
+
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException throwable) {
+
+                    }
+                };
+                manager.loadItem("./speak.wav",handler);
                 //再生
                 //AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 //manager.registerSourceManager(new LocalAudioSourceManager());
@@ -82,7 +107,7 @@ public class Cmd_Speak implements CmdInterface {
                 //AudioManager audioManager = guild.getAudioManager();
                 //VoiceChannel connectedChannel = member.getVoiceState().getChannel();
                 //TextToVoiceUtil.voice(connectedChannel,audioManager);
-                pm.getGuildMusicManager(guild).scheduler.queue(audioTrack);//NullPointer。 再生されない。
+                /*pm.getGuildMusicManager(guild).scheduler.queue(audioTrack);//NullPointer。 再生されない。
 
                 pm.getGuildMusicManager(guild).player.playTrack(audioTrack);//何もなし。再生されない。
 
@@ -92,7 +117,7 @@ public class Cmd_Speak implements CmdInterface {
 
                 messagePlayer.startTrack(audioTrack,false);
 
-                messagePlayer.playTrack(audioTrack);
+                messagePlayer.playTrack(audioTrack);*/
 
 
             } catch (JSONException e) {
