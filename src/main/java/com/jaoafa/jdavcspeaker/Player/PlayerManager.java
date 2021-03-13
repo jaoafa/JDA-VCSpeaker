@@ -1,11 +1,18 @@
 package com.jaoafa.jdavcspeaker.Player;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +39,31 @@ public class PlayerManager {
         guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
         return musicManager;
     }
+    public void loadAndPlay(TextChannel channel, String trackUrl){
+        GuildMusicManager musicManager=getGuildMusicManager(channel.getGuild());
+        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                track.setUserData(channel.getGuild().getId());
+                play(musicManager,track);
+            }
 
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+
+            }
+
+            @Override
+            public void noMatches() {
+
+            }
+
+            @Override
+            public void loadFailed(FriendlyException e) {
+                System.out.println("loadFailed on PlayerManager");
+            }
+        });
+    }
     private void play(GuildMusicManager musicManager, AudioTrack track) {
         musicManager.scheduler.queue(track);
     }

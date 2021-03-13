@@ -77,28 +77,8 @@ public class Cmd_Speak implements CmdInterface {
                 AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
                 AudioManager audioManager = guild.getAudioManager();
                 audioManager.setSendingHandler(sendHandler);
-                AudioLoadResultHandler handler = new AudioLoadResultHandler() {
-                    @Override
-                    public void trackLoaded(AudioTrack track) {
-                        messagePlayer.playTrack(track);
-                    }
-
-                    @Override
-                    public void playlistLoaded(AudioPlaylist playlist) {
-                        return;
-                    }
-
-                    @Override
-                    public void noMatches() {
-
-                    }
-
-                    @Override
-                    public void loadFailed(FriendlyException throwable) {
-                        System.out.println("loacFailed!");
-                    }
-                };
-                manager.loadItem("./speak.wav",handler);
+                PlayerManager.getINSTANCE().loadAndPlay(message.getTextChannel(),"./speak.wav");
+                //manager.loadItem("./speak.wav",);
                 //再生
                 //AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 //manager.registerSourceManager(new LocalAudioSourceManager());
