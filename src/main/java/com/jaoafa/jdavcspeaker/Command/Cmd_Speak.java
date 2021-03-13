@@ -95,7 +95,7 @@ public class Cmd_Speak implements CmdInterface {
 
                     @Override
                     public void loadFailed(FriendlyException throwable) {
-
+                        System.out.println("loacFailed!");
                     }
                 };
                 manager.loadItem("./speak.wav",handler);
