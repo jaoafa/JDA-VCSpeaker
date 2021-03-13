@@ -68,15 +68,15 @@ public class Cmd_Speak implements CmdInterface {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
+                //AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
                 //AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
-                AudioPlayerManager manager = new DefaultAudioPlayerManager();
+                //AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 //AudioSourceManagers.registerLocalSource(manager);
-                AudioPlayer messagePlayer = manager.createPlayer();
-                AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
-                AudioManager audioManager = guild.getAudioManager();
-                audioManager.setSendingHandler(sendHandler);
+                //AudioPlayer messagePlayer = manager.createPlayer();
+                //AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
+                //AudioManager audioManager = guild.getAudioManager();
+                //audioManager.setSendingHandler(sendHandler);
                 PlayerManager.getINSTANCE().loadAndPlay(message.getTextChannel(),"./speak.wav");
                 //manager.loadItem("./speak.wav",);
                 //再生
