@@ -1,6 +1,9 @@
 package com.jaoafa.jdavcspeaker;
 
 import com.jaoafa.jdavcspeaker.Command.CmdHook;
+import com.jaoafa.jdavcspeaker.Event.AutoDisconnect;
+import com.jaoafa.jdavcspeaker.Event.AutoMove;
+import com.jaoafa.jdavcspeaker.Event.AutoSummon;
 import com.jaoafa.jdavcspeaker.Util.JSONUtil;
 import com.jaoafa.jdavcspeaker.Util.Logger;
 import net.dv8tion.jda.api.JDABuilder;
@@ -14,7 +17,12 @@ public class Main {
             JDABuilder builder = JDABuilder.createDefault(JSONUtil.read("./VCSpeaker.json").getString("DiscordToken"));
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES);
             builder.setEventManager(new AnnotatedEventManager());
+
             builder.addEventListeners(new CmdHook());
+
+            builder.addEventListeners(new AutoSummon());
+            builder.addEventListeners(new AutoMove());
+            builder.addEventListeners(new AutoDisconnect());
             builder.build().awaitReady();
         } catch (Exception e) {
             e.printStackTrace();

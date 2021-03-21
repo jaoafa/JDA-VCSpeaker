@@ -1,6 +1,8 @@
 package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.CmdInterface;
+import com.jaoafa.jdavcspeaker.Util.EmbedColors;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,11 +28,11 @@ public class CmdHook {
         if (message.isWebhookMessage()) {
             return;
         }
-        if (!text.startsWith("^")) {
+        if (!text.startsWith(";")) {
             return;
         }
 
-        if (text.equals("^")) {
+        if (text.equals(";")) {
             return;
         }
 
@@ -58,7 +60,10 @@ public class CmdHook {
             }
             cmd.onCommand(jda, guild, channel, member, message, args);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            System.out.println("CMD NOT FOUND!");
+            EmbedBuilder cmdNotFound = new EmbedBuilder();
+            cmdNotFound.setTitle(":x: コマンドが見つかりませんでした！");
+            cmdNotFound.setColor(EmbedColors.error);
+            channel.sendMessage(cmdNotFound.build()).queue();
         }
     }
 }

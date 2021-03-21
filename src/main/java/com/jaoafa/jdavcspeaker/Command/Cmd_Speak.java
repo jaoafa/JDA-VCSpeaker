@@ -22,7 +22,7 @@ public class Cmd_Speak implements CmdInterface {
             try {
                 OkHttpClient client = new OkHttpClient();
                 FormBody.Builder form = new FormBody.Builder();
-                form.add("text", message.getContentRaw());
+                form.add("text", message.getContentRaw().substring(7));
                 form.add("speaker", "show");
                 Request request = new Request.Builder()
                         .post(form.build())
