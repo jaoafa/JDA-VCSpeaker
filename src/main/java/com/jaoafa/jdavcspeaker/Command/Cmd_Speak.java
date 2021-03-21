@@ -12,19 +12,19 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
 import okhttp3.*;
+import ws.schild.jave.*;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
+import ws.schild.jave.encode.VideoAttributes;
+import ws.schild.jave.info.VideoSize;
+
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -72,18 +72,24 @@ public class Cmd_Speak implements CmdInterface {
                 //AudioTrackInfo trackInfo = new AudioTrackInfo("SpeakText","VCSpeaker",10000,"VCSpeaker",true,"VCSpeaker");
                 //AudioTrack audioTrack = audioPlayerManager.decodeTrackDetails(trackInfo,contentBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
-                AudioPlayerManager manager = new DefaultAudioPlayerManager();
+                //convertFile(new File("./speak.wav"));
+
+                /*AudioPlayerManager manager = new DefaultAudioPlayerManager();
                 AudioSourceManagers.registerLocalSource(manager);
                 AudioPlayer messagePlayer = manager.createPlayer();
                 AudioPlayerSendHandler sendHandler = new AudioPlayerSendHandler(messagePlayer);
                 AudioManager audioManager = guild.getAudioManager();
                 audioManager.setSendingHandler(sendHandler);
-                PlayerManager.getINSTANCE().loadAndPlay(message.getTextChannel(),"./speak.wav");
-                manager.loadItemOrdered(PlayerManager.getINSTANCE().getGuildMusicManager(guild),"./speak.wav", new AudioLoadResultHandler() {
+                AudioSourceManagers.registerRemoteSources(manager);
+                AudioSourceManagers.registerLocalSource(manager);*/
+                //PlayerManager.getINSTANCE().loadAndPlay(message.getTextChannel(),"./speak.mp3");
+                PlayerManager.getINSTANCE().loadAndPlay((TextChannel) message.getChannel(),"./speak.wav");
+                /*manager.loadItemOrdered(PlayerManager.getINSTANCE().getGuildMusicManager(guild),"https://www.youtube.com/watch?v=MOBYK_reo-4", new AudioLoadResultHandler() {
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
                         System.out.println("Track Loaded on Speak.java");
                         messagePlayer.playTrack(audioTrack);
+
                     }
 
                     @Override
@@ -99,8 +105,9 @@ public class Cmd_Speak implements CmdInterface {
                     @Override
                     public void loadFailed(FriendlyException e) {
                         System.out.println("loadfailed on Speak.java");
+                        e.printStackTrace();
                     }
-                });
+                });*/
                 //manager.loadItem("./speak.wav",);
                 //再生
                 //AudioPlayerManager manager = new DefaultAudioPlayerManager();
@@ -189,9 +196,29 @@ public class Cmd_Speak implements CmdInterface {
             e.printStackTrace();
         }
     }
-    public byte[] convertFile(File file) throws IOException {
-        FileInputStream inputStream = new FileInputStream(file);
-        return IOUtils.toByteArray(inputStream);
+    public void convertFile(File file) throws IOException {
+        try {
+            EncodingAttributes attrs = new EncodingAttributes();
+            attrs.setOutputFormat("mp3");
+            AudioAttributes audio = new AudioAttributes();
+            audio.setCodec("aac");
+            audio.setBitRate(256000);
+            audio.setChannels(1);
+            audio.setSamplingRate(88200);
+            attrs.setAudioAttributes(audio);
+            File source = new File("./speak.wav");
+            File dest = new File("./speak.mp3");
+            Encoder encoder = new Encoder();
+            encoder.encode(new MultimediaObject(source), dest, attrs);
+            if (!dest.exists() || dest.length() == 0) {
+                System.out.println("encode failer.");
+            }
+        } catch (EncoderException e) {
+            System.out.println("Occured EncoderException.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Occured Exception.");
+        }
     }
 }
 

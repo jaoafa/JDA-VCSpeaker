@@ -46,6 +46,7 @@ public class PlayerManager {
             public void trackLoaded(AudioTrack track) {
                 System.out.println("Track Loaded on PlayerManager");
                 play(musicManager,track);
+
             }
 
             @Override
@@ -60,6 +61,7 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException e) {
+                e.printStackTrace();
                 System.out.println("loadFailed on PlayerManager");
             }
         });
