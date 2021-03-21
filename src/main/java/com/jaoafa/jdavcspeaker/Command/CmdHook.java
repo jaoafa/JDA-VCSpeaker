@@ -1,14 +1,11 @@
 package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Util.ErrorReporter;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
-import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -46,7 +43,7 @@ public class CmdHook {
                     .filter(s -> (s != null && s.length() > 0))
                     .toArray(String[]::new);
         } else {
-            args = new String[] {};
+            args = new String[]{};
             cmdname = text.substring(1).trim();
         }
         try {

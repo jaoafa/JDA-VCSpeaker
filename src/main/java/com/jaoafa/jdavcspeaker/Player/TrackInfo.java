@@ -11,9 +11,11 @@ public class TrackInfo {
         this.track = track;
         this.author = author;
     }
+
     public AudioTrack getTrack() {
         return track;
     }
+
     public Member getAuthor() {
         return author;
     }

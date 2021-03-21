@@ -7,5 +7,5 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public interface CmdInterface {
-    public void onCommand(final JDA jda, final Guild guild, final MessageChannel channel, final Member member, final Message message, final String[] args);
+    void onCommand(final JDA jda, final Guild guild, final MessageChannel channel, final Member member, final Message message, final String[] args);
 }
