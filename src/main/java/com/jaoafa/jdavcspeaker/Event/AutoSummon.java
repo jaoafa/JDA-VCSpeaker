@@ -14,9 +14,6 @@ public class AutoSummon {
         if (event.getMember().getUser().isBot()){
             return;
         }
-        if (event.getGuild().getSelfMember().getVoiceState().getChannel() != null){
-            event.getGuild().getAudioManager().closeAudioConnection();
-        }
         AudioManager audioManager = event.getGuild().getAudioManager();
         audioManager.openAudioConnection(event.getChannelJoined());
 

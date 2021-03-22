@@ -3,6 +3,7 @@ package com.jaoafa.jdavcspeaker.Command;
 import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Util.JSONUtil;
+import com.jaoafa.jdavcspeaker.Util.VoiceText;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
@@ -18,7 +19,8 @@ import java.nio.file.Paths;
 public class Cmd_Speak implements CmdInterface {
     @Override
     public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
-        try {
+        VoiceText.speak((TextChannel) channel,message.getContentRaw().replace(";speak ",""));
+        /*try {
             try {
                 OkHttpClient client = new OkHttpClient();
                 FormBody.Builder form = new FormBody.Builder();
@@ -56,7 +58,7 @@ public class Cmd_Speak implements CmdInterface {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
 

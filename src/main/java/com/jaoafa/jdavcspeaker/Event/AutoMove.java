@@ -13,7 +13,7 @@ public class AutoMove {
         if (event.getMember().getUser().isBot()){
             return;
         }
-        if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null){
+        if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null||event.getGuild().getSelfMember().getVoiceState().getChannel() == event.getChannelJoined()){
             return;
         }
         String vcName = event.getGuild().getSelfMember().getVoiceState().getChannel().getName();

@@ -1,9 +1,7 @@
 package com.jaoafa.jdavcspeaker;
 
 import com.jaoafa.jdavcspeaker.Command.CmdHook;
-import com.jaoafa.jdavcspeaker.Event.AutoDisconnect;
-import com.jaoafa.jdavcspeaker.Event.AutoMove;
-import com.jaoafa.jdavcspeaker.Event.AutoSummon;
+import com.jaoafa.jdavcspeaker.Event.*;
 import com.jaoafa.jdavcspeaker.Util.JSONUtil;
 import com.jaoafa.jdavcspeaker.Util.Logger;
 import net.dv8tion.jda.api.JDABuilder;
@@ -23,6 +21,10 @@ public class Main {
             builder.addEventListeners(new AutoSummon());
             builder.addEventListeners(new AutoMove());
             builder.addEventListeners(new AutoDisconnect());
+
+            builder.addEventListeners(new Event_Join());
+            builder.addEventListeners(new Event_Move());
+            builder.addEventListeners(new Event_Disconnect());
             builder.build().awaitReady();
         } catch (Exception e) {
             e.printStackTrace();
