@@ -14,7 +14,7 @@ public class Event_Join {
         if (event.getMember().getUser().isBot()){
             return;
         }
-        event.getJDA().getTextChannelById(StaticData.vcTextChannel).sendMessage(":outbox_tray: `"+event.getMember().getUser().getName()+"`が`"+event.getChannelJoined().getName()+"`に参加しました。").queue();
+        event.getJDA().getTextChannelById(StaticData.vcTextChannel).sendMessage(":inbox_tray: `"+event.getMember().getUser().getName()+"`が`"+event.getChannelJoined().getName()+"`に参加しました。").queue();
         VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelJoined().getName()+"に参加しました。");
     }
 }

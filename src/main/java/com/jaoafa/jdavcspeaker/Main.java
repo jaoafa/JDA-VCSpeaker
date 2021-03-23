@@ -25,6 +25,7 @@ public class Main {
             builder.addEventListeners(new Event_Join());
             builder.addEventListeners(new Event_Move());
             builder.addEventListeners(new Event_Disconnect());
+            builder.addEventListeners(new Event_SpeakVCText());
             builder.build().awaitReady();
         } catch (Exception e) {
             e.printStackTrace();

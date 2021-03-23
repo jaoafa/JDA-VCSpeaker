@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VoiceText {
     public static void speak(TextChannel channel,String text){
@@ -159,13 +161,21 @@ public class VoiceText {
             emotion_lv[0] = 2;
         }
 
+        String speakTextFinal;
+        String regex = "<a?:(.+?):([0-9]+)>";
+        speakTextFinal = EmojiParser.parseToAliases(speaktext[0]);
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(speakTextFinal);
+        while (m.find()) {
+            speakTextFinal = speakTextFinal.replace(m.group(), ":" + m.group(1) + ":");
+        }
 
         try {
             try {
                 OkHttpClient client = new OkHttpClient();
                 FormBody.Builder form = new FormBody.Builder();
-                form.add("text", EmojiParser.parseToAliases(speaktext[0]).replace(":",""));
-                System.out.println(EmojiParser.parseToAliases(speaktext[0]).replace(":",""));
+                form.add("text", speakTextFinal);
+                System.out.println(speakTextFinal);
                 form.add("speaker", speaker[0]);
                 form.add("speed", String.valueOf(speed[0]));
                 form.add("pitch", String.valueOf(pitch[0]));
