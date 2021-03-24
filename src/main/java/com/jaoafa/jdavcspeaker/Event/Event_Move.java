@@ -15,6 +15,6 @@ public class Event_Move {
             return;
         }
         event.getJDA().getTextChannelById(StaticData.vcTextChannel).sendMessage(":twisted_rightwards_arrows: `"+event.getMember().getUser().getName()+"`が`"+event.getChannelLeft().getName()+"`から`"+event.getChannelJoined().getName()+"`に移動しました。").queue();
-        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelLeft().getName()+"から"+event.getChannelJoined().getName()+"に移動しました。");
+        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelLeft().getName()+"から"+event.getChannelJoined().getName()+"に移動しました。",null);
     }
 }

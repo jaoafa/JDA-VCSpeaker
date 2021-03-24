@@ -1,24 +1,16 @@
 package com.jaoafa.jdavcspeaker.Util;
 
-import com.jaoafa.jdavcspeaker.Player.PlayerManager;
-import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
-import okhttp3.*;
-import org.json.JSONException;
+import okhttp3.FormBody;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
-public class VoiceText {
-    public static void speak(TextChannel channel,String text,String userdata){
-        /*final String[] speaktext = {text};
+public class ParamCheck {
+    public static FormBody.Builder toForm(String text, TextChannel channel){
+        final String[] speaktext = {text};
         final String[] speaker = new String[1];
         final int[] speed = new int[1];
         final boolean[] setEmotion = {false};
@@ -159,72 +151,17 @@ public class VoiceText {
         }
         if (emotion_lv[0] == 0){
             emotion_lv[0] = 2;
-        }*/
-
-        /*String speakTextFinal;
-        String regex = "<a?:(.+?):([0-9]+)>";
-        speakTextFinal = EmojiParser.parseToAliases(speaktext[0]);
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(speakTextFinal);
-        while (m.find()) {
-            speakTextFinal = speakTextFinal.replace(m.group(), ":" + m.group(1) + ":");
-        }*/
-
-        try {
-            try {
-                OkHttpClient client = new OkHttpClient();
-                /*FormBody.Builder form = new FormBody.Builder();
-                form.add("text", speakTextFinal);
-                System.out.println(speakTextFinal);
-                form.add("speaker", speaker[0]);
-                form.add("speed", String.valueOf(speed[0]));
-                form.add("pitch", String.valueOf(pitch[0]));
-                if (setEmotion[0]){
-                    form.add("emotion", emotion[0]);
-                    form.add("emotion_level", String.valueOf(emotion_lv[0]));
-                }*/
-
-                FormBody.Builder form = ParamCheck.toForm(text,channel);
-
-                Request request = new Request.Builder()
-                        .post(form.build())
-                        .url("https://api.voicetext.jp/v1/tts")
-                        .header("Authorization", Credentials.basic(JSONUtil.read("./VCSpeaker.json").getString("SpeakToken"), ""))
-                        .build();
-                try (Response response = client.newCall(request).execute()) {
-                    if (!response.isSuccessful()) {
-                        System.out.println("Error: " + response.code());
-                        System.out.println(response.body().string());
-                        return;
-                    }
-                    System.setProperty("file.encoding", "UTF-8");
-                    Files.write(Paths.get("./speak.wav"), response.body().bytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                StringBuilder contentBuilder = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new FileReader("./speak.wav"))) {
-                    String sCurrentLine;
-                    while ((sCurrentLine = br.readLine()) != null) {
-                        contentBuilder.append(sCurrentLine);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                PlayerManager.getINSTANCE().loadAndPlay(channel, "./speak.wav",userdata);
-                /*channel.sendMessage("**Debug:パラメーター**").queue();
-                channel.sendMessage(speaker[0]+":speaker").queue();
-                channel.sendMessage(speed[0]+":speed").queue();
-                channel.sendMessage(pitch[0]+":pitch").queue();
-                channel.sendMessage(emotion[0]+":emotion").queue();
-                channel.sendMessage(emotion_lv[0]+":emotionlv").queue();
-                channel.sendMessage(setEmotion[0]+":emotionEnable").queue();*/
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
+        FormBody.Builder form = new FormBody.Builder();
+        form.add("text", MsgFormatter.format(speaktext[0]));
+        form.add("speaker", speaker[0]);
+        form.add("speed", String.valueOf(speed[0]));
+        form.add("pitch", String.valueOf(pitch[0]));
+        if (setEmotion[0]){
+            form.add("emotion", emotion[0]);
+            form.add("emotion_level", String.valueOf(emotion_lv[0]));
+        }
+        return form;
     }
 }

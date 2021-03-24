@@ -11,6 +11,7 @@ import java.util.Arrays;
 public class Event_SpeakVCText {
     @SubscribeEvent
     public void onMsg(MessageReceivedEvent event) {
+        StaticData.jda = event.getJDA();
         if (!event.getChannel().getId().equals(StaticData.vcTextChannel)){
             return;
         }
@@ -29,8 +30,6 @@ public class Event_SpeakVCText {
             }
         });
 
-        VoiceText.speak(event.getTextChannel(), speaktext[0]);
-        event.getMessage().addReaction("✅").complete();
-        event.getMessage().removeReaction("✅",event.getJDA().getSelfUser()).complete();
+        VoiceText.speak(event.getTextChannel(), speaktext[0],event.getChannel().getId()+"/"+event.getMessage().getId());
     }
 }

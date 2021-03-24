@@ -14,6 +14,6 @@ public class Event_Disconnect {
             return;
         }
         event.getJDA().getTextChannelById(StaticData.vcTextChannel).sendMessage(":outbox_tray: `"+event.getMember().getUser().getName()+"`が`"+event.getChannelLeft().getName()+"`から退出しました。").queue();
-        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelLeft().getName()+"から退出しました。");
+        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelLeft().getName()+"から退出しました。",null);
     }
 }

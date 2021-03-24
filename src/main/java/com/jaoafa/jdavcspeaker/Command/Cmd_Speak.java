@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 public class Cmd_Speak implements CmdInterface {
     @Override
     public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
-        VoiceText.speak((TextChannel) channel,message.getContentRaw().replace(";speak ",""));
+        VoiceText.speak((TextChannel) channel,message.getContentRaw().replace(";speak ",""),null);
         /*try {
             try {
                 OkHttpClient client = new OkHttpClient();

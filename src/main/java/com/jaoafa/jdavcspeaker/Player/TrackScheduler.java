@@ -1,10 +1,12 @@
 package com.jaoafa.jdavcspeaker.Player;
 
+import com.jaoafa.jdavcspeaker.StaticData;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,8 +52,11 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
+            String[] userdata = track.getUserData().toString().split("/");
+            Message msg = StaticData.jda.getTextChannelById(userdata[0]).retrieveMessageById(userdata[1]).complete();
+            msg.addReaction("✅").complete();
+            msg.removeReaction("✅",StaticData.jda.getSelfUser()).complete();
             nextTrack();
-
         }
     }
 }

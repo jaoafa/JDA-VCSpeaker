@@ -44,12 +44,15 @@ public class PlayerManager {
         return musicManager;
     }
 
-    public void loadAndPlay(TextChannel channel, String trackUrl) {
+    public void loadAndPlay(TextChannel channel, String trackUrl, String userdata) {
         GuildMusicManager musicManager = getGuildMusicManager(channel.getGuild());
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 System.out.println("Track Loaded on PlayerManager");
+                if (userdata!=null){
+                    track.setUserData(userdata);
+                }
                 play(musicManager, track);
 
             }

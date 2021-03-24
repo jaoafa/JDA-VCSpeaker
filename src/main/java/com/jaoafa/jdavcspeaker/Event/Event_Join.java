@@ -15,6 +15,6 @@ public class Event_Join {
             return;
         }
         event.getJDA().getTextChannelById(StaticData.vcTextChannel).sendMessage(":inbox_tray: `"+event.getMember().getUser().getName()+"`が`"+event.getChannelJoined().getName()+"`に参加しました。").queue();
-        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelJoined().getName()+"に参加しました。");
+        VoiceText.speak(event.getJDA().getTextChannelById(StaticData.vcTextChannel),event.getMember().getUser().getName()+"が"+event.getChannelJoined().getName()+"に参加しました。",null);
     }
 }
