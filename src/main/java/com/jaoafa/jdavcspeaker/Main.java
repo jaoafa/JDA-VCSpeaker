@@ -13,7 +13,7 @@ public class Main {
         try {
             Logger.print("VCSpeaker Starting...");
             JDABuilder builder = JDABuilder.createDefault(JSONUtil.read("./VCSpeaker.json").getString("DiscordToken"));
-            builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES);
+            builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES,GatewayIntent.GUILD_VOICE_STATES);
             builder.setEventManager(new AnnotatedEventManager());
 
             builder.addEventListeners(new CmdHook());
