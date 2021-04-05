@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.StaticData;
 import com.jaoafa.jdavcspeaker.Util.VoiceText;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
@@ -19,6 +20,10 @@ public class Event_SpeakVCText {
             return;
         }
         if (event.getMessage().getContentRaw().equals(".")) {
+            return;
+        }
+        VoiceChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
+        if(connectedChannel == null) {
             return;
         }
         final String[] speaktext = {event.getMessage().getContentRaw()};
