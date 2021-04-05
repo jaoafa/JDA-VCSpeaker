@@ -5,7 +5,9 @@ import com.jaoafa.jdavcspeaker.Event.*;
 import com.jaoafa.jdavcspeaker.Util.JSONUtil;
 import com.jaoafa.jdavcspeaker.Util.Logger;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Main {
@@ -30,5 +32,9 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @SubscribeEvent
+    public void onReady(ReadyEvent event){
+        StaticData.jda = event.getJDA();
     }
 }

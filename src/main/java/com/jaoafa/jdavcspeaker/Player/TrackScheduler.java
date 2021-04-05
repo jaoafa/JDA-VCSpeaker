@@ -37,6 +37,9 @@ public class TrackScheduler extends AudioEventAdapter {
     public void queue(AudioTrack track) {
         if (!player.startTrack(track, true)) {
             queue.offer(track);
+            String[] userdata = track.getUserData().toString().split("/");
+            Message msg = StaticData.jda.getTextChannelById(userdata[0]).retrieveMessageById(userdata[1]).complete();
+            msg.addReaction("✅").complete();
         }
     }
 
@@ -53,7 +56,6 @@ public class TrackScheduler extends AudioEventAdapter {
         if (endReason.mayStartNext) {
             String[] userdata = track.getUserData().toString().split("/");
             Message msg = StaticData.jda.getTextChannelById(userdata[0]).retrieveMessageById(userdata[1]).complete();
-            msg.addReaction("✅").complete();
             msg.removeReaction("✅",StaticData.jda.getSelfUser()).complete();
             nextTrack();
         }

@@ -16,6 +16,10 @@ public class AutoMove {
         if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null||event.getGuild().getSelfMember().getVoiceState().getChannel() == event.getChannelJoined()){
             return;
         }
+
+        if (event.getChannelJoined().getMembers().size()<=event.getChannelLeft().getMembers().size()){
+            return;
+        }
         String vcName = event.getGuild().getSelfMember().getVoiceState().getChannel().getName();
         //event.getGuild().getAudioManager().closeAudioConnection();
 
