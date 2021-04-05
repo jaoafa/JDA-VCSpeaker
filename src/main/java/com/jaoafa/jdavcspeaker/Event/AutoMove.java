@@ -21,7 +21,6 @@ public class AutoMove {
             return;
         }
         String vcName = event.getGuild().getSelfMember().getVoiceState().getChannel().getName();
-        //event.getGuild().getAudioManager().closeAudioConnection();
 
         AudioManager audioManager = event.getGuild().getAudioManager();
         audioManager.openAudioConnection(event.getChannelJoined());

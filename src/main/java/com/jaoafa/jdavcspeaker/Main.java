@@ -36,5 +36,6 @@ public class Main {
     @SubscribeEvent
     public void onReady(ReadyEvent event){
         StaticData.jda = event.getJDA();
+        System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }
 }
