@@ -19,6 +19,7 @@ public class Main {
             builder.setEventManager(new AnnotatedEventManager());
 
             builder.addEventListeners(new CmdHook());
+            builder.addEventListeners(new Main());
 
             builder.addEventListeners(new AutoSummon());
             builder.addEventListeners(new AutoMove());
