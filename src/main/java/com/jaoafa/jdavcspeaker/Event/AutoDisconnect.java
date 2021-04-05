@@ -8,7 +8,8 @@ import net.dv8tion.jda.api.hooks.SubscribeEvent;
 public class AutoDisconnect {
     @SubscribeEvent
     public void onMemberLeft(GuildVoiceLeaveEvent event) {
-        if (event.getChannelLeft().getMembers().size()==1){
+        //VCに残ったメンバーが1人かつBot(VCSpeaker)
+        if (event.getChannelLeft().getMembers().size()==1&&event.getChannelLeft().getMembers().get(0).getUser().isBot()){
             if (event.getMember().getUser().isBot()){
                 return;
             }

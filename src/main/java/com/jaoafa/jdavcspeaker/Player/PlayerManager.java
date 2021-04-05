@@ -49,7 +49,6 @@ public class PlayerManager {
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                System.out.println("Track Loaded on PlayerManager");
                 if (userdata!=null){
                     track.setUserData(userdata);
                 }
