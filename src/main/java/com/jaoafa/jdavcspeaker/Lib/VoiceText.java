@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,8 +17,10 @@ public class VoiceText {
     public static void speak(TextChannel channel, String text, String userdata) {
         try {
             try {
+                File newdir = new File("./Temp");
+                newdir.mkdir();
+                
                 OkHttpClient client = new OkHttpClient();
-
                 ParamCheck.toForm createForm = new ParamCheck.toForm(text, channel);
                 String hexString = DigestUtils.md5Hex(createForm.formatText);
                 FormBody.Builder form = createForm.form;
