@@ -21,9 +21,8 @@ public class Cmd_Disconnect implements CmdInterface {
         guild.getAudioManager().closeAudioConnection();
 
         EmbedBuilder disconSuccess = new EmbedBuilder();
-        disconSuccess.setTitle(":white_check_mark: Disconnected");
+        disconSuccess.setTitle(":white_check_mark: 切断しました！");
         disconSuccess.setColor(LibEmbedColor.success);
         channel.sendMessage(disconSuccess.build()).queue();
-
     }
 }

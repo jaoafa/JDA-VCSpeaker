@@ -19,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TrackScheduler extends AudioEventAdapter {
     private static final Map<String, Map.Entry<AudioPlayer, PlayerManager>> players = new HashMap<>();
     private final AudioPlayer player;
-    private final BlockingQueue<AudioTrack> queue;
+    public final BlockingQueue<AudioTrack> queue;
 
     /**
      * @param player The audio player this scheduler uses
