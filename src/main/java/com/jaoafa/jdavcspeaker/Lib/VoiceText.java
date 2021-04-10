@@ -38,7 +38,7 @@ public class VoiceText {
                     e.printStackTrace();
                 }
                 StringBuilder contentBuilder = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new FileReader("./speak.wav"))) {
+                try (BufferedReader br = new BufferedReader(new FileReader("./Temp/"+hexString+".wav"))) {
                     String sCurrentLine;
                     while ((sCurrentLine = br.readLine()) != null) {
                         contentBuilder.append(sCurrentLine);
@@ -46,13 +46,12 @@ public class VoiceText {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                PlayerManager.getINSTANCE().loadAndPlay(channel, "./"+hexString+".wav", userdata);
+                PlayerManager.getINSTANCE().loadAndPlay(channel, "./Temp/"+hexString+".wav", userdata);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 }
