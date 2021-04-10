@@ -1,4 +1,4 @@
-package com.jaoafa.jdavcspeaker.Util;
+package com.jaoafa.jdavcspeaker.Lib;
 
 public class Logger {
     public static void print(String text) {

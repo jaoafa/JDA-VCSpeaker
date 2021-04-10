@@ -1,4 +1,4 @@
-package com.jaoafa.jdavcspeaker.Util;
+package com.jaoafa.jdavcspeaker.Lib;
 
 import com.vdurmont.emoji.EmojiParser;
 
@@ -6,10 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MsgFormatter {
-    public static String format(String text){
+    public static String format(String text) {
         //LengthCheck
-        if (text.length()>=180){
-            text = text.substring(0,180);
+        if (text.length() >= 180) {
+            text = text.substring(0, 180);
         }
         //EmojiCheck
         text = EmojiParser.parseToAliases(text);
@@ -26,9 +26,9 @@ public class MsgFormatter {
 
         //URLCheck
         for (String s : splitedText) {
-            if (s.startsWith("https://")||s.startsWith("http://")){
+            if (s.startsWith("https://") || s.startsWith("http://")) {
                 String[] urlSplit = s.split("/");
-                text = text.replace(s,urlSplit[urlSplit.length-1]);
+                text = text.replace(s, urlSplit[urlSplit.length - 1]);
             }
         }
 

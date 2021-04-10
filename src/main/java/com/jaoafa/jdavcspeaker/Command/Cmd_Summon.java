@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Util.EmbedColors;
+import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -15,7 +15,7 @@ public class Cmd_Summon implements CmdInterface {
             EmbedBuilder joinFailed = new EmbedBuilder();
             joinFailed.setTitle(":x: Error");
             joinFailed.setDescription("VCに参加してからVCSpeakerを呼び出してください。");
-            joinFailed.setColor(EmbedColors.error);
+            joinFailed.setColor(LibEmbedColor.error);
             channel.sendMessage(joinFailed.build()).queue();
             return;
         }
@@ -24,8 +24,8 @@ public class Cmd_Summon implements CmdInterface {
 
         EmbedBuilder joinSuccess = new EmbedBuilder();
         joinSuccess.setTitle(":white_check_mark: Joined");
-        joinSuccess.setDescription("`"+connectedChannel.getName()+"`に接続しました。");
-        joinSuccess.setColor(EmbedColors.success);
+        joinSuccess.setDescription("`" + connectedChannel.getName() + "`に接続しました。");
+        joinSuccess.setColor(LibEmbedColor.success);
         channel.sendMessage(joinSuccess.build()).queue();
     }
 }

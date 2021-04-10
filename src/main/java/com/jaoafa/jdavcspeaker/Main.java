@@ -2,8 +2,8 @@ package com.jaoafa.jdavcspeaker;
 
 import com.jaoafa.jdavcspeaker.Command.CmdHook;
 import com.jaoafa.jdavcspeaker.Event.*;
-import com.jaoafa.jdavcspeaker.Util.JSONUtil;
-import com.jaoafa.jdavcspeaker.Util.Logger;
+import com.jaoafa.jdavcspeaker.Lib.LibJson;
+import com.jaoafa.jdavcspeaker.Lib.Logger;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
@@ -14,8 +14,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         try {
             Logger.print("VCSpeaker Starting...");
-            JDABuilder builder = JDABuilder.createDefault(JSONUtil.read("./VCSpeaker.json").getString("DiscordToken"));
-            builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES,GatewayIntent.GUILD_VOICE_STATES);
+            JDABuilder builder = JDABuilder.createDefault(LibJson.read("./VCSpeaker.json").getString("DiscordToken"));
+            builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
             builder.setEventManager(new AnnotatedEventManager());
 
             builder.addEventListeners(new CmdHook());
@@ -34,8 +34,9 @@ public class Main {
             e.printStackTrace();
         }
     }
+
     @SubscribeEvent
-    public void onReady(ReadyEvent event){
+    public void onReady(ReadyEvent event) {
         StaticData.jda = event.getJDA();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }

@@ -1,11 +1,11 @@
-package com.jaoafa.jdavcspeaker.Util;
+package com.jaoafa.jdavcspeaker.Lib;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 
-public class JSONUtil {
+public class LibJson {
     public static void write(String path, JSONObject jsonObject) {
         try {
             FileWriter file = new FileWriter(path);

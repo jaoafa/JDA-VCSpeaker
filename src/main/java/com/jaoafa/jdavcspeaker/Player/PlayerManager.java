@@ -49,7 +49,7 @@ public class PlayerManager {
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                if (userdata!=null){
+                if (userdata != null) {
                     track.setUserData(userdata);
                 }
                 play(musicManager, track);

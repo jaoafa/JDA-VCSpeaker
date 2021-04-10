@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Util.EmbedColors;
+import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -62,7 +62,7 @@ public class CmdHook {
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             EmbedBuilder cmdNotFound = new EmbedBuilder();
             cmdNotFound.setTitle(":x: コマンドが見つかりませんでした！");
-            cmdNotFound.setColor(EmbedColors.error);
+            cmdNotFound.setColor(LibEmbedColor.error);
             channel.sendMessage(cmdNotFound.build()).queue();
         }
     }

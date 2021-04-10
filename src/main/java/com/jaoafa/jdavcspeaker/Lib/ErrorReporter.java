@@ -1,4 +1,4 @@
-package com.jaoafa.jdavcspeaker.Util;
+package com.jaoafa.jdavcspeaker.Lib;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;

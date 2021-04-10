@@ -1,25 +1,30 @@
-package com.jaoafa.jdavcspeaker.Command;
+package com.jaoafa.jdavcspeaker.Lib;
 
-import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Lib.VoiceText;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import com.jaoafa.jdavcspeaker.Player.PlayerManager;
+import net.dv8tion.jda.api.entities.TextChannel;
+import okhttp3.*;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONException;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-public class Cmd_Speak implements CmdInterface {
-    @Override
-    public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
-        VoiceText.speak((TextChannel) channel, message.getContentRaw().replace(";speak ", ""), null);
-        /*try {
+public class VoiceText {
+    public static void speak(TextChannel channel, String text, String userdata) {
+        try {
             try {
                 OkHttpClient client = new OkHttpClient();
-                FormBody.Builder form = new FormBody.Builder();
-                form.add("text", message.getContentRaw().substring(7));
-                form.add("speaker", "show");
+
+                ParamCheck.toForm createForm = new ParamCheck.toForm(text, channel);
+                String hexString = DigestUtils.md5Hex(createForm.formatText);
+                FormBody.Builder form = createForm.form;
                 Request request = new Request.Builder()
                         .post(form.build())
                         .url("https://api.voicetext.jp/v1/tts")
-                        .header("Authorization", Credentials.basic(JSONUtil.read("./VCSpeaker.json").getString("SpeakToken"), ""))
+                        .header("Authorization", Credentials.basic(LibJson.read("./VCSpeaker.json").getString("SpeakToken"), ""))
                         .build();
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
@@ -27,9 +32,8 @@ public class Cmd_Speak implements CmdInterface {
                         System.out.println(response.body().string());
                         return;
                     }
-                    System.out.println("Successful");
                     System.setProperty("file.encoding", "UTF-8");
-                    Files.write(Paths.get("./speak.wav"), response.body().bytes());
+                    Files.write(Paths.get("./Temp/"+hexString+".wav"), response.body().bytes());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -42,13 +46,13 @@ public class Cmd_Speak implements CmdInterface {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                PlayerManager.getINSTANCE().loadAndPlay((TextChannel) message.getChannel(), "./speak.wav");
+                PlayerManager.getINSTANCE().loadAndPlay(channel, "./"+hexString+".wav", userdata);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
+
     }
 }
-
