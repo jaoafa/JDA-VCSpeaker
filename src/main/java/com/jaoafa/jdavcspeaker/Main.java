@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import java.io.File;
+
 public class Main {
     public static void main(String[] args) throws Exception {
         try {
@@ -37,6 +39,8 @@ public class Main {
 
     @SubscribeEvent
     public void onReady(ReadyEvent event) {
+        File newdir = new File("./Temp");
+        newdir.mkdir();
         StaticData.jda = event.getJDA();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }

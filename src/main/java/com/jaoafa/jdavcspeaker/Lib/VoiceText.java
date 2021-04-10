@@ -17,9 +17,6 @@ public class VoiceText {
     public static void speak(TextChannel channel, String text, String userdata) {
         try {
             try {
-                File newdir = new File("./Temp");
-                newdir.mkdir();
-                
                 OkHttpClient client = new OkHttpClient();
                 ParamCheck.toForm createForm = new ParamCheck.toForm(text, channel);
                 String hexString = DigestUtils.md5Hex(createForm.formatText);
@@ -36,12 +33,12 @@ public class VoiceText {
                         return;
                     }
                     System.setProperty("file.encoding", "UTF-8");
-                    Files.write(Paths.get("./Temp/"+hexString+".wav"), response.body().bytes());
+                    Files.write(Paths.get("./Temp/"+hexString+".mp3"), response.body().bytes());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 StringBuilder contentBuilder = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new FileReader("./Temp/"+hexString+".wav"))) {
+                try (BufferedReader br = new BufferedReader(new FileReader("./Temp/"+hexString+".mp3"))) {
                     String sCurrentLine;
                     while ((sCurrentLine = br.readLine()) != null) {
                         contentBuilder.append(sCurrentLine);
@@ -49,7 +46,7 @@ public class VoiceText {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                PlayerManager.getINSTANCE().loadAndPlay(channel, "./Temp/"+hexString+".wav", userdata);
+                PlayerManager.getINSTANCE().loadAndPlay(channel, "./Temp/"+hexString+".mp3", userdata);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

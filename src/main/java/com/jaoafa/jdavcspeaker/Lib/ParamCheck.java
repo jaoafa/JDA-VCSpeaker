@@ -161,6 +161,7 @@ public class ParamCheck {
             form.add("speaker", speaker[0]);
             form.add("speed", String.valueOf(speed[0]));
             form.add("pitch", String.valueOf(pitch[0]));
+            form.add("format", "mp3");
             if (setEmotion[0]) {
                 form.add("emotion", emotion[0]);
                 form.add("emotion_level", String.valueOf(emotion_lv[0]));
