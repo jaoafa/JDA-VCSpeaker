@@ -12,6 +12,7 @@ public class Cmd_Clear implements CmdInterface {
     @Override
     public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.queue.clear();
+        PlayerManager.getINSTANCE().getGuildMusicManager(guild).player.destroy();
         EmbedBuilder disconSuccess = new EmbedBuilder();
         disconSuccess.setTitle(":white_check_mark: 読み上げをクリアしました。");
         disconSuccess.setColor(LibEmbedColor.success);
