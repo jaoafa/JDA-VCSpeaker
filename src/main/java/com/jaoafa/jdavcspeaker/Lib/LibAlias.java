@@ -47,9 +47,8 @@ public class LibAlias {
     }
 
     public static void addToAlias(String value1, String value2) {
-        JSONArray addedJson = LibJson.readArray("./alias.json").put(String.format("%s:%s", value1, value2));
-        LibJson.writeArray("./alias.json", addedJson);
-        fetchMap();
+        StaticData.aliasMap.put(value1, value2);
+        fetchJson();
     }
 
     public static void removeFromAlias(String value) {
