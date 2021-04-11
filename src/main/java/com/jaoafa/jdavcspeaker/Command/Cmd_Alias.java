@@ -37,6 +37,9 @@ public class Cmd_Alias implements CmdInterface {
             eb.setTitle(":bookmark_tabs: 本日のエイリアス");
             eb.setDescription(listStr[0]);
             channel.sendMessage(eb.build()).queue();
+            return;
+        }if (args[0].equals("removeSetting")){
+            new File("./alias.json").delete();
         }
     }
 }

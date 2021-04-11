@@ -21,7 +21,7 @@ public class LibAlias {
 
         //:でsplitするのでalias追加するときに:が入らないように対策必要
         LibJson.readArray("./alias.json").forEach(s ->{
-            StaticData.aliasMap.clear();
+            if (!StaticData.aliasMap.isEmpty()) StaticData.aliasMap.clear();
             String[] alias = s.toString().split(":");
             StaticData.aliasMap.put(alias[0],alias[1]);
         });
