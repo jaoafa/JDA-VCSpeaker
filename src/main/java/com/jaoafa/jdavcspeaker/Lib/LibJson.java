@@ -28,7 +28,7 @@ public class LibJson {
         }
     }
 
-    public static JSONObject read(String path) {
+    public static JSONObject readObject(String path) {
         String jsonst = null;
         try {
             File file = new File(path);
@@ -47,6 +47,28 @@ public class LibJson {
             System.out.println(e);
         }
         JSONObject json = new JSONObject(jsonst);
+        return json;
+    }
+
+    public static JSONArray readArray(String path) {
+        String jsonst = null;
+        try {
+            File file = new File(path);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String str = br.readLine();
+            while (str != null) {
+                if (jsonst == null) {
+                    jsonst = str;
+                } else {
+                    jsonst = jsonst + str;
+                }
+                str = br.readLine();
+            }
+            br.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        JSONArray json = new JSONArray(jsonst);
         return json;
     }
 }

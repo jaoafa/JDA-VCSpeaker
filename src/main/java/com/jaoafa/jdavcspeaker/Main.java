@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker;
 
 import com.jaoafa.jdavcspeaker.Command.CmdHook;
 import com.jaoafa.jdavcspeaker.Event.*;
+import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibJson;
 import com.jaoafa.jdavcspeaker.Lib.Logger;
 import net.dv8tion.jda.api.JDABuilder;
@@ -16,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         try {
             Logger.print("VCSpeaker Starting...");
-            JDABuilder builder = JDABuilder.createDefault(LibJson.read("./VCSpeaker.json").getString("DiscordToken"));
+            JDABuilder builder = JDABuilder.createDefault(LibJson.readObject("./VCSpeaker.json").getString("DiscordToken"));
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
             builder.setEventManager(new AnnotatedEventManager());
 
@@ -42,6 +43,7 @@ public class Main {
         File newdir = new File("./Temp");
         newdir.mkdir();
         StaticData.jda = event.getJDA();
+        LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }
 }

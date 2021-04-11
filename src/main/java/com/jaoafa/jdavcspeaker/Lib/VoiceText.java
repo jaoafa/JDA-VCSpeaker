@@ -7,7 +7,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +23,7 @@ public class VoiceText {
                 Request request = new Request.Builder()
                         .post(form.build())
                         .url("https://api.voicetext.jp/v1/tts")
-                        .header("Authorization", Credentials.basic(LibJson.read("./VCSpeaker.json").getString("SpeakToken"), ""))
+                        .header("Authorization", Credentials.basic(LibJson.readObject("./VCSpeaker.json").getString("SpeakToken"), ""))
                         .build();
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
