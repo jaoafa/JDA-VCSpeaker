@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import com.jaoafa.jdavcspeaker.StaticData;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.util.regex.Matcher;
@@ -32,6 +33,10 @@ public class MsgFormatter {
             }
         }
 
-        return text;
+        final String[] formatText = {text};
+        StaticData.aliasMap.forEach((k,v) ->{
+            formatText[0] = formatText[0].replace(k,v);
+        });
+        return formatText[0];
     }
 }
