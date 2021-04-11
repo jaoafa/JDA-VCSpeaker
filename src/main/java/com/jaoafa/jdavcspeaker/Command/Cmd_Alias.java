@@ -14,13 +14,6 @@ public class Cmd_Alias implements CmdInterface {
     public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
         EmbedBuilder eb = new EmbedBuilder();
         if (args[0].equals("add")){
-            if (args[1].length() <= 3){
-                eb.setTitle(":x: エイリアスが短すぎます！");
-                eb.setDescription("4文字以上で設定してください。");
-                eb.setColor(LibEmbedColor.error);
-                channel.sendMessage(eb.build()).queue();
-                return;
-            }
             LibAlias.addToAlias(args[1],args[2]);
             eb.setTitle(":pencil: エイリアスを設定しました！");
             eb.setDescription(String.format("`%s`を`%s`に置き換えて読み上げます。",args[1],args[2]));

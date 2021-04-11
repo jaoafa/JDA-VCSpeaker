@@ -2,3 +2,5 @@
 VCSpeaker.json
 target/*
 speak.wav
+
+alias.json
