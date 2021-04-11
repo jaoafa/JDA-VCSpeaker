@@ -14,7 +14,7 @@ public class Event_SpeakVCText {
         StaticData.jda = event.getJDA();
         String msg = event.getMessage().getContentRaw();
         final boolean[] isIgnore = {false};
-        
+
         if (!event.getChannel().getId().equals(StaticData.vcTextChannel)) {
             return;
         }

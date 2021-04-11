@@ -22,6 +22,7 @@ public class Cmd_Ignore implements CmdInterface {
                 eb.setDescription(String.format("`%s`が含まれるメッセージは読み上げません。", args[2]));
                 eb.setColor(LibEmbedColor.success);
                 channel.sendMessage(eb.build()).queue();
+                return;
             }
             if (args[1].equals("equal")||args[1].equals("equals")){
                 LibIgnore.addToIgnore("equal", args[2]);
@@ -29,6 +30,7 @@ public class Cmd_Ignore implements CmdInterface {
                 eb.setDescription(String.format("`%s`に一致するメッセージは読み上げません。", args[2]));
                 eb.setColor(LibEmbedColor.success);
                 channel.sendMessage(eb.build()).queue();
+                return;
             }
             else {
                 eb.setTitle(":x: パラメーターがおかしいです！");
@@ -45,6 +47,7 @@ public class Cmd_Ignore implements CmdInterface {
                 eb.setDescription(String.format("今後は`%s`が含まれていたメッセージも読み上げます。", args[2]));
                 eb.setColor(LibEmbedColor.success);
                 channel.sendMessage(eb.build()).queue();
+                return;
             }
             if (args[1].equals("equal")||args[1].equals("equals")){
                 LibIgnore.removeFromIgnore("equal",args[2]);
@@ -52,6 +55,7 @@ public class Cmd_Ignore implements CmdInterface {
                 eb.setDescription(String.format("今後は`%s`と一致するメッセージも読み上げます。", args[2]));
                 eb.setColor(LibEmbedColor.success);
                 channel.sendMessage(eb.build()).queue();
+                return;
             }
             else {
                 eb.setTitle(":x: パラメーターがおかしいです！");
@@ -66,7 +70,7 @@ public class Cmd_Ignore implements CmdInterface {
             StaticData.ignoreMap.forEach((k, v) -> {
                 listStr[0] = listStr[0] + String.format("`%s` : `%s`\n", k, v);
             });
-            eb.setTitle(":bookmark_tabs: 現在のエイリアス");
+            eb.setTitle(":bookmark_tabs: 現在の無視項目");
             eb.setDescription(listStr[0]);
             channel.sendMessage(eb.build()).queue();
             return;
