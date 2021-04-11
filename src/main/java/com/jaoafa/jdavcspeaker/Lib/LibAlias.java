@@ -2,46 +2,57 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 import com.jaoafa.jdavcspeaker.StaticData;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class LibAlias {
-    public static void fetchMap(){
+    public static void fetchMap() {
         File aliasConfig = new File("./alias.json");
         //存在しない場合に作成
-        if (!aliasConfig.exists()){
+        if (!aliasConfig.exists()) {
             try {
-                aliasConfig.createNewFile();
-                LibJson.writeArray("./alias.json",new JSONArray("[]"));
+                Files.write(Paths.get("alias.json"), Collections.singleton(new JSONObject().toString()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        //:でsplitするのでalias追加するときに:が入らないように対策必要
-        LibJson.readArray("./alias.json").forEach(s ->{
-            if (!StaticData.aliasMap.isEmpty()) StaticData.aliasMap.clear();
-            String[] alias = s.toString().split(":");
-            StaticData.aliasMap.put(alias[0],alias[1]);
-        });
+        try {
+            List<String> lines = Files.readAllLines(Paths.get("alias.json"));
+            JSONObject obj = new JSONObject(String.join("\n", lines));
+
+            for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
+                String key = it.next();
+                StaticData.aliasMap.put(key, obj.getString(key));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void fetchJson(){
-        JSONArray fetchedJson = new JSONArray();
-        StaticData.aliasMap.forEach((k,v) ->{
-            fetchedJson.put(String.format("%s:%s",k,v));
-        });
-        LibJson.writeArray("./alias.json",fetchedJson);
+    public static void fetchJson() {
+        JSONObject obj = new JSONObject(StaticData.aliasMap);
+        try {
+            Files.write(Paths.get("alias.json"), Collections.singleton(obj.toString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void addToAlias(String value1,String value2){
-        JSONArray addedJson = LibJson.readArray("./alias.json").put(String.format("%s:%s",value1,value2));
-        LibJson.writeArray("./alias.json",addedJson);
+    public static void addToAlias(String value1, String value2) {
+        JSONArray addedJson = LibJson.readArray("./alias.json").put(String.format("%s:%s", value1, value2));
+        LibJson.writeArray("./alias.json", addedJson);
         fetchMap();
     }
 
-    public static void removeFromAlias(String value){
+    public static void removeFromAlias(String value) {
         StaticData.aliasMap.remove(value);
         fetchJson();
     }
