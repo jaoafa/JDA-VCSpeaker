@@ -35,7 +35,6 @@ public class Cmd_Alias implements CmdInterface {
             StaticData.aliasMap.forEach((k,v) ->{
                 listStr[0] = listStr[0] + String.format("`%s` -> `%s`\n",k,v);
             });
-            System.out.println(LibJson.readArray("./alias.json"));
             eb.setTitle(":bookmark_tabs: 現在のエイリアス");
             eb.setDescription(listStr[0]);
             channel.sendMessage(eb.build()).queue();
