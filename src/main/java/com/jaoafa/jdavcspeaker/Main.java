@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) {
@@ -54,6 +54,19 @@ public class Main extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Timer timer = new Timer(); // 今回追加する処理
+        TimerTask task = new TimerTask() {
+            public void run() {
+                File tempDir = new File("./Temp");
+                if (tempDir.exists()&&tempDir.listFiles()!=null){
+                    Arrays.stream(tempDir.listFiles()).forEach(s -> {
+                        s.delete();
+                    });
+                }
+
+            }
+        };
+        timer.scheduleAtFixedRate(task,1000,3600000); // 今回追加する処理
     }
 
     static void commandRegister(JDA jda) {
