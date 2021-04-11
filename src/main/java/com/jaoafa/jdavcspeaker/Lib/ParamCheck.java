@@ -12,16 +12,16 @@ public class ParamCheck {
         public FormBody.Builder form;
 
         public toForm(String text, TextChannel channel) {
-            final String[] speaktext = {text};
-            final String[] speaker = new String[1];
-            final int[] speed = new int[1];
-            final boolean[] setEmotion = {false};
-            final String[] emotion = new String[1];
-            final int[] emotion_lv = new int[1];
-            final int[] pitch = new int[1];
+            String speaktext = text;
+            String speaker = null;
+            int speed = 0;
+            boolean setEmotion = false;
+            String emotion = "";
+            int emotion_lv = 0;
+            int pitch = 0;
 
             //パラメーターチェック
-            Arrays.stream(text.split(" ")).forEach(s -> {
+            for(String s : text.split(" ")){
                 //speakerCheck
                 if (s.startsWith("speaker:")) {
                     String speakerText = s.replace("speaker:", "");
@@ -29,8 +29,8 @@ public class ParamCheck {
                     if (speakerText.equals("show") || speakerText.equals("haruka") ||
                             speakerText.equals("hikari") || speakerText.equals("takeru") ||
                             speakerText.equals("santa") || speakerText.equals("bear")) {
-                        speaker[0] = speakerText;
-                        speaktext[0] = speaktext[0].replace(s, "");
+                        speaker = speakerText;
+                        speaktext = speaktext.replace(s, "");
                     } else {
                         EmbedBuilder speakerWrong = new EmbedBuilder();
                         speakerWrong.setTitle(":x: Wrong Speaker!");
@@ -55,8 +55,8 @@ public class ParamCheck {
                         return;
                     }
                     if (50 <= speedInt && speedInt <= 400) {
-                        speed[0] = speedInt;
-                        speaktext[0] = speaktext[0].replace(s, "");
+                        speed = speedInt;
+                        speaktext = speaktext.replace(s, "");
                     } else {
                         EmbedBuilder numberWrong = new EmbedBuilder();
                         numberWrong.setTitle(":x: Wrong Speed!");
@@ -75,9 +75,9 @@ public class ParamCheck {
                             emotionText.equals("anger")) {
                         emotionText = emotionText.replace("happy", "happiness");
                         emotionText = emotionText.replace("sad", "sadness");
-                        setEmotion[0] = true;
-                        emotion[0] = emotionText;
-                        speaktext[0] = speaktext[0].replace(s, "");
+                        setEmotion = true;
+                        emotion = emotionText;
+                        speaktext = speaktext.replace(s, "");
                     } else {
                         EmbedBuilder emotionWrong = new EmbedBuilder();
                         emotionWrong.setTitle(":x: Wrong Emotion!");
@@ -102,8 +102,8 @@ public class ParamCheck {
                         return;
                     }
                     if (50 <= pitchInt && pitchInt <= 200) {
-                        pitch[0] = pitchInt;
-                        speaktext[0] = speaktext[0].replace(s, "");
+                        pitch = pitchInt;
+                        speaktext = speaktext.replace(s, "");
                     } else {
                         EmbedBuilder numberWrong = new EmbedBuilder();
                         numberWrong.setTitle(":x: Wrong Pitch!");
@@ -128,8 +128,8 @@ public class ParamCheck {
                         return;
                     }
                     if (1 <= emotionLvInt && emotionLvInt <= 4) {
-                        emotion_lv[0] = emotionLvInt;
-                        speaktext[0] = speaktext[0].replace(s, "");
+                        emotion_lv = emotionLvInt;
+                        speaktext = speaktext.replace(s, "");
                     } else {
                         EmbedBuilder numberWrong = new EmbedBuilder();
                         numberWrong.setTitle(":x: Wrong Emotion Level!");
@@ -139,32 +139,32 @@ public class ParamCheck {
                         return;
                     }
                 }
-            });
-
-            if (speaker[0] == null) {
-                speaker[0] = "hikari";
-            }
-            if (speed[0] == 0) {
-                speed[0] = 100;
-            }
-            if (pitch[0] == 0) {
-                pitch[0] = 100;
-            }
-            if (emotion_lv[0] == 0) {
-                emotion_lv[0] = 2;
             }
 
-            String finalFormatText = MsgFormatter.format(speaktext[0]);
+            if (speaker == null) {
+                speaker = "hikari";
+            }
+            if (speed == 0) {
+                speed = 100;
+            }
+            if (pitch == 0) {
+                pitch = 100;
+            }
+            if (emotion_lv == 0) {
+                emotion_lv = 2;
+            }
+
+            String finalFormatText = MsgFormatter.format(speaktext);
 
             FormBody.Builder form = new FormBody.Builder();
             form.add("text", finalFormatText);
-            form.add("speaker", speaker[0]);
-            form.add("speed", String.valueOf(speed[0]));
-            form.add("pitch", String.valueOf(pitch[0]));
+            form.add("speaker", speaker);
+            form.add("speed", String.valueOf(speed));
+            form.add("pitch", String.valueOf(pitch));
             form.add("format", "mp3");
-            if (setEmotion[0]) {
-                form.add("emotion", emotion[0]);
-                form.add("emotion_level", String.valueOf(emotion_lv[0]));
+            if (setEmotion) {
+                form.add("emotion", emotion);
+                form.add("emotion_level", String.valueOf(emotion_lv));
             }
             this.formatText = finalFormatText;
             this.form = form;

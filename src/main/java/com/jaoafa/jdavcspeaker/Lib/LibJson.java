@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class LibJson {
     public static void write(String path, JSONObject jsonObject) {
@@ -29,46 +31,28 @@ public class LibJson {
     }
 
     public static JSONObject readObject(String path) {
-        String jsonst = null;
+        final String[] jsonst = {""};
         try {
-            File file = new File(path);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String str = br.readLine();
-            while (str != null) {
-                if (jsonst == null) {
-                    jsonst = str;
-                } else {
-                    jsonst = jsonst + str;
-                }
-                str = br.readLine();
-            }
-            br.close();
+            Files.readAllLines(Paths.get(path)).forEach(s -> {
+                jsonst[0] = jsonst[0] +s+"\n";
+            });
         } catch (IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
-        JSONObject json = new JSONObject(jsonst);
+        JSONObject json = new JSONObject(jsonst[0]);
         return json;
     }
 
     public static JSONArray readArray(String path) {
-        String jsonst = null;
+        final String[] jsonst = {""};
         try {
-            File file = new File(path);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String str = br.readLine();
-            while (str != null) {
-                if (jsonst == null) {
-                    jsonst = str;
-                } else {
-                    jsonst = jsonst + str;
-                }
-                str = br.readLine();
-            }
-            br.close();
+            Files.readAllLines(Paths.get(path)).forEach(s -> {
+                jsonst[0] = jsonst[0] +s+"\n";
+            });
         } catch (IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
-        JSONArray json = new JSONArray(jsonst);
+        JSONArray json = new JSONArray(jsonst[0]);
         return json;
     }
 }
