@@ -38,7 +38,8 @@ public class LibAlias {
     }
 
     public static void fetchJson() {
-        JSONObject obj = new JSONObject(StaticData.aliasMap);
+        JSONObject obj = new JSONObject();
+        StaticData.aliasMap.forEach(obj::put);
         try {
             Files.write(Paths.get("alias.json"), Collections.singleton(obj.toString()));
         } catch (IOException e) {
