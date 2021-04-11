@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.io.File;
+
 public class Cmd_Alias implements CmdInterface {
     @Override
     public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
@@ -35,6 +37,8 @@ public class Cmd_Alias implements CmdInterface {
             eb.setTitle(":bookmark_tabs: 本日のエイリアス");
             eb.setDescription(listStr[0]);
             channel.sendMessage(eb.build()).queue();
+        }if (args[0].equals("removeSetting")){
+            new File("./alias.json").delete();
         }
     }
 }
