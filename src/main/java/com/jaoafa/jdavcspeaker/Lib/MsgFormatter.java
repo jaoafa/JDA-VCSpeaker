@@ -34,8 +34,8 @@ public class MsgFormatter {
         }
 
         final String[] formatText = {text};
-        StaticData.aliasMap.forEach((k,v) ->{
-            formatText[0] = formatText[0].replace(k,v);
+        StaticData.aliasMap.forEach((k, v) -> {
+            formatText[0] = formatText[0].replace(k, v);
         });
         return formatText[0];
     }

@@ -3,7 +3,10 @@ package com.jaoafa.jdavcspeaker.Lib;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -34,7 +37,7 @@ public class LibJson {
         final String[] jsonst = {""};
         try {
             Files.readAllLines(Paths.get(path)).forEach(s -> {
-                jsonst[0] = jsonst[0] +s+"\n";
+                jsonst[0] = jsonst[0] + s + "\n";
             });
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,7 +50,7 @@ public class LibJson {
         final String[] jsonst = {""};
         try {
             Files.readAllLines(Paths.get(path)).forEach(s -> {
-                jsonst[0] = jsonst[0] +s+"\n";
+                jsonst[0] = jsonst[0] + s + "\n";
             });
         } catch (IOException e) {
             e.printStackTrace();

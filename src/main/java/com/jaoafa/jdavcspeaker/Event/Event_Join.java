@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
-import com.jaoafa.jdavcspeaker.StaticData;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 

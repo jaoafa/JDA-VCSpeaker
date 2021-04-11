@@ -4,8 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import okhttp3.FormBody;
 
-import java.util.Arrays;
-
 public class ParamCheck {
     final public static class toForm {
         public String formatText;
@@ -21,7 +19,7 @@ public class ParamCheck {
             int pitch = 0;
 
             //パラメーターチェック
-            for(String s : text.split(" ")){
+            for (String s : text.split(" ")) {
                 //speakerCheck
                 if (s.startsWith("speaker:")) {
                     String speakerText = s.replace("speaker:", "");

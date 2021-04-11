@@ -5,8 +5,10 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class Cmd_Clear implements CmdInterface {
     @Override
