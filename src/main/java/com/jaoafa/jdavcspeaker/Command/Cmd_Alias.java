@@ -3,6 +3,7 @@ package com.jaoafa.jdavcspeaker.Command;
 import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.LibJson;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -34,7 +35,8 @@ public class Cmd_Alias implements CmdInterface {
             StaticData.aliasMap.forEach((k,v) ->{
                 listStr[0] = listStr[0] + String.format("`%s` -> `%s`\n",k,v);
             });
-            eb.setTitle(":bookmark_tabs: 本日のエイリアス");
+            System.out.println(LibJson.readArray("./alias.json"));
+            eb.setTitle(":bookmark_tabs: 現在のエイリアス");
             eb.setDescription(listStr[0]);
             channel.sendMessage(eb.build()).queue();
             return;
