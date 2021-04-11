@@ -3,11 +3,12 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
-public class Event_Disconnect {
-    @SubscribeEvent
-    public void onMemberLeft(GuildVoiceLeaveEvent event) {
+public class Event_Disconnect extends ListenerAdapter {
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         if (event.getMember().getUser().isBot()) {
             return;
         }

@@ -12,6 +12,11 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="sonatype-public" />
+      <option name="name" value="sonatype-public" />
+      <option name="url" value="https://oss.sonatype.org/content/groups/public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
@@ -20,6 +25,11 @@
       <option name="id" value="central" />
       <option name="name" value="bintray" />
       <option name="url" value="https://jcenter.bintray.com" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="sonatype-snapshots" />
+      <option name="name" value="sonatype-snapshots" />
+      <option name="url" value="https://oss.sonatype.org/content/repositories/snapshots" />
     </remote-repository>
   </component>
 </project>

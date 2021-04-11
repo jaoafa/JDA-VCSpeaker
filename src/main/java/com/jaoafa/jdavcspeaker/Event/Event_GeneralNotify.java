@@ -3,11 +3,12 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
-public class Event_GeneralNotify {
-    @SubscribeEvent
-    public void onMemberJoin(GuildVoiceJoinEvent event) {
+public class Event_GeneralNotify extends ListenerAdapter {
+    @Override
+    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (event.getMember().getUser().isBot()) {
             return;
         }

@@ -3,11 +3,12 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
-public class AutoDisconnect {
-    @SubscribeEvent
-    public void onMemberLeft(GuildVoiceLeaveEvent event) {
+public class AutoDisconnect extends ListenerAdapter {
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         //VCに残ったメンバーが1人かつBot(VCSpeaker)
         if (event.getChannelLeft().getMembers().size() == 1 && event.getChannelLeft().getMembers().get(0).getUser().isBot()) {
             if (event.getMember().getUser().isBot()) {
