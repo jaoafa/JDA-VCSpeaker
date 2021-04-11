@@ -24,8 +24,7 @@ public class Event_GeneralNotify {
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(":inbox_tray: 会話が始まりました！");
-        eb.setDescription(event.getMember().getAsMention()+String.format("が`%s`に参加しました。",event.getChannelJoined().getName()) +
-                String.format("\n(クリックして参加)[%s]",event.getChannelJoined().createInvite().setMaxAge(3600).complete().getUrl()));
+        eb.setDescription(event.getMember().getAsMention()+String.format("が`%s`に参加しました。",event.getChannelJoined().getName()));
         event.getJDA().getTextChannelById("597419057251090443").sendMessage(eb.build()).queue();
     }
 }
