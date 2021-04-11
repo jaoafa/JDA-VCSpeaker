@@ -13,6 +13,7 @@ public class LibAlias {
         if (!aliasConfig.exists()){
             try {
                 aliasConfig.createNewFile();
+                LibJson.writeArray("./alias.json",new JSONArray("[]"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
