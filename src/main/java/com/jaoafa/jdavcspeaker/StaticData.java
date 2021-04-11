@@ -9,5 +9,5 @@ import java.util.Map;
 public class StaticData {
     public static String vcTextChannel = "623153228267388958";
     public static JDA jda;
-    public static Map<String,String> aliasMap;
+    public static Map<String,String> aliasMap = new HashMap<>();
 }
