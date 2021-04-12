@@ -1,6 +1,11 @@
 package com.jaoafa.jdavcspeaker.Command;
 
+import cloud.commandframework.Command;
+import cloud.commandframework.arguments.standard.StringArgument;
+import cloud.commandframework.context.CommandContext;
+import cloud.commandframework.jda.JDACommandSender;
 import com.jaoafa.jdavcspeaker.CmdInterface;
+import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.StaticData;
@@ -11,74 +16,205 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.util.stream.Collectors;
+
 public class Cmd_Ignore implements CmdInterface {
     @Override
-    public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
-        EmbedBuilder eb = new EmbedBuilder();
-        if (args[0].equals("add")) {
-            if (args[1].equals("contain")||args[1].equals("contains")){
-                LibIgnore.addToIgnore("contain", args[2]);
-                eb.setTitle(":pencil: 無視項目を設定しました！");
-                eb.setDescription(String.format("`%s`が含まれるメッセージは読み上げません。", args[2]));
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-                return;
-            }
-            if (args[1].equals("equal")||args[1].equals("equals")){
-                LibIgnore.addToIgnore("equal", args[2]);
-                eb.setTitle(":pencil: 無視項目を設定しました！");
-                eb.setDescription(String.format("`%s`に一致するメッセージは読み上げません。", args[2]));
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-                return;
-            }
-            else {
-                eb.setTitle(":x: パラメーターがおかしいです！");
-                eb.setDescription("第二引数には`contain`,`equal`のどちらかを指定してください。");
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-            }
+    public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
+        return new CmdBuilders(
+            builder
+                .literal("add")
+                .literal("contain", "contains")
+                .argument(StringArgument.quoted("text"))
+                .handler(this::addContains)
+                .build(),
+            builder
+                .literal("add")
+                .literal("equal", "equals")
+                .argument(StringArgument.quoted("text"))
+                .handler(this::addEquals)
+                .build(),
+            builder
+                .literal("remove", "rm", "delete", "del")
+                .literal("contain", "contains")
+                .argument(StringArgument.quoted("text"))
+                .handler(this::removeContains)
+                .build(),
+            builder
+                .literal("remove", "rm", "delete", "del")
+                .literal("equal", "equals")
+                .argument(StringArgument.quoted("text"))
+                .handler(this::removeEquals)
+                .build(),
+            builder
+                .literal("list")
+                .handler(this::list)
+                .build()
+        );
+    }
+
+    void addContains(CommandContext<JDACommandSender> context) {
+        MessageChannel channel = context.getSender().getChannel();
+        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
         }
-        if (args[0].equals("remove") || args[0].equals("rm") || args[0].equals("delete") || args[0].equals("del")) {
-            if (args[1].equals("contain")||args[1].equals("contains")){
-                LibIgnore.removeFromIgnore("contain",args[2]);
-                eb.setTitle(":wastebasket: 無視項目を削除しました！");
-                eb.setDescription(String.format("今後は`%s`が含まれていたメッセージも読み上げます。", args[2]));
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-                return;
-            }
-            if (args[1].equals("equal")||args[1].equals("equals")){
-                LibIgnore.removeFromIgnore("equal",args[2]);
-                eb.setTitle(":wastebasket: 無視項目を削除しました！");
-                eb.setDescription(String.format("今後は`%s`と一致するメッセージも読み上げます。", args[2]));
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-                return;
-            }
-            else {
-                eb.setTitle(":x: パラメーターがおかしいです！");
-                eb.setDescription("第二引数には`contain`,`equal`のどちらかを指定してください。");
-                eb.setColor(LibEmbedColor.success);
-                channel.sendMessage(eb.build()).queue();
-            }
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        String text = context.getOrDefault("text", null);
+        if (text == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("textパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
         }
-        if (args[0].equals("list")) {
-            final String[] listStr = {""};
-            StaticData.ignoreMap.forEach((k, v) -> {
-                listStr[0] = listStr[0] + String.format("`%s` : `%s`\n", k, v);
-            });
-            eb.setTitle(":bookmark_tabs: 現在の無視項目");
-            eb.setDescription(listStr[0]);
-            channel.sendMessage(eb.build()).queue();
+
+        LibIgnore.addToIgnore("contain", text);
+
+        message.reply(new EmbedBuilder()
+            .setTitle(":pencil: 無視項目を設定しました！")
+            .setDescription(String.format("`%s`が含まれるメッセージは読み上げません。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void addEquals(CommandContext<JDACommandSender> context) {
+        MessageChannel channel = context.getSender().getChannel();
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
-        } else {
-            eb.setTitle(":x: 引数が見つかりません！");
-            eb.setDescription("`add`,`remove`,`list`が利用できます。");
-            eb.setColor(LibEmbedColor.cation);
-            channel.sendMessage(eb.build()).queue();
         }
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        String text = context.getOrDefault("text", null);
+        if (text == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("textパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+
+        LibIgnore.addToIgnore("equal", text);
+
+        message.reply(new EmbedBuilder()
+            .setTitle(":pencil: 無視項目を設定しました！")
+            .setDescription(String.format("`%s`に一致するメッセージは読み上げません。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void removeContains(CommandContext<JDACommandSender> context) {
+        MessageChannel channel = context.getSender().getChannel();
+        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        String text = context.getOrDefault("text", null);
+        if (text == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("textパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+
+        LibIgnore.removeFromIgnore("contain", text);
+
+        message.reply(new EmbedBuilder()
+            .setTitle(":wastebasket: 無視項目を削除しました！")
+            .setDescription(String.format("今後は`%s`が含まれているメッセージも読み上げます。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void removeEquals(CommandContext<JDACommandSender> context) {
+        MessageChannel channel = context.getSender().getChannel();
+        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        String text = context.getOrDefault("text", null);
+        if (text == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("textパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+
+        LibIgnore.removeFromIgnore("equal", text);
+
+        message.reply(new EmbedBuilder()
+            .setTitle(":wastebasket: 無視項目を削除しました！")
+            .setDescription(String.format("今後は`%s`と一致するメッセージも読み上げます。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void list(CommandContext<JDACommandSender> context){
+        MessageChannel channel = context.getSender().getChannel();
+        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        String list = StaticData.ignoreMap.entrySet().stream()
+            .map(entry -> String.format("`%s` : `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
+            .collect(Collectors.joining("\n")); // それぞれを改行で連結する
+
+        message.reply(new EmbedBuilder()
+            .setTitle(":bookmark_tabs: 現在の無視項目")
+            .setDescription(list)
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
     }
 }

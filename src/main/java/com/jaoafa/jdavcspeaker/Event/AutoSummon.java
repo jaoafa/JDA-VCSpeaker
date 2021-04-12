@@ -3,12 +3,13 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-public class AutoSummon {
-    @SubscribeEvent
-    public void onMemberJoin(GuildVoiceJoinEvent event) {
+public class AutoSummon extends ListenerAdapter {
+    @Override
+    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (event.getMember().getUser().isBot()) {
             return;
         }
