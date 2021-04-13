@@ -1,18 +1,21 @@
 package com.jaoafa.jdavcspeaker;
 
 import cloud.commandframework.Command;
+import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
 import cloud.commandframework.jda.JDAGuildSender;
 import cloud.commandframework.jda.JDAPrivateSender;
 import com.jaoafa.jdavcspeaker.Event.*;
-import com.jaoafa.jdavcspeaker.Lib.ClassFinder;
-import com.jaoafa.jdavcspeaker.Lib.LibAlias;
-import com.jaoafa.jdavcspeaker.Lib.LibJson;
-import com.jaoafa.jdavcspeaker.Lib.Logger;
+import com.jaoafa.jdavcspeaker.Lib.*;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
@@ -23,9 +26,9 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) {
@@ -54,57 +57,44 @@ public class Main extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Timer timer = new Timer(); // 今回追加する処理
-        TimerTask task = new TimerTask() {
-            public void run() {
-                File tempDir = new File("./Temp");
-                if (tempDir.exists()&&tempDir.listFiles()!=null){
-                    Arrays.stream(tempDir.listFiles()).forEach(s -> {
-                        s.delete();
-                    });
-                }
-
-            }
-        };
-        timer.scheduleAtFixedRate(task,1000,3600000); // 今回追加する処理
     }
 
     static void commandRegister(JDA jda) {
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
-                jda,
-                message -> ";",
-                (sender, perm) -> true,
-                CommandExecutionCoordinator.simpleCoordinator(),
-                sender -> {
-                    MessageReceivedEvent event = sender.getEvent().orElse(null);
+                    jda,
+                    message -> ";",
+                    (sender, perm) -> true,
+                    CommandExecutionCoordinator.simpleCoordinator(),
+                    sender -> {
+                        MessageReceivedEvent event = sender.getEvent().orElse(null);
 
-                    if (sender instanceof JDAPrivateSender) {
-                        JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
-                        return new JDAPrivateSender(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
+                        if (sender instanceof JDAPrivateSender) {
+                            JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
+                            return new JDAPrivateSender(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
+                        }
+
+                        if (sender instanceof JDAGuildSender) {
+                            JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
+                            return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
+                    },
+                    user -> {
+                        MessageReceivedEvent event = user.getEvent().orElse(null);
+                        if (user instanceof JDAPrivateSender) {
+                            JDAPrivateSender privateUser = (JDAPrivateSender) user;
+                            return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
+                        }
+
+                        if (user instanceof JDAGuildSender) {
+                            JDAGuildSender guildUser = (JDAGuildSender) user;
+                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
                     }
-
-                    if (sender instanceof JDAGuildSender) {
-                        JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-                        return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-                    }
-
-                    throw new UnsupportedOperationException();
-                },
-                user -> {
-                    MessageReceivedEvent event = user.getEvent().orElse(null);
-                    if (user instanceof JDAPrivateSender) {
-                        JDAPrivateSender privateUser = (JDAPrivateSender) user;
-                        return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
-                    }
-
-                    if (user instanceof JDAGuildSender) {
-                        JDAGuildSender guildUser = (JDAGuildSender) user;
-                        return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-                    }
-
-                    throw new UnsupportedOperationException();
-                }
             );
 
             manager.command(manager.commandBuilder("test").handler(s -> System.out.println(s.getSender())));
@@ -121,7 +111,7 @@ public class Main extends ListenerAdapter {
                     continue;
                 }
                 String commandName = clazz.getName().substring("com.jaoafa.jdavcspeaker.Command.Cmd_".length())
-                    .toLowerCase();
+                        .toLowerCase();
 
                 try {
                     Constructor<?> construct = clazz.getConstructor();
@@ -151,5 +141,24 @@ public class Main extends ListenerAdapter {
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
+    }
+
+    public static void cmdFunctionExecutor(CommandContext<JDACommandSender> context, CmdFunction handler){
+        MessageChannel channel = context.getSender().getChannel();
+        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!context.getSender().getEvent().isPresent()) {
+            channel.sendMessage(new EmbedBuilder()
+                    .setTitle(":warning: 何かがうまくいきませんでした…")
+                    .setDescription("メッセージデータを取得できませんでした。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
+            ).queue();
+            return;
+        }
+        Guild guild = context.getSender().getEvent().get().getGuild();
+        Member member = guild.getMember(context.getSender().getUser());
+        Message message = context.getSender().getEvent().get().getMessage();
+
+        handler.execute(guild, channel, member, message);
     }
 }
