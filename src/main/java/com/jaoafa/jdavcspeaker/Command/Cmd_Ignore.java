@@ -8,6 +8,7 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -18,6 +19,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.util.stream.Collectors;
 
+import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
+
 public class Cmd_Ignore implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
@@ -26,35 +29,34 @@ public class Cmd_Ignore implements CmdInterface {
                 .literal("add")
                 .literal("contain", "contains")
                 .argument(StringArgument.quoted("text"))
-                .handler(this::addContains)
+                .handler(context -> execute(context, this::addContains))
                 .build(),
             builder
                 .literal("add")
                 .literal("equal", "equals")
                 .argument(StringArgument.quoted("text"))
-                .handler(this::addEquals)
+                .handler(context -> execute(context, this::addEquals))
                 .build(),
             builder
                 .literal("remove", "rm", "delete", "del")
                 .literal("contain", "contains")
                 .argument(StringArgument.quoted("text"))
-                .handler(this::removeContains)
+                .handler(context -> execute(context, this::removeContains))
                 .build(),
             builder
                 .literal("remove", "rm", "delete", "del")
                 .literal("equal", "equals")
                 .argument(StringArgument.quoted("text"))
-                .handler(this::removeEquals)
+                .handler(context -> execute(context, this::removeEquals))
                 .build(),
             builder
                 .literal("list")
-                .handler(this::list)
+                .handler(context -> execute(context, this::list))
                 .build()
         );
     }
 
-    void addContains(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void addContains(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -65,7 +67,6 @@ public class Cmd_Ignore implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String text = context.getOrDefault("text", null);
         if (text == null) {
@@ -88,8 +89,7 @@ public class Cmd_Ignore implements CmdInterface {
         ).queue();
     }
 
-    void addEquals(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void addEquals(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
@@ -99,7 +99,6 @@ public class Cmd_Ignore implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String text = context.getOrDefault("text", null);
         if (text == null) {
@@ -122,8 +121,7 @@ public class Cmd_Ignore implements CmdInterface {
         ).queue();
     }
 
-    void removeContains(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void removeContains(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -134,7 +132,6 @@ public class Cmd_Ignore implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String text = context.getOrDefault("text", null);
         if (text == null) {
@@ -157,8 +154,7 @@ public class Cmd_Ignore implements CmdInterface {
         ).queue();
     }
 
-    void removeEquals(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void removeEquals(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -169,7 +165,6 @@ public class Cmd_Ignore implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String text = context.getOrDefault("text", null);
         if (text == null) {
@@ -192,8 +187,7 @@ public class Cmd_Ignore implements CmdInterface {
         ).queue();
     }
 
-    void list(CommandContext<JDACommandSender> context){
-        MessageChannel channel = context.getSender().getChannel();
+    void list(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context){
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -204,7 +198,6 @@ public class Cmd_Ignore implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String list = StaticData.ignoreMap.entrySet().stream()
             .map(entry -> String.format("`%s` : `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる

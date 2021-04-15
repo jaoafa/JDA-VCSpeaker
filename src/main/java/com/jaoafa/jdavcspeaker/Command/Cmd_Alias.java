@@ -8,6 +8,7 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -18,6 +19,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.util.stream.Collectors;
 
+import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
+
 public class Cmd_Alias implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
@@ -26,33 +29,22 @@ public class Cmd_Alias implements CmdInterface {
                 .literal("add")
                 .argument(StringArgument.quoted("from"))
                 .argument(StringArgument.quoted("to"))
-                .handler(this::addAlias)
+                .handler(context -> execute(context, this::addAlias))
                 .build(),
             builder
                 .literal("remove", "rm", "delete", "del")
                 .argument(StringArgument.quoted("from"))
-                .handler(this::removeAlias)
+                .handler(context -> execute(context, this::removeAlias))
                 .build(),
             builder
                 .literal("list")
-                .handler(this::listAlias)
+                .handler(context -> execute(context, this::listAlias))
                 .build()
         );
     }
 
-    void addAlias(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void addAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
-        if(!context.getSender().getEvent().isPresent()){
-            channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("メッセージデータを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
-            ).queue();
-            return;
-        }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String from = context.getOrDefault("from", null);
         String to = context.getOrDefault("to", null);
@@ -85,8 +77,7 @@ public class Cmd_Alias implements CmdInterface {
         ).queue();
     }
 
-    void removeAlias(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void removeAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -97,7 +88,6 @@ public class Cmd_Alias implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String from = context.getOrDefault("from", null);
         if (from == null) {
@@ -120,8 +110,7 @@ public class Cmd_Alias implements CmdInterface {
         ).queue();
     }
 
-    void listAlias(CommandContext<JDACommandSender> context) {
-        MessageChannel channel = context.getSender().getChannel();
+    void listAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
@@ -132,7 +121,6 @@ public class Cmd_Alias implements CmdInterface {
             ).queue();
             return;
         }
-        Message message = context.getSender().getEvent().get().getMessage();
 
         String list = StaticData.aliasMap.entrySet().stream()
             .map(entry -> String.format("`%s` -> `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる

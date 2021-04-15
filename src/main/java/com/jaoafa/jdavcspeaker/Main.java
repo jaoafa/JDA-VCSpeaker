@@ -142,23 +142,4 @@ public class Main extends ListenerAdapter {
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }
-
-    public static void cmdFunctionExecutor(CommandContext<JDACommandSender> context, CmdFunction handler){
-        MessageChannel channel = context.getSender().getChannel();
-        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
-        if (!context.getSender().getEvent().isPresent()) {
-            channel.sendMessage(new EmbedBuilder()
-                    .setTitle(":warning: 何かがうまくいきませんでした…")
-                    .setDescription("メッセージデータを取得できませんでした。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
-            ).queue();
-            return;
-        }
-        Guild guild = context.getSender().getEvent().get().getGuild();
-        Member member = guild.getMember(context.getSender().getUser());
-        Message message = context.getSender().getEvent().get().getMessage();
-
-        handler.execute(guild, channel, member, message);
-    }
 }
