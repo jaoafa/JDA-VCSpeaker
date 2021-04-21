@@ -16,6 +16,12 @@ public class AutoSummon extends ListenerAdapter {
         if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null || event.getGuild().getSelfMember().getVoiceState().getChannel() == event.getChannelJoined()) {
             return;
         }
+        
+        
+        //if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null && event.getMember().getVoiceState().getChannel() != null) {
+        //    ここの中に処理入れる
+        //}
+        
         //if (event.getGuild().getSelfMember().getVoiceState().getChannel() != null){
             //もし入ったチャンネルと現在のチャンネルが同じだったら何もしない(if)
             //VCSpeakerが現在いるチャンネルとユーザーが入ったチャンネルのメンバー数比較(elseif)
