@@ -4,7 +4,6 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class AutoSummon extends ListenerAdapter {
@@ -17,11 +16,11 @@ public class AutoSummon extends ListenerAdapter {
             return;
         }
         //if (event.getGuild().getSelfMember().getVoiceState().getChannel() != null){
-            //もし入ったチャンネルと現在のチャンネルが同じだったら何もしない(if)
-            //VCSpeakerが現在いるチャンネルとユーザーが入ったチャンネルのメンバー数比較(elseif)
-            //入ったチャンネルの方が多かったら移動
+        //もし入ったチャンネルと現在のチャンネルが同じだったら何もしない(if)
+        //VCSpeakerが現在いるチャンネルとユーザーが入ったチャンネルのメンバー数比較(elseif)
+        //入ったチャンネルの方が多かったら移動
         //}
-            
+
         AudioManager audioManager = event.getGuild().getAudioManager();
         audioManager.openAudioConnection(event.getChannelJoined());
 

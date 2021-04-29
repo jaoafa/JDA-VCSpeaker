@@ -4,7 +4,6 @@ import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 public class Event_Disconnect extends ListenerAdapter {
     @Override

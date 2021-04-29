@@ -25,8 +25,8 @@ public class ParamCheck {
                     String speakerText = s.replace("speaker:", "");
                     //wrongSpeakerCheck
                     if (speakerText.equals("show") || speakerText.equals("haruka") ||
-                            speakerText.equals("hikari") || speakerText.equals("takeru") ||
-                            speakerText.equals("santa") || speakerText.equals("bear")) {
+                        speakerText.equals("hikari") || speakerText.equals("takeru") ||
+                        speakerText.equals("santa") || speakerText.equals("bear")) {
                         speaker = speakerText;
                         speaktext = speaktext.replace(s, "");
                     } else {
@@ -70,7 +70,7 @@ public class ParamCheck {
                     String emotionText = s.replace("emotion:", "");
                     //wrongEmotionCheck
                     if (emotionText.equals("happy") || emotionText.equals("sad") ||
-                            emotionText.equals("anger")) {
+                        emotionText.equals("anger")) {
                         emotionText = emotionText.replace("happy", "happiness");
                         emotionText = emotionText.replace("sad", "sadness");
                         setEmotion = true;

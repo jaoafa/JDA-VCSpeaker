@@ -8,7 +8,6 @@ import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
 
@@ -25,7 +24,7 @@ public class Cmd_Summon implements CmdInterface {
     }
 
     void summon(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
+        if (!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
@@ -36,7 +35,7 @@ public class Cmd_Summon implements CmdInterface {
             return;
         }
 
-        if(member == null){
+        if (member == null) {
             message.reply(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
                 .setDescription("memberを取得できませんでした。")
@@ -46,7 +45,7 @@ public class Cmd_Summon implements CmdInterface {
             return;
         }
 
-        if(member.getVoiceState() == null){
+        if (member.getVoiceState() == null) {
             message.reply(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
                 .setDescription("VoiceStateを取得できませんでした。")

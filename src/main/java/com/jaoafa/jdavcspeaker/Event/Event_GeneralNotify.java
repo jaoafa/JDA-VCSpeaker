@@ -4,7 +4,6 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 public class Event_GeneralNotify extends ListenerAdapter {
     @Override

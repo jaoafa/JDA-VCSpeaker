@@ -5,7 +5,6 @@ import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.util.Arrays;
 
@@ -32,10 +31,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         StaticData.ignoreMap.forEach((k, v) -> {
-            if (k.equals("equal")&&msg.equals(v)){
+            if (k.equals("equal") && msg.equals(v)) {
                 isIgnore[0] = true;
             }
-            if (k.equals("contain")&&msg.contains(v)){
+            if (k.equals("contain") && msg.contains(v)) {
                 isIgnore[0] = true;
             }
         });

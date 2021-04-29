@@ -21,10 +21,10 @@ public class VoiceText {
                 String hexString = DigestUtils.md5Hex(createForm.formatText);
                 FormBody.Builder form = createForm.form;
                 Request request = new Request.Builder()
-                        .post(form.build())
-                        .url("https://api.voicetext.jp/v1/tts")
-                        .header("Authorization", Credentials.basic(LibJson.readObject("./VCSpeaker.json").getString("SpeakToken"), ""))
-                        .build();
+                    .post(form.build())
+                    .url("https://api.voicetext.jp/v1/tts")
+                    .header("Authorization", Credentials.basic(LibJson.readObject("./VCSpeaker.json").getString("SpeakToken"), ""))
+                    .build();
                 try (Response response = client.newCall(request).execute()) {
                     if (!response.isSuccessful()) {
                         System.out.println("Error: " + response.code());
