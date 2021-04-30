@@ -26,6 +26,7 @@ public class Cmd_Restart implements CmdInterface {
     }
 
     void restart(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
+        guild.getAudioManager().closeAudioConnection();
         message.reply(new EmbedBuilder()
             .setTitle(":wave: 再起動します。")
             .setColor(LibEmbedColor.success)
