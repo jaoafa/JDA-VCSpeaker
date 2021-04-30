@@ -115,7 +115,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
             if (title.length() >= 20) {
                 title = title.substring(0, 15);
             }
-            content = content.replace(url, "Webページ「" + title + "」へのリンク");
+            content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
         }
         return content;
     }

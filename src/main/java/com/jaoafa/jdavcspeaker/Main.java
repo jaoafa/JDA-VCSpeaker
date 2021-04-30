@@ -19,6 +19,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +31,8 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         try {
             Logger.print("VCSpeaker Starting...");
-            JDABuilder builder = JDABuilder.createDefault(LibJson.readObject("./VCSpeaker.json").getString("DiscordToken"));
+            JSONObject config = LibJson.readObject("./VCSpeaker.json");
+            JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
             builder.setChunkingFilter(ChunkingFilter.ALL);
             builder.setMemberCachePolicy(MemberCachePolicy.ALL);
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
@@ -37,7 +40,7 @@ public class Main extends ListenerAdapter {
 
             builder.addEventListeners(new Main());
 
-            builder.addEventListeners(new AutoSummon());
+            builder.addEventListeners(new AutoJoin());
             builder.addEventListeners(new AutoMove());
             builder.addEventListeners(new AutoDisconnect());
 
@@ -49,6 +52,12 @@ public class Main extends ListenerAdapter {
             JDA jda = builder.build();
 
             commandRegister(jda);
+
+            if (config.has("channelId")) {
+                StaticData.textChannelId = config.getLong("channelId");
+            } else {
+                System.out.println("Use the default value because channelId is undefined.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,8 +101,6 @@ public class Main extends ListenerAdapter {
                 }
             );
 
-            manager.command(manager.commandBuilder("test").handler(s -> System.out.println(s.getSender())));
-
             ClassFinder classFinder = new ClassFinder();
             for (Class<?> clazz : classFinder.findClasses("com.jaoafa.jdavcspeaker.Command")) {
                 if (!clazz.getName().startsWith("com.jaoafa.jdavcspeaker.Command.Cmd_")) {
@@ -130,11 +137,21 @@ public class Main extends ListenerAdapter {
     }
 
     @Override
-    public void onReady(ReadyEvent event) {
+    public void onReady(@NotNull ReadyEvent event) {
         File newdir = new File("./Temp");
-        newdir.mkdir();
+        if (!newdir.exists()) {
+            boolean bool = newdir.mkdir();
+            if (!bool) System.out.println("Failed to create the temporary directory.");
+        }
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
+
+        StaticData.textChannel = event.getJDA().getTextChannelById(StaticData.textChannelId);
+        if (StaticData.textChannel != null) {
+            System.out.println("You have successfully get text channel.");
+        } else {
+            System.out.println("Failed to get text channel.");
+        }
     }
 }
