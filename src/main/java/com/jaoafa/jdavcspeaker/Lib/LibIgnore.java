@@ -51,8 +51,8 @@ public class LibIgnore {
         fetchJson();
     }
 
-    public static void removeFromIgnore(String value1,String value2) {
-        StaticData.ignoreMap.remove(value1,value2);
+    public static void removeFromIgnore(String value1, String value2) {
+        StaticData.ignoreMap.remove(value1, value2);
         fetchJson();
     }
 }

@@ -1,23 +1,26 @@
 package com.jaoafa.jdavcspeaker.Player;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class TrackInfo {
-    private final AudioTrack track;
-    private final Member author;
+    private final Message message;
 
-    TrackInfo(AudioTrack track, Member author) {
-        this.track = track;
-        this.author = author;
+    public TrackInfo(Message message) {
+        this.message = message;
     }
 
-    public AudioTrack getTrack() {
-        return track;
+    public Message getMessage() {
+        return message;
     }
 
     public Member getAuthor() {
-        return author;
+        return message.getMember();
+    }
+
+    public TextChannel getChannel() {
+        return message.getTextChannel();
     }
 
 }

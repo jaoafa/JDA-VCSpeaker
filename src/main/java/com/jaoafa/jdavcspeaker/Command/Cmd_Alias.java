@@ -8,10 +8,8 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -44,8 +42,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void addAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
-
         String from = context.getOrDefault("from", null);
         String to = context.getOrDefault("to", null);
         if (from == null) {
@@ -78,7 +74,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void removeAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
@@ -111,7 +106,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void listAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if(!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
