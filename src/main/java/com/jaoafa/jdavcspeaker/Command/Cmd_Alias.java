@@ -42,8 +42,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void addAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!channel.getId().equals(StaticData.vcTextChannel)) return;
-
         String from = context.getOrDefault("from", null);
         String to = context.getOrDefault("to", null);
         if (from == null) {
@@ -76,7 +74,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void removeAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
@@ -109,7 +106,6 @@ public class Cmd_Alias implements CmdInterface {
     }
 
     void listAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!channel.getId().equals(StaticData.vcTextChannel)) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
