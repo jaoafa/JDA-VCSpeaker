@@ -11,12 +11,14 @@ public class ParamCheck {
 
         public toForm(String text, TextChannel channel) {
             String speaktext = text;
-            String speaker = null;
-            int speed = 0;
+
+            // デフォルト値
+            String speaker = "hikari";
+            int speed = 120;
             boolean setEmotion = false;
             String emotion = "";
-            int emotion_lv = 0;
-            int pitch = 0;
+            int emotion_lv = 2;
+            int pitch = 100;
 
             //パラメーターチェック
             for (String s : text.split(" ")) {
@@ -137,19 +139,6 @@ public class ParamCheck {
                         return;
                     }
                 }
-            }
-
-            if (speaker == null) {
-                speaker = "hikari";
-            }
-            if (speed == 0) {
-                speed = 100;
-            }
-            if (pitch == 0) {
-                pitch = 100;
-            }
-            if (emotion_lv == 0) {
-                emotion_lv = 2;
             }
 
             String finalFormatText = MsgFormatter.format(speaktext);
