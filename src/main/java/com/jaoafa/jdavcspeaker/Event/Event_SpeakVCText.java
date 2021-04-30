@@ -47,6 +47,9 @@ public class Event_SpeakVCText extends ListenerAdapter {
         if (content.equals(".")) {
             return; // .のみは除外
         }
+        if (content.startsWith(";")) {
+            return; // ;から始まるコマンドと思われる文字列を除外
+        }
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
             event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
