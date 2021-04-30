@@ -1,5 +1,5 @@
 /.idea/
-*.imi
+*.iml
 
 VCSpeaker.json
 target/*
