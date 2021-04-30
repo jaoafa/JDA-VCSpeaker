@@ -104,7 +104,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 String messageId = msgUrlMatcher.group(3);
                 TextChannel channel = jda.getTextChannelById(channelId);
                 if (channel == null) continue;
-                Message message = channel.getHistory().getMessageById(messageId);
+                Message message = channel.retrieveMessageById(messageId).complete();
                 if (message == null) continue;
 
                 String replaceTo = MessageFormat.format("{0}が{1}で送信したメッセージのリンク",
