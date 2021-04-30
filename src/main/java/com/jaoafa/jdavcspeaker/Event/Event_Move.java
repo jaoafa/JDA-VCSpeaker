@@ -19,7 +19,7 @@ public class Event_Move extends ListenerAdapter {
         VoiceChannel oldChannel = event.getOldValue();
         VoiceChannel newChannel = event.getNewValue();
         if (StaticData.textChannel == null) return;
-        StaticData.textChannel.sendMessage(MessageFormat.format(":twisted_rightwards_arrows: `{0}`が`{1}`から`{2}`に移動しました。", user.getName(), oldChannel.getName(), newChannel.getName())).queue(
+        StaticData.textChannel.sendMessage(MessageFormat.format(":twisted_rightwards_arrows: `{0}` が <#{1}> から <#{2}> に移動しました。", user.getName(), oldChannel.getId(), newChannel.getId())).queue(
             message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}から{2}に移動しました。", user.getName(), oldChannel.getName(), newChannel.getName()))
         );
     }

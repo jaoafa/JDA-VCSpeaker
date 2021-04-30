@@ -21,7 +21,7 @@ public class Event_Disconnect extends ListenerAdapter {
         User user = event.getMember().getUser();
         VoiceChannel channel = event.getChannelLeft();
         if (StaticData.textChannel == null) return;
-        StaticData.textChannel.sendMessage(MessageFormat.format(":outbox_tray: `{0}`が`{1}`から退出しました。", user.getName(), channel.getName())).queue(
+        StaticData.textChannel.sendMessage(MessageFormat.format(":outbox_tray: `{0}` が <#{1}> から退出しました。", user.getName(), channel.getId())).queue(
             message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}から退出しました。", user.getName(), channel.getName()))
         );
     }
