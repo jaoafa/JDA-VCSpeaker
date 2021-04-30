@@ -26,7 +26,7 @@ public class AutoJoin extends ListenerAdapter {
         if (StaticData.textChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":white_check_mark: AutoJoin")
-            .setDescription(MessageFormat.format("`{0}`に接続しました。", event.getChannelJoined().getName()))
+            .setDescription(MessageFormat.format("<#{0}> に接続しました。", event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.success);
         StaticData.textChannel.sendMessage(embed.build()).queue();
     }

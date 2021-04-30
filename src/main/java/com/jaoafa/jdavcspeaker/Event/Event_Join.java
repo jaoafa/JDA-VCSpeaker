@@ -18,7 +18,7 @@ public class Event_Join extends ListenerAdapter {
         User user = event.getMember().getUser();
         VoiceChannel channel = event.getChannelJoined();
         if (StaticData.textChannel == null) return;
-        StaticData.textChannel.sendMessage(MessageFormat.format(":inbox_tray: `{0}`が`{1}`に参加しました。", user.getName(), channel.getName())).queue(
+        StaticData.textChannel.sendMessage(MessageFormat.format(":inbox_tray: `{0}` が <#{1}> に参加しました。", user.getName(), channel.getId())).queue(
             message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}に参加しました。", user.getName(), channel.getName()))
         );
     }
