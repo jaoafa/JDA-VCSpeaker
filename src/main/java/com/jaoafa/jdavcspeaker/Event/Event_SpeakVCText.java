@@ -115,9 +115,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
             }
 
             String title = getTitle(url);
-            if (title.length() >= 20) {
-                title = title.substring(0, 15);
+            System.out.println("title: " + title);
+            if (title.length() >= 30) {
+                title = title.substring(0, 30) + "以下略";
             }
+            System.out.println("title 2: " + title);
             content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
         }
         return content;
@@ -139,7 +141,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     return null;
                 }
                 Matcher m = titlePattern.matcher(body.string());
-                return m.find() ? m.group() : null;
+                return m.find() ? m.group(1) : null;
             }
         } catch (IOException e) {
             return null;
