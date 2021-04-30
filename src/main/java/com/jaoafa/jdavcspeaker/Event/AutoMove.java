@@ -55,7 +55,7 @@ public class AutoMove extends ListenerAdapter {
         if (StaticData.textChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":white_check_mark: AutoMoved")
-            .setDescription(MessageFormat.format("`{0}`から`{1}`に移動しました。", connectedChannel.getName(), newChannel.getName()))
+            .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))
             .setColor(LibEmbedColor.success);
         StaticData.textChannel.sendMessage(embed.build()).queue();
     }

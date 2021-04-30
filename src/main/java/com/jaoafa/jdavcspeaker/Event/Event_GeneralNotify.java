@@ -56,7 +56,7 @@ public class Event_GeneralNotify extends ListenerAdapter {
 
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":inbox_tray: 会話が始まりました！")
-            .setDescription(MessageFormat.format("{0}が`{1}`に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getName()))
+            .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.normal);
         StaticData.textChannel.sendMessage(embed.build()).queue();
     }
