@@ -1,6 +1,7 @@
 package com.jaoafa.jdavcspeaker;
 
 import cloud.commandframework.Command;
+import cloud.commandframework.CommandManager;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
@@ -66,40 +67,40 @@ public class Main extends ListenerAdapter {
     static void commandRegister(JDA jda) {
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
-                jda,
-                message -> ";",
-                (sender, perm) -> true,
-                CommandExecutionCoordinator.simpleCoordinator(),
-                sender -> {
-                    MessageReceivedEvent event = sender.getEvent().orElse(null);
+                    jda,
+                    message -> ";",
+                    (sender, perm) -> true,
+                    CommandExecutionCoordinator.simpleCoordinator(),
+                    sender -> {
+                        MessageReceivedEvent event = sender.getEvent().orElse(null);
 
-                    if (sender instanceof JDAPrivateSender) {
-                        JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
-                        return new JDAPrivateSender(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
+                        if (sender instanceof JDAPrivateSender) {
+                            JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
+                            return new JDAPrivateSender(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
+                        }
+
+                        if (sender instanceof JDAGuildSender) {
+                            JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
+                            return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
+                    },
+                    user -> {
+                        MessageReceivedEvent event = user.getEvent().orElse(null);
+                        if (user instanceof JDAPrivateSender) {
+                            JDAPrivateSender privateUser = (JDAPrivateSender) user;
+                            return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
+                        }
+
+                        if (user instanceof JDAGuildSender) {
+                            JDAGuildSender guildUser = (JDAGuildSender) user;
+                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
                     }
-
-                    if (sender instanceof JDAGuildSender) {
-                        JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-                        return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-                    }
-
-                    throw new UnsupportedOperationException();
-                },
-                user -> {
-                    MessageReceivedEvent event = user.getEvent().orElse(null);
-                    if (user instanceof JDAPrivateSender) {
-                        JDAPrivateSender privateUser = (JDAPrivateSender) user;
-                        return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
-                    }
-
-                    if (user instanceof JDAGuildSender) {
-                        JDAGuildSender guildUser = (JDAGuildSender) user;
-                        return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-                    }
-
-                    throw new UnsupportedOperationException();
-                }
-            );
+                    );
 
             ClassFinder classFinder = new ClassFinder();
             for (Class<?> clazz : classFinder.findClasses("com.jaoafa.jdavcspeaker.Command")) {
@@ -113,7 +114,7 @@ public class Main extends ListenerAdapter {
                     continue;
                 }
                 String commandName = clazz.getName().substring("com.jaoafa.jdavcspeaker.Command.Cmd_".length())
-                    .toLowerCase();
+                        .toLowerCase();
 
                 try {
                     Constructor<?> construct = clazz.getConstructor();
@@ -122,7 +123,6 @@ public class Main extends ListenerAdapter {
 
                     Command.Builder<JDACommandSender> builder = manager.commandBuilder(commandName); // ビルダーを生成
                     cmdInterface.register(builder).getCommands().forEach(manager::command); // manager.command で登録
-
                     System.out.println(commandName + " register successful");
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     System.out.println(commandName + " register failed");

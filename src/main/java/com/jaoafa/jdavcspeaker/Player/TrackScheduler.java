@@ -34,7 +34,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (player.startTrack(track, true)) {
             // トラックが開始された場合
             reactionSpeaking(track);
-        }else{
+        } else {
             // トラックが開始されず、キューに挿入するべき場合
             queue.offer(track);
         }
@@ -42,7 +42,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void nextTrack() {
         AudioTrack track = queue.poll();
-        if(track == null){
+        if (track == null) {
             return;
         }
         player.startTrack(track, false);
@@ -65,14 +65,14 @@ public class TrackScheduler extends AudioEventAdapter {
                 return; // channelはnullである可能性がある
             }
             channel.retrieveMessageById(info.getMessage().getIdLong())
-                .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
-                        .queue(null, Throwable::printStackTrace),
-                    Throwable::printStackTrace);
+                    .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
+                                    .queue(null, Throwable::printStackTrace),
+                            Throwable::printStackTrace);
             nextTrack();
         }
     }
 
-    void reactionSpeaking(AudioTrack track){
+    void reactionSpeaking(AudioTrack track) {
         if (!(track.getUserData() instanceof TrackInfo)) {
             return;
         }
@@ -85,9 +85,9 @@ public class TrackScheduler extends AudioEventAdapter {
             return; // channelはnullである可能性がある
         }
         channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.addReaction("\uD83D\uDDE3") // :speaking_head:
-                    .queue(null, Throwable::printStackTrace),
-                Throwable::printStackTrace);
+                .queue(msg -> msg.addReaction("\uD83D\uDDE3") // :speaking_head:
+                                .queue(null, Throwable::printStackTrace),
+                        Throwable::printStackTrace);
     }
 }
 

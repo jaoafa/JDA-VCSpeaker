@@ -19,23 +19,23 @@ public class AutoMove extends ListenerAdapter {
         VoiceChannel oldChannel = event.getOldValue();
         VoiceChannel newChannel = event.getNewValue();
         long newUsers = newChannel.getMembers().stream()
-            .filter(member -> !member.getUser().isBot())
-            .count();
+                .filter(member -> !member.getUser().isBot())
+                .count();
 
         System.out.println(MessageFormat.format("[AutoMove] {0}: {1} -> {2} ({3})",
-            event.getMember().getUser().getAsTag(),
-            oldChannel.getName(),
-            newChannel.getName(),
-            newUsers));
+                event.getMember().getUser().getAsTag(),
+                oldChannel.getName(),
+                newChannel.getName(),
+                newUsers));
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             return; // 自身がどのVCにも参加していない
         }
         VoiceChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
         long connectedUsers = newChannel.getMembers().stream()
-            .filter(member -> !member.getUser().isBot())
-            .count();
+                .filter(member -> !member.getUser().isBot())
+                .count();
 
         if (event.getMember().getUser().isBot()) {
             return;
@@ -54,9 +54,9 @@ public class AutoMove extends ListenerAdapter {
 
         if (StaticData.textChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
-            .setTitle(":white_check_mark: AutoMoved")
-            .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))
-            .setColor(LibEmbedColor.success);
+                .setTitle(":white_check_mark: AutoMoved")
+                .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))
+                .setColor(LibEmbedColor.success);
         StaticData.textChannel.sendMessage(embed.build()).queue();
     }
 }

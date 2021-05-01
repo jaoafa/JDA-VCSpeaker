@@ -16,39 +16,19 @@ public class Cmd_Summon implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-            builder
-                .handler(context -> execute(context, this::summon))
-                .build()
+                builder
+                        .handler(context -> execute(context, this::summon))
+                        .build()
         );
     }
 
     void summon(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!context.getSender().getEvent().isPresent()) {
-            channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("メッセージデータを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
-            ).queue();
-            return;
-        }
-
-        if (member == null) {
+        if (member == null||member.getVoiceState() == null) {
             message.reply(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("memberを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
-            ).queue();
-            return;
-        }
-
-        if (member.getVoiceState() == null) {
-            message.reply(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("VoiceStateを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":warning: 何かがうまくいきませんでした…")
+                    .setDescription((member == null ? "Member" : member.getVoiceState() == null ? "VoiceState" : "")+"を取得できませんでした。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -56,10 +36,10 @@ public class Cmd_Summon implements CmdInterface {
         VoiceChannel connectedChannel = member.getVoiceState().getChannel();
         if (connectedChannel == null) {
             message.reply(new EmbedBuilder()
-                .setTitle(":warning: なにかがおかしいかも？")
-                .setDescription("VCに参加してからVCSpeakerを呼び出してください。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":warning: なにかがおかしいかも？")
+                    .setDescription("VCに参加してからVCSpeakerを呼び出してください。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -67,10 +47,10 @@ public class Cmd_Summon implements CmdInterface {
         audioManager.openAudioConnection(connectedChannel);
 
         message.reply(new EmbedBuilder()
-            .setTitle(":white_check_mark: 接続しました！")
-            .setDescription("`" + connectedChannel.getName() + "`に接続しました。")
-            .setColor(LibEmbedColor.success)
-            .build()
+                .setTitle(":satellite: 接続しました！")
+                .setDescription("`" + connectedChannel.getName() + "`に接続しました。")
+                .setColor(LibEmbedColor.success)
+                .build()
         ).queue();
     }
 }

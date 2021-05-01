@@ -16,7 +16,7 @@ public class AutoJoin extends ListenerAdapter {
             return;
         }
         if (event.getGuild().getSelfMember().getVoiceState() != null &&
-            event.getGuild().getSelfMember().getVoiceState().getChannel() != null) {
+                event.getGuild().getSelfMember().getVoiceState().getChannel() != null) {
             return; // 自身がいずれかのVCに参加している
         }
 
@@ -25,9 +25,9 @@ public class AutoJoin extends ListenerAdapter {
 
         if (StaticData.textChannel == null) return;
         EmbedBuilder embed = new EmbedBuilder()
-            .setTitle(":white_check_mark: AutoJoin")
-            .setDescription(MessageFormat.format("<#{0}> に接続しました。", event.getChannelJoined().getId()))
-            .setColor(LibEmbedColor.success);
+                .setTitle(":white_check_mark: AutoJoin")
+                .setDescription(MessageFormat.format("<#{0}> に接続しました。", event.getChannelJoined().getId()))
+                .setColor(LibEmbedColor.success);
         StaticData.textChannel.sendMessage(embed.build()).queue();
     }
 }

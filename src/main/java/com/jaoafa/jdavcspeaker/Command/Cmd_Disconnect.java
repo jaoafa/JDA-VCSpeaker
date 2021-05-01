@@ -15,29 +15,19 @@ public class Cmd_Disconnect implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-            builder
-                .handler(context -> execute(context, this::disconnect))
-                .build()
+                builder
+                        .handler(context -> execute(context, this::disconnect))
+                        .build()
         );
     }
 
     void disconnect(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!context.getSender().getEvent().isPresent()) {
-            channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("メッセージデータを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
-            ).queue();
-            return;
-        }
-
         if (guild.getSelfMember().getVoiceState() == null) {
             channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("VoiceStateを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":warning: 何かがうまくいきませんでした…")
+                    .setDescription("VoiceStateを取得できませんでした。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -45,10 +35,10 @@ public class Cmd_Disconnect implements CmdInterface {
         VoiceChannel connectedChannel = guild.getSelfMember().getVoiceState().getChannel();
         if (connectedChannel == null) {
             message.reply(new EmbedBuilder()
-                .setTitle(":x: なにかがおかしいかも？")
-                .setDescription("VCSpeakerはVCに参加していません...")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":x: なにかがおかしいかも？")
+                    .setDescription("VCSpeakerはVCに参加していません...")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -56,9 +46,9 @@ public class Cmd_Disconnect implements CmdInterface {
         guild.getAudioManager().closeAudioConnection();
 
         message.reply(new EmbedBuilder()
-            .setTitle(":white_check_mark: 切断しました！")
-            .setColor(LibEmbedColor.success)
-            .build()
+                .setTitle(":wave: 切断しました！")
+                .setColor(LibEmbedColor.success)
+                .build()
         ).queue();
     }
 }
