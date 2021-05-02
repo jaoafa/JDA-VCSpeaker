@@ -7,6 +7,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -68,7 +70,17 @@ public class TrackScheduler extends AudioEventAdapter {
                     .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
                                     .queue(null, Throwable::printStackTrace),
                             Throwable::printStackTrace);
-            nextTrack();
+            Timer timer = new Timer(false);
+            TimerTask task = new TimerTask() {
+
+                @Override
+                public void run() {
+                    nextTrack();
+                    timer.cancel();
+                }
+            };
+            timer.schedule(task, 300);
+
         }
     }
 
