@@ -2,16 +2,17 @@ package com.jaoafa.jdavcspeaker;
 
 import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
+import cloud.commandframework.exceptions.InvalidSyntaxException;
+import cloud.commandframework.exceptions.NoPermissionException;
+import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
 import cloud.commandframework.jda.JDAGuildSender;
 import cloud.commandframework.jda.JDAPrivateSender;
 import com.jaoafa.jdavcspeaker.Event.*;
-import com.jaoafa.jdavcspeaker.Lib.ClassFinder;
-import com.jaoafa.jdavcspeaker.Lib.LibAlias;
-import com.jaoafa.jdavcspeaker.Lib.LibJson;
-import com.jaoafa.jdavcspeaker.Lib.Logger;
+import com.jaoafa.jdavcspeaker.Lib.*;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -101,6 +102,35 @@ public class Main extends ListenerAdapter {
                         throw new UnsupportedOperationException();
                     }
                     );
+
+            manager.registerExceptionHandler(NoSuchCommandException.class,
+                    (c,e) -> {
+                c.getChannel().sendMessage(
+                        new EmbedBuilder()
+                                .setTitle(":thinking: コマンドが見つかりませんでした！")
+                                .setColor(LibEmbedColor.error)
+                                .build()
+                ).queue();
+            });
+            manager.registerExceptionHandler(InvalidSyntaxException.class,
+                    (c,e) -> {
+                c.getChannel().sendMessage(
+                        new EmbedBuilder()
+                                .setTitle(":scroll: コマンドの構文が不正です！")
+                                .setDescription("`"+e.getCorrectSyntax()+"`")
+                                .setColor(LibEmbedColor.error)
+                                .build()
+                ).queue();
+            });
+            manager.registerExceptionHandler(NoPermissionException.class, (c,e) -> {
+                c.getChannel().sendMessage(
+                        new EmbedBuilder()
+                                .setTitle(":octagonal_sign: 権限がありません！")
+                                .setColor(LibEmbedColor.error)
+                                .build()
+                ).queue();
+            });
+
 
             ClassFinder classFinder = new ClassFinder();
             for (Class<?> clazz : classFinder.findClasses("com.jaoafa.jdavcspeaker.Command")) {

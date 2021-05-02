@@ -42,7 +42,7 @@ public class Cmd_Alias implements CmdInterface {
         String from = context.getOrDefault("from", null);
         String to = context.getOrDefault("to", null);
         MessageEmbed.Field exField = new MessageEmbed.Field(":beginner: EX:", "`;alias add 置き換え元 置き換え先`\n" + "`;alias add jaoafa じゃおあふぁ`", false);
-        /*if (from == null) {
+        if (from == null) {
             message.reply(new EmbedBuilder()
                 .setTitle(":warning: パラメーターが足りません！")
                 .setDescription("fromパラメーターが足りません。")
@@ -59,19 +59,6 @@ public class Cmd_Alias implements CmdInterface {
                     .addField(exField)
                 .setColor(LibEmbedColor.error)
                 .build()
-            ).queue();
-            return;
-        }*/
-
-        if (from == null || to == null) {
-            message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription(
-                            (from == null ? "from" : to == null ? "to" : "") + "値を入力してください。"
-                    )
-                    .addField(exField)
-                    .setColor(LibEmbedColor.error)
-                    .build()
             ).queue();
             return;
         }
