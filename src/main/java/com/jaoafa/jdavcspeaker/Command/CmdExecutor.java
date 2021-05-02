@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class CmdExecutor {
     public static void execute(CommandContext<JDACommandSender> context, CmdFunction handler) {
         MessageChannel channel = context.getSender().getChannel();
-        if (channel.getIdLong() != StaticData.textChannelId || channel.getIdLong() != StaticData.trashChannelId) return;
+        if (channel.getIdLong() != StaticData.textChannelId && channel.getIdLong() != StaticData.trashChannelId) return;
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
                     .setTitle(":warning: 何かがうまくいきませんでした…")
