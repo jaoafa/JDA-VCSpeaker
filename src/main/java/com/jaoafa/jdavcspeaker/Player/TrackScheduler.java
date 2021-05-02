@@ -66,10 +66,6 @@ public class TrackScheduler extends AudioEventAdapter {
             if (channel == null) {
                 return; // channelはnullである可能性がある
             }
-            channel.retrieveMessageById(info.getMessage().getIdLong())
-                    .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
-                                    .queue(null, Throwable::printStackTrace),
-                            Throwable::printStackTrace);
             Timer timer = new Timer(false);
             TimerTask task = new TimerTask() {
 
@@ -82,6 +78,11 @@ public class TrackScheduler extends AudioEventAdapter {
             timer.schedule(task, 300);
 
         }
+        TrackInfo info = (TrackInfo) track.getUserData();
+        TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());
+        channel.retrieveMessageById(info.getMessage().getIdLong())
+                .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
+                        .queue(null, Throwable::printStackTrace));
     }
 
     void reactionSpeaking(AudioTrack track) {
