@@ -10,6 +10,7 @@ import java.util.Map;
 public class StaticData {
     public static long textChannelId = 623153228267388958L;
     public static long trashChannelId = 616995424154157080L;
+    public static long amongChannelId = 792756763883077684L;
     @Nullable
     public static TextChannel textChannel = null;
     public static JDA jda;
