@@ -1,7 +1,9 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.VisionAPI;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -17,9 +19,11 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Event_SpeakVCText extends ListenerAdapter {
     Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
@@ -52,19 +56,19 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
 
             if (member.getVoiceState() != null &&
-                    member.getVoiceState().getChannel() != null) {
+                member.getVoiceState().getChannel() != null) {
                 // メッセージ送信者がどこかのVCに入っている場合
 
                 event.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
                 if (StaticData.textChannel != null) {
                     EmbedBuilder embed = new EmbedBuilder()
-                            .setTitle(":white_check_mark: AutoJoined")
-                            .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
-                            .setColor(LibEmbedColor.success);
+                        .setTitle(":white_check_mark: AutoJoined")
+                        .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
+                        .setColor(LibEmbedColor.success);
                     StaticData.textChannel.sendMessage(embed.build()).queue();
                 }
             } else {
@@ -74,11 +78,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
         // ignore
         boolean ignoreEquals = StaticData.ignoreMap.entrySet().stream()
-                .anyMatch(entry -> entry.getKey().equals("equal") &&
-                        content.equals(entry.getValue()));
+            .anyMatch(entry -> entry.getKey().equals("equal") &&
+                content.equals(entry.getValue()));
         boolean ignoreContain = StaticData.ignoreMap.entrySet().stream()
-                .anyMatch(entry -> entry.getKey().equals("contain") &&
-                        content.contains(entry.getValue()));
+            .anyMatch(entry -> entry.getKey().equals("contain") &&
+                content.contains(entry.getValue()));
 
         if (ignoreEquals || ignoreContain) return;
 
@@ -89,6 +93,28 @@ public class Event_SpeakVCText extends ListenerAdapter {
         speakContent = replacerLink(jda, speakContent);
 
         VoiceText.speak(message, speakContent);
+
+        // 画像等
+        VisionAPI visionAPI = Main.getVisionAPI();
+        if (visionAPI == null) {
+            event.getMessage().getAttachments()
+                .forEach(attachment -> VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+            return;
+        }
+        for (Message.Attachment attachment : event.getMessage().getAttachments()) {
+            attachment.downloadToFile().thenAcceptAsync(file -> {
+                try {
+                    List<VisionAPI.Result> results = visionAPI.getImageLabel(file);
+                    if (results == null) {
+                        VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
+                        return;
+                    }
+                    String descriptions = results.stream().map(VisionAPI.Result::getDescription).collect(Collectors.joining("、"));
+                    VoiceText.speak(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
+                } catch (IOException ignored) {
+                }
+            });
+        }
     }
 
     String replacerLink(JDA jda, String content) {
@@ -108,8 +134,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 if (message == null) continue;
 
                 String replaceTo = MessageFormat.format("{0}が{1}で送信したメッセージのリンク",
-                        message.getAuthor().getAsTag(),
-                        channel.getName());
+                    message.getAuthor().getAsTag(),
+                    channel.getName());
                 content = content.replace(url, replaceTo);
                 continue;
             }
@@ -128,9 +154,9 @@ public class Event_SpeakVCText extends ListenerAdapter {
     String getTitle(String url) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .build();
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
             Request request = new Request.Builder().url(url).build();
             try (Response response = client.newCall(request).execute()) {
                 if (response.code() != 200 && response.code() != 302) {

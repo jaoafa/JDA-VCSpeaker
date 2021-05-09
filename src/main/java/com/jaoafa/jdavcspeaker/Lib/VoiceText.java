@@ -13,6 +13,9 @@ import java.nio.file.Paths;
 
 public class VoiceText {
     public static void speak(Message message, String speakText) {
+        if(speakText.length() == 0){
+            return;
+        }
         try {
             try {
                 OkHttpClient client = new OkHttpClient();
