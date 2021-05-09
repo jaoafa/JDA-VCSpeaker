@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -30,6 +31,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class Main extends ListenerAdapter {
+    static VisionAPI visionAPI = null;
+
     public static void main(String[] args) {
         try {
             Logger.print("VCSpeaker Starting...");
@@ -60,16 +63,21 @@ public class Main extends ListenerAdapter {
             } else {
                 System.out.println("Use the default value because channelId is undefined.");
             }
+
+            if (config.has("visionAPIKey")) {
+                visionAPI = new VisionAPI(config.getString("visionAPIKey"));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     static void commandRegister(JDA jda) {
+        JSONObject config = LibJson.readObject("./VCSpeaker.json");
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
                     jda,
-                    message -> ";",
+                    message -> config.optString("prefix", ";"),
                     (sender, perm) -> true,
                     CommandExecutionCoordinator.simpleCoordinator(),
                     sender -> {
@@ -104,32 +112,26 @@ public class Main extends ListenerAdapter {
                     );
 
             manager.registerExceptionHandler(NoSuchCommandException.class,
-                    (c,e) -> {
-                c.getChannel().sendMessage(
-                        new EmbedBuilder()
-                                .setTitle(":thinking: コマンドが見つかりませんでした！")
-                                .setColor(LibEmbedColor.error)
-                                .build()
-                ).queue();
-            });
+                    (c,e) -> c.getChannel().sendMessage(
+                            new EmbedBuilder()
+                                    .setTitle(":thinking: コマンドが見つかりませんでした！")
+                                    .setColor(LibEmbedColor.error)
+                                    .build()
+                    ).queue());
             manager.registerExceptionHandler(InvalidSyntaxException.class,
-                    (c,e) -> {
-                c.getChannel().sendMessage(
-                        new EmbedBuilder()
-                                .setTitle(":scroll: コマンドの構文が不正です！")
-                                .setDescription("`"+e.getCorrectSyntax()+"`")
-                                .setColor(LibEmbedColor.error)
-                                .build()
-                ).queue();
-            });
-            manager.registerExceptionHandler(NoPermissionException.class, (c,e) -> {
-                c.getChannel().sendMessage(
-                        new EmbedBuilder()
-                                .setTitle(":octagonal_sign: 権限がありません！")
-                                .setColor(LibEmbedColor.error)
-                                .build()
-                ).queue();
-            });
+                    (c,e) -> c.getChannel().sendMessage(
+                            new EmbedBuilder()
+                                    .setTitle(":scroll: コマンドの構文が不正です！")
+                                    .setDescription("`"+e.getCorrectSyntax()+"`")
+                                    .setColor(LibEmbedColor.error)
+                                    .build()
+                    ).queue());
+            manager.registerExceptionHandler(NoPermissionException.class, (c,e) -> c.getChannel().sendMessage(
+                    new EmbedBuilder()
+                            .setTitle(":octagonal_sign: 権限がありません！")
+                            .setColor(LibEmbedColor.error)
+                            .build()
+            ).queue());
 
 
             ClassFinder classFinder = new ClassFinder();
@@ -183,5 +185,10 @@ public class Main extends ListenerAdapter {
         } else {
             System.out.println("Failed to get text channel.");
         }
+    }
+
+    @Nullable
+    public static VisionAPI getVisionAPI() {
+        return visionAPI;
     }
 }
