@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -16,16 +16,19 @@ import java.text.MessageFormat;
 public class AutoMove extends ListenerAdapter {
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        if (!MultipleServer.isTargetServer(event.getGuild())) {
+            return;
+        }
         VoiceChannel oldChannel = event.getOldValue();
         VoiceChannel newChannel = event.getNewValue();
         long newUsers = newChannel.getMembers().stream()
-                .filter(member -> !member.getUser().isBot())
-                .count();
+            .filter(member -> !member.getUser().isBot())
+            .count();
 
         System.out.println(MessageFormat.format("[AutoMove] {0}: {1} -> {2} ({3})",
-                event.getMember().getUser().getAsTag(),
-                oldChannel.getName(),
-                newChannel.getName(),
+            event.getMember().getUser().getAsTag(),
+            oldChannel.getName(),
+            newChannel.getName(),
                 newUsers));
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
@@ -52,11 +55,11 @@ public class AutoMove extends ListenerAdapter {
         AudioManager audioManager = event.getGuild().getAudioManager();
         audioManager.openAudioConnection(event.getChannelJoined());
 
-        if (StaticData.textChannel == null) return;
+        if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(":white_check_mark: AutoMoved")
                 .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))
                 .setColor(LibEmbedColor.success);
-        StaticData.textChannel.sendMessage(embed.build()).queue();
+        MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
     }
 }

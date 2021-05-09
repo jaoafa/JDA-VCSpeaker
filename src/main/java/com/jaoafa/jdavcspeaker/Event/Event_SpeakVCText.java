@@ -1,6 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VisionAPI;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
@@ -32,10 +33,13 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (!MultipleServer.isTargetServer(event.getGuild())) {
+            return;
+        }
         final JDA jda = event.getJDA();
         final TextChannel channel = event.getTextChannel();
         final Message message = event.getMessage();
-        if (channel.getIdLong() != StaticData.textChannelId) {
+        if (channel.getIdLong() != MultipleServer.getVCChannelId(event.getGuild())) {
             return; // VCテキストチャンネル以外からのメッセージ
         }
         final Member member = event.getMember();
@@ -64,12 +68,12 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 // メッセージ送信者がどこかのVCに入っている場合
 
                 event.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
-                if (StaticData.textChannel != null) {
+                if (MultipleServer.getVCChannel(event.getGuild()) != null) {
                     EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(":white_check_mark: AutoJoined")
                         .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
                         .setColor(LibEmbedColor.success);
-                    StaticData.textChannel.sendMessage(embed.build()).queue();
+                    MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
                 }
             } else {
                 return; // 自身がどこにも入っておらず、送信者もどこにも入っていない場合
