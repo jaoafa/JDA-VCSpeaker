@@ -1,7 +1,6 @@
 package com.jaoafa.jdavcspeaker;
 
 import cloud.commandframework.Command;
-import cloud.commandframework.CommandManager;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
@@ -9,7 +8,6 @@ import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
 import cloud.commandframework.jda.JDAGuildSender;
-import cloud.commandframework.jda.JDAPrivateSender;
 import com.jaoafa.jdavcspeaker.Event.*;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,12 +30,14 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
+    static String prefix;
 
     public static void main(String[] args) {
         try {
             Logger.print("VCSpeaker Starting...");
             JSONObject config = LibJson.readObject("./VCSpeaker.json");
             JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
+            prefix = config.optString("prefix", ";");
             builder.setChunkingFilter(ChunkingFilter.ALL);
             builder.setMemberCachePolicy(MemberCachePolicy.ALL);
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
@@ -58,12 +58,6 @@ public class Main extends ListenerAdapter {
 
             commandRegister(jda);
 
-            if (config.has("channelId")) {
-                StaticData.textChannelId = config.getLong("channelId");
-            } else {
-                System.out.println("Use the default value because channelId is undefined.");
-            }
-
             if (config.has("visionAPIKey")) {
                 visionAPI = new VisionAPI(config.getString("visionAPIKey"));
             }
@@ -76,38 +70,29 @@ public class Main extends ListenerAdapter {
         JSONObject config = LibJson.readObject("./VCSpeaker.json");
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
-                    jda,
-                    message -> config.optString("prefix", ";"),
-                    (sender, perm) -> true,
-                    CommandExecutionCoordinator.simpleCoordinator(),
-                    sender -> {
-                        MessageReceivedEvent event = sender.getEvent().orElse(null);
+                jda,
+                message -> prefix,
+                (sender, perm) -> true,
+                CommandExecutionCoordinator.simpleCoordinator(),
+                sender -> {
+                    MessageReceivedEvent event = sender.getEvent().orElse(null);
 
-                        if (sender instanceof JDAPrivateSender) {
-                            JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
-                            return new JDAPrivateSender(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
-                        }
+                    if (sender instanceof JDAGuildSender) {
+                        JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
+                        return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
+                    }
 
-                        if (sender instanceof JDAGuildSender) {
-                            JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-                            return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-                        }
-
-                        throw new UnsupportedOperationException();
+                    return null;
                     },
                     user -> {
                         MessageReceivedEvent event = user.getEvent().orElse(null);
-                        if (user instanceof JDAPrivateSender) {
-                            JDAPrivateSender privateUser = (JDAPrivateSender) user;
-                            return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
-                        }
 
                         if (user instanceof JDAGuildSender) {
                             JDAGuildSender guildUser = (JDAGuildSender) user;
                             return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
                         }
 
-                        throw new UnsupportedOperationException();
+                        return null;
                     }
                     );
 
@@ -178,17 +163,14 @@ public class Main extends ListenerAdapter {
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
-
-        StaticData.textChannel = event.getJDA().getTextChannelById(StaticData.textChannelId);
-        if (StaticData.textChannel != null) {
-            System.out.println("You have successfully get text channel.");
-        } else {
-            System.out.println("Failed to get text channel.");
-        }
     }
 
     @Nullable
     public static VisionAPI getVisionAPI() {
         return visionAPI;
+    }
+
+    public static String getPrefix() {
+        return prefix;
     }
 }

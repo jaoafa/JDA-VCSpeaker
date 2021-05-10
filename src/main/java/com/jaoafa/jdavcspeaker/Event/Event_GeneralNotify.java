@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,13 +18,16 @@ public class Event_GeneralNotify extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        if (!MultipleServer.isTargetServer(event.getGuild())) {
+            return;
+        }
         if (event.getMember().getUser().isBot()) {
             return;
         }
-        if (StaticData.textChannel == null) {
+        if (MultipleServer.getVCChannel(event.getGuild()) == null) {
             return;
         }
-        if (event.getGuild().getIdLong() != StaticData.textChannel.getGuild().getIdLong()) {
+        if (event.getGuild().getIdLong() != MultipleServer.getVCChannel(event.getGuild()).getGuild().getIdLong()) {
             return; // テキストチャンネルとGuildが違ったらreturn
         }
 
@@ -58,6 +61,6 @@ public class Event_GeneralNotify extends ListenerAdapter {
                 .setTitle(":inbox_tray: 会話が始まりました！")
                 .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
                 .setColor(LibEmbedColor.normal);
-        StaticData.textChannel.sendMessage(embed.build()).queue();
+        MultipleServer.getNotifyChannel(event.getGuild()).sendMessage(embed.build()).queue();
     }
 }

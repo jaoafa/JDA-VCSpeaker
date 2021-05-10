@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -14,8 +14,11 @@ import java.text.MessageFormat;
 public class AutoDisconnect extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (!MultipleServer.isTargetServer(event.getGuild())) {
+            return;
+        }
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             return; // 自身がどのVCにも参加していない
         }
         if (event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong() != event.getChannelLeft().getIdLong()) {
@@ -38,10 +41,10 @@ public class AutoDisconnect extends ListenerAdapter {
         }
         event.getGuild().getAudioManager().closeAudioConnection();
 
-        if (StaticData.textChannel == null) return;
+        if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(":white_check_mark: AutoDisconnected")
                 .setColor(LibEmbedColor.success);
-        StaticData.textChannel.sendMessage(embed.build()).queue();
+        MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
     }
 }
