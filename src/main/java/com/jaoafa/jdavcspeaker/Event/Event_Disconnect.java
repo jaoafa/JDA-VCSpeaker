@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Event;
 
+import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import net.dv8tion.jda.api.entities.User;
@@ -25,7 +26,7 @@ public class Event_Disconnect extends ListenerAdapter {
         VoiceChannel channel = event.getChannelLeft();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer.getVCChannel(event.getGuild()).sendMessage(MessageFormat.format(":outbox_tray: `{0}` が <#{1}> から退出しました。", user.getName(), channel.getId())).queue(
-            message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}から退出しました。", user.getName(), channel.getName()))
+            message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}から退出しました。", user.getName(), MsgFormatter.formatChannelName(channel)))
         );
     }
 }
