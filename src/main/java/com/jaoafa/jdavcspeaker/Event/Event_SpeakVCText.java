@@ -30,6 +30,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
     Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
     Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
     Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
+    Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -95,6 +96,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
         // Replace url
         speakContent = replacerLink(jda, speakContent);
+        // Spoiler
+        speakContent = replacerSpoiler(jda, speakContent);
 
         VoiceText.speak(message, speakContent);
 
@@ -153,6 +156,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
             content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
         }
         return content;
+    }
+
+    String replacerSpoiler(JDA jda, String content) {
+        return spoilerPattern.matcher(content).replaceAll(" ピー ");
     }
 
     String getTitle(String url) {
