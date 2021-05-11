@@ -2,11 +2,13 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 import com.jaoafa.jdavcspeaker.StaticData;
 import com.vdurmont.emoji.EmojiParser;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MsgFormatter {
+    static Pattern parenthesesPattern = Pattern.compile("\\(.+\\)");
     public static String format(String text) {
         //LengthCheck
         if (text.length() >= 180) {
@@ -34,9 +36,14 @@ public class MsgFormatter {
         }
 
         final String[] formatText = {text};
-        StaticData.aliasMap.forEach((k, v) -> {
-            formatText[0] = formatText[0].replace(k, v);
-        });
+        StaticData.aliasMap.forEach((k, v) -> formatText[0] = formatText[0].replace(k, v));
         return formatText[0];
+    }
+
+    public static String formatChannelName(VoiceChannel channel) {
+        String channelName = channel.getName();
+        channelName = EmojiParser.removeAllEmojis(channelName); // 絵文字の削除
+        channelName = parenthesesPattern.matcher(channelName).replaceAll(""); // かっこの削除
+        return channelName;
     }
 }

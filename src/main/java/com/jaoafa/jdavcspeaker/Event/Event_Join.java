@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Event;
 
+import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import net.dv8tion.jda.api.entities.User;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.text.MessageFormat;
 
 public class Event_Join extends ListenerAdapter {
+
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
@@ -22,7 +24,9 @@ public class Event_Join extends ListenerAdapter {
         VoiceChannel channel = event.getChannelJoined();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer.getVCChannel(event.getGuild()).sendMessage(MessageFormat.format(":inbox_tray: `{0}` が <#{1}> に参加しました。", user.getName(), channel.getId())).queue(
-            message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}に参加しました。", user.getName(), channel.getName()))
+            message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}に参加しました。",
+                user.getName(),
+                MsgFormatter.formatChannelName(channel)))
         );
     }
 }
