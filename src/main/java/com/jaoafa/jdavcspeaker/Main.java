@@ -27,6 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
@@ -61,6 +68,19 @@ public class Main extends ListenerAdapter {
             if (config.has("visionAPIKey")) {
                 visionAPI = new VisionAPI(config.getString("visionAPIKey"));
             }
+            if (new File("tmp").exists()) {
+                try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
+                    List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .filter(f -> !f.delete())
+                        .collect(Collectors.toList());
+                    if (missDeletes.size() != 0) {
+                        System.out.println("Failed to delete " + missDeletes.size() + " temporary files.");
+                    }
+                } catch (IOException ie) {
+                    ie.printStackTrace();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,39 +103,39 @@ public class Main extends ListenerAdapter {
                     }
 
                     return null;
-                    },
-                    user -> {
-                        MessageReceivedEvent event = user.getEvent().orElse(null);
+                },
+                user -> {
+                    MessageReceivedEvent event = user.getEvent().orElse(null);
 
-                        if (user instanceof JDAGuildSender) {
-                            JDAGuildSender guildUser = (JDAGuildSender) user;
-                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-                        }
-
-                        return null;
+                    if (user instanceof JDAGuildSender) {
+                        JDAGuildSender guildUser = (JDAGuildSender) user;
+                        return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
                     }
-                    );
+
+                    return null;
+                }
+            );
 
             manager.registerExceptionHandler(NoSuchCommandException.class,
-                    (c,e) -> c.getChannel().sendMessage(
-                            new EmbedBuilder()
-                                    .setTitle(":thinking: コマンドが見つかりませんでした！")
-                                    .setColor(LibEmbedColor.error)
-                                    .build()
-                    ).queue());
-            manager.registerExceptionHandler(InvalidSyntaxException.class,
-                    (c,e) -> c.getChannel().sendMessage(
-                            new EmbedBuilder()
-                                    .setTitle(":scroll: コマンドの構文が不正です！")
-                                    .setDescription("`"+e.getCorrectSyntax()+"`")
-                                    .setColor(LibEmbedColor.error)
-                                    .build()
-                    ).queue());
-            manager.registerExceptionHandler(NoPermissionException.class, (c,e) -> c.getChannel().sendMessage(
+                (c, e) -> c.getChannel().sendMessage(
                     new EmbedBuilder()
-                            .setTitle(":octagonal_sign: 権限がありません！")
-                            .setColor(LibEmbedColor.error)
-                            .build()
+                        .setTitle(":thinking: コマンドが見つかりませんでした！")
+                        .setColor(LibEmbedColor.error)
+                        .build()
+                ).queue());
+            manager.registerExceptionHandler(InvalidSyntaxException.class,
+                (c, e) -> c.getChannel().sendMessage(
+                    new EmbedBuilder()
+                        .setTitle(":scroll: コマンドの構文が不正です！")
+                        .setDescription("`" + e.getCorrectSyntax() + "`")
+                        .setColor(LibEmbedColor.error)
+                        .build()
+                ).queue());
+            manager.registerExceptionHandler(NoPermissionException.class, (c, e) -> c.getChannel().sendMessage(
+                new EmbedBuilder()
+                    .setTitle(":octagonal_sign: 権限がありません！")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue());
 
 
@@ -131,7 +151,7 @@ public class Main extends ListenerAdapter {
                     continue;
                 }
                 String commandName = clazz.getName().substring("com.jaoafa.jdavcspeaker.Command.Cmd_".length())
-                        .toLowerCase();
+                    .toLowerCase();
 
                 try {
                     Constructor<?> construct = clazz.getConstructor();

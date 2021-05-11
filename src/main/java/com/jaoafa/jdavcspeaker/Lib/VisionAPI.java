@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,10 +19,11 @@ import java.util.concurrent.TimeUnit;
 public class VisionAPI {
     String apikey;
     File file = new File("vision-api.json");
+
     public VisionAPI(String apikey) throws IOException {
         this.apikey = apikey;
 
-        if(!file.exists()){
+        if (!file.exists()) {
             Files.write(file.toPath(), Collections.singleton(new JSONObject().toString()));
         }
     }
@@ -35,16 +37,16 @@ public class VisionAPI {
      * @throws IOException IOExceptionが発生した場合
      */
     public List<Result> getImageLabel(File file) throws IOException {
-        if(isLimited()){
+        if (isLimited()) {
             return null;
         }
-        if(!isCheckTarget(file)){
+        if (!isCheckTarget(file)) {
             return null;
         }
 
         String hash = DigestUtils.md5Hex(Files.readAllBytes(file.toPath()));
         List<Result> cache = loadCache(hash);
-        if(cache != null){
+        if (cache != null) {
             System.out.println("getImageLabel: Used cache");
             return cache;
         }
@@ -113,7 +115,7 @@ public class VisionAPI {
 
     public List<Result> loadCache(String hash) throws IOException {
         File file = new File("vision-api-caches", hash);
-        if(!file.exists()){
+        if (!file.exists()) {
             return null;
         }
         JSONArray array = new JSONArray(String.join("\n", Files.readAllLines(file.toPath())));
@@ -130,12 +132,12 @@ public class VisionAPI {
 
     public void saveCache(String hash, List<Result> results) throws IOException {
         File file = new File("vision-api-caches", hash);
-        if(!file.getParentFile().exists()){
+        if (!file.getParentFile().exists()) {
             boolean bool = file.getParentFile().mkdirs();
             System.out.println("Created vision-api-caches directory. (" + (bool ? "successful" : "failed") + ")");
         }
         JSONArray array = new JSONArray();
-        for(Result result : results){
+        for (Result result : results) {
             JSONObject object = new JSONObject();
             object.put("description", result.getDescription());
             object.put("score", result.getScore());
@@ -144,17 +146,17 @@ public class VisionAPI {
         Files.write(file.toPath(), Collections.singleton(array.toString()));
     }
 
-    public boolean isCheckTarget(File file){
+    public boolean isCheckTarget(File file) {
         List<String> targets = Arrays.asList(
             "image/jpeg",
             "image/png",
             "image/gif",
             "image/bmp"
         );
-        try{
+        try {
             String mime = getMimeType(file);
             return targets.contains(mime);
-        }catch (IOException e){
+        } catch (IOException e) {
             return false;
         }
     }
@@ -164,17 +166,42 @@ public class VisionAPI {
         return URLConnection.guessContentTypeFromStream(is);
     }
 
+    @Nullable
+    private static String getJapaneseDesc(String englishDesc) {
+        try {
+            File file = new File("vision-api-translate.json");
+            JSONObject obj = new JSONObject();
+            if (file.exists()) {
+                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+            }
+            if (!obj.has(englishDesc)) {
+                obj.put(englishDesc, "");
+                Files.write(file.toPath(), Collections.singleton(obj.toString()));
+                return null;
+            }
+            if (obj.getString(englishDesc).isEmpty()) {
+                return null;
+            }
+            return obj.getString(englishDesc);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static class Result {
         String description;
+        String jpDesc;
         double score;
 
-        public Result(String description, double score){
+        public Result(String description, double score) {
             this.description = description;
             this.score = score;
+            this.jpDesc = getJapaneseDesc(description);
         }
 
         public String getDescription() {
-            return description;
+            return jpDesc != null ? jpDesc : description;
         }
 
         public double getScore() {

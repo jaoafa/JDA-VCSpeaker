@@ -18,6 +18,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -108,10 +109,16 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 .forEach(attachment -> VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
+        if (!new File("tmp").exists()) {
+            boolean bool = new File("tmp").mkdirs();
+            if (!bool) System.out.println("temporary folder was created.");
+        }
         for (Message.Attachment attachment : event.getMessage().getAttachments()) {
-            attachment.downloadToFile().thenAcceptAsync(file -> {
+            attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
                 try {
                     List<VisionAPI.Result> results = visionAPI.getImageLabel(file);
+                    boolean bool = file.delete();
+                    System.out.println("Temp attachment file have been " + (bool ? "successfully" : "failed") + " deleted");
                     if (results == null) {
                         VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
                         return;
