@@ -24,27 +24,27 @@ public class Cmd_Ignore implements CmdInterface {
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
                 builder
-                        .literal("add")
-                        .literal("contain", "contains")
-                        .argument(StringArgument.quoted("text"))
+                    .literal("add")
+                    .literal("contain", "contains")
+                    .argument(StringArgument.greedy("text"))
                         .handler(context -> execute(context, this::addContains))
                         .build(),
-                builder
-                        .literal("add")
-                        .literal("equal", "equals")
-                        .argument(StringArgument.quoted("text"))
+            builder
+                .literal("add")
+                .literal("equal", "equals")
+                .argument(StringArgument.greedy("text"))
                         .handler(context -> execute(context, this::addEquals))
                         .build(),
-                builder
-                        .literal("remove", "rm", "delete", "del")
-                        .literal("contain", "contains")
-                        .argument(StringArgument.quoted("text"))
+            builder
+                .literal("remove", "rm", "delete", "del")
+                .literal("contain", "contains")
+                .argument(StringArgument.greedy("text"))
                         .handler(context -> execute(context, this::removeContains))
                         .build(),
-                builder
-                        .literal("remove", "rm", "delete", "del")
-                        .literal("equal", "equals")
-                        .argument(StringArgument.quoted("text"))
+            builder
+                .literal("remove", "rm", "delete", "del")
+                .literal("equal", "equals")
+                .argument(StringArgument.greedy("text"))
                         .handler(context -> execute(context, this::removeEquals))
                         .build(),
                 builder
