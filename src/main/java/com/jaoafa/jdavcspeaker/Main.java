@@ -1,9 +1,7 @@
 package com.jaoafa.jdavcspeaker;
 
 import cloud.commandframework.Command;
-import cloud.commandframework.exceptions.InvalidSyntaxException;
-import cloud.commandframework.exceptions.NoPermissionException;
-import cloud.commandframework.exceptions.NoSuchCommandException;
+import cloud.commandframework.exceptions.*;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
@@ -87,11 +85,10 @@ public class Main extends ListenerAdapter {
     }
 
     static void commandRegister(JDA jda) {
-        JSONObject config = LibJson.readObject("./VCSpeaker.json");
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
                 jda,
-                message -> prefix,
+                message -> getPrefix(),
                 (sender, perm) -> true,
                 CommandExecutionCoordinator.simpleCoordinator(),
                 sender -> {
@@ -137,6 +134,23 @@ public class Main extends ListenerAdapter {
                     .setColor(LibEmbedColor.error)
                     .build()
             ).queue());
+            manager.registerExceptionHandler(ArgumentParseException.class, (c, e) -> c.getChannel().sendMessage(
+                new EmbedBuilder()
+                    .setTitle(":bangbang: 引数が不正です")
+                    .setDescription(String.format("`%s`", e.getCause().getMessage()))
+                    .setColor(LibEmbedColor.error)
+                    .build()
+            ).queue());
+            manager.registerExceptionHandler(CommandExecutionException.class, (c, e) -> {
+                c.getChannel().sendMessage(
+                    new EmbedBuilder()
+                        .setTitle(":no_entry_sign: 処理中にエラーが発生しました")
+                        .setDescription(String.format("```\n%s\n```", e.getCause().getClass().getName()))
+                        .setColor(LibEmbedColor.error)
+                        .build()
+                ).queue();
+                e.printStackTrace();
+            });
 
 
             ClassFinder classFinder = new ClassFinder();

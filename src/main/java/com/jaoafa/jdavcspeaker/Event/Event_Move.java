@@ -23,11 +23,20 @@ public class Event_Move extends ListenerAdapter {
         VoiceChannel oldChannel = event.getOldValue();
         VoiceChannel newChannel = event.getNewValue();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
-        MultipleServer.getVCChannel(event.getGuild()).sendMessage(MessageFormat.format(":twisted_rightwards_arrows: `{0}` が <#{1}> から <#{2}> に移動しました。", user.getName(), oldChannel.getId(), newChannel.getId())).queue(
-            message -> VoiceText.speak(message, MessageFormat.format("{0}が{1}から{2}に移動しました。",
+        MultipleServer
+            .getVCChannel(event.getGuild())
+            .sendMessage(MessageFormat.format(":twisted_rightwards_arrows: `{0}` が <#{1}> から <#{2}> に移動しました。",
                 user.getName(),
-                MsgFormatter.formatChannelName(oldChannel),
-                MsgFormatter.formatChannelName(newChannel)))
-        );
+                oldChannel.getId(),
+                newChannel.getId()))
+            .queue(
+                message ->
+                    new VoiceText()
+                        .play(message,
+                            MessageFormat.format("{0}が{1}から{2}に移動しました。",
+                                user.getName(),
+                                MsgFormatter.formatChannelName(oldChannel),
+                                MsgFormatter.formatChannelName(newChannel)))
+            );
     }
 }
