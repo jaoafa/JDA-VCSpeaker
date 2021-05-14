@@ -1,9 +1,6 @@
 package com.jaoafa.jdavcspeaker.Event;
 
-import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
-import com.jaoafa.jdavcspeaker.Lib.VisionAPI;
-import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,6 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
@@ -49,7 +47,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
             return;
         }
 
-        if (member.getUser().isBot()) {
+        User user = member.getUser();
+        if (user.isBot()) {
             return;
         }
 
@@ -98,33 +97,38 @@ public class Event_SpeakVCText extends ListenerAdapter {
         // Replace url
         speakContent = replacerLink(jda, speakContent);
         // Spoiler
-        speakContent = replacerSpoiler(jda, speakContent);
+        speakContent = replacerSpoiler(speakContent);
 
-        VoiceText.speak(message, speakContent);
+        UserVoiceTextResult uvtr = getUserVoiceText(user);
+        if (uvtr.isReset()) {
+            message.reply("デフォルトパラメーターが不正であるため、リセットしました。").queue();
+        }
+        VoiceText vt = uvtr.getVoiceText();
+        vt.play(message, speakContent);
 
         // 画像等
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
-            event.getMessage().getAttachments()
-                .forEach(attachment -> VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+            message.getAttachments()
+                .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
         if (!new File("tmp").exists()) {
             boolean bool = new File("tmp").mkdirs();
             if (!bool) System.out.println("temporary folder was created.");
         }
-        for (Message.Attachment attachment : event.getMessage().getAttachments()) {
+        for (Message.Attachment attachment : message.getAttachments()) {
             attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
                 try {
                     List<VisionAPI.Result> results = visionAPI.getImageLabel(file);
                     boolean bool = file.delete();
                     System.out.println("Temp attachment file have been " + (bool ? "successfully" : "failed") + " deleted");
                     if (results == null) {
-                        VoiceText.speak(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
+                        vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
                         return;
                     }
                     String descriptions = results.stream().map(VisionAPI.Result::getDescription).collect(Collectors.joining("、"));
-                    VoiceText.speak(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
+                    vt.play(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
                 } catch (IOException ignored) {
                 }
             });
@@ -165,7 +169,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
         return content;
     }
 
-    String replacerSpoiler(JDA jda, String content) {
+    String replacerSpoiler(String content) {
         return spoilerPattern.matcher(content).replaceAll(" ピー ");
     }
 
@@ -189,6 +193,37 @@ public class Event_SpeakVCText extends ListenerAdapter {
             }
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    UserVoiceTextResult getUserVoiceText(User user) {
+        try {
+            return new UserVoiceTextResult(new VoiceText(user), false);
+        } catch (VoiceText.WrongException e) {
+            try {
+                new DefaultParamsManager(user).setDefaultVoiceText(null);
+            } catch (VoiceText.WrongException ignored) {
+                throw new RuntimeException("VoiceText.WrongException");
+            }
+            return new UserVoiceTextResult(new VoiceText(), true);
+        }
+    }
+
+    static class UserVoiceTextResult {
+        VoiceText vt;
+        boolean isReset;
+
+        public UserVoiceTextResult(VoiceText vt, boolean isReset) {
+            this.vt = vt;
+            this.isReset = isReset;
+        }
+
+        public VoiceText getVoiceText() {
+            return vt;
+        }
+
+        public boolean isReset() {
+            return isReset;
         }
     }
 }
