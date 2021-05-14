@@ -31,7 +31,7 @@ JDA + Lavaplayer で作られている VCSpeaker のリポジトリです。
 
 ユーザー・サーバ毎に読み上げパラメーターのデフォルトを設定します。
 
-- `default user <params...>`: あなたのデフォルトパラメーターを設定します。`<params>` には `speaker:show speed:200` といったメッセージで指定するパラメーターと同じように入力して下さい
+- `default user <params...>`: あなたのデフォルトパラメーターを設定します。`<params...>` には `speaker:show speed:200` といったメッセージで指定するパラメーターと同じように入力して下さい
   - (同等引数: `default <params...>`)
 - `default user get`: 現在設定しているあなたのデフォルトパラメーターを表示します。
   - (同等引数: `default get`)
