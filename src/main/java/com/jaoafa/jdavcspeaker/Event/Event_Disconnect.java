@@ -19,7 +19,7 @@ public class Event_Disconnect extends ListenerAdapter {
             return;
         }
         VoiceChannel vc = event.getChannelLeft();
-        JSONObject titleSetting = LibJson.readObject("./title");
+        JSONObject titleSetting = LibJson.readObject("./title.json");
         //残りメンバー0人かつ登録されている場合
         if (vc.getMembers().size() == 0&&titleSetting.has(vc.getId())){
             //かつtitleが設定されている場合
