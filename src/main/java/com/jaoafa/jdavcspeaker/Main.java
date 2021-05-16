@@ -41,6 +41,7 @@ public class Main extends ListenerAdapter {
         try {
             Logger.print("VCSpeaker Starting...");
             JSONObject config = LibJson.readObject("./VCSpeaker.json");
+            LibTitle.titleSetting = LibJson.readObject("./title.json");
             JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
             prefix = config.optString("prefix", ";");
             builder.setChunkingFilter(ChunkingFilter.ALL);
@@ -59,6 +60,7 @@ public class Main extends ListenerAdapter {
             builder.addEventListeners(new Event_Disconnect());
             builder.addEventListeners(new Event_SpeakVCText());
             builder.addEventListeners(new Event_GeneralNotify());
+            builder.addEventListeners(new Event_SyncVCName());
             JDA jda = builder.build();
 
             commandRegister(jda);
