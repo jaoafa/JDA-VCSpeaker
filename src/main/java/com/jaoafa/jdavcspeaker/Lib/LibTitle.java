@@ -45,8 +45,7 @@ public class LibTitle {
         saveSetting(
                 titleSetting.put(
                         channel.getId(),
-                        titleSetting
-                                .getJSONObject(channel.getId())
+                        new JSONObject()
                                 .put("original",name)
                                 .put("current","")
                                 .put("modified",false)
@@ -86,8 +85,7 @@ public class LibTitle {
             saveSetting(
                     titleSetting.put(
                             s.getId(),
-                            titleSetting
-                                    .getJSONObject(s.getId())
+                            new JSONObject()
                                     .put("original",s.getName())
                                     .put("current","")
                                     .put("modified",false)
@@ -98,16 +96,17 @@ public class LibTitle {
     }
     //指定VCをOriginalとして強制的に保存します。(上書き)
     public static boolean saveAsOriginal(VoiceChannel channel){
-        saveSetting(
-                titleSetting.put(
-                        channel.getId(),
-                        titleSetting
-                                .getJSONObject(channel.getId())
-                                .put("original",channel.getName())
-                                .put("current","")
-                                .put("modified",false)
-                )
-        );
+        if (titleSetting.has(channel.getId())){
+            saveSetting(
+                    titleSetting.put(
+                            channel.getId(),
+                            new JSONObject()
+                                    .put("original",channel.getName())
+                                    .put("current","")
+                                    .put("modified",false)
+                    )
+            );
+        }
         return true;
     }
 }
