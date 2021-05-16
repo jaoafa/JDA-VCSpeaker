@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -36,14 +38,13 @@ public class LibJson {
     public static JSONObject readObject(String path) {
         final String[] jsonst = {""};
         try {
-            Files.readAllLines(Paths.get(path)).forEach(s -> {
+            Files.readAllLines(Paths.get(path), Charset.defaultCharset()).forEach(s -> {
                 jsonst[0] = jsonst[0] + s + "\n";
             });
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JSONObject json = new JSONObject(jsonst[0]);
-        return json;
+        return new JSONObject(jsonst[0]);
     }
 
     public static JSONArray readArray(String path) {

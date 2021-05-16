@@ -41,9 +41,10 @@ public class Cmd_Title implements CmdInterface {
             LibTitle.saveAsOriginal(member.getVoiceState().getChannel());
             LibTitle.setTitle(member.getVoiceState().getChannel(), context.get("title"));
         }
+        String title = context.get("title");
         message.reply(new EmbedBuilder()
                 .setTitle(":magic_wand: タイトルを変更しました！")
-                .setDescription(String.format("`%s`\n全員退出したらリセットされます。", context.get("title")))
+                .setDescription(String.format("`%s`\n全員退出したらリセットされます。", title))
                 .setColor(LibEmbedColor.success)
                 .build()
         ).queue();
