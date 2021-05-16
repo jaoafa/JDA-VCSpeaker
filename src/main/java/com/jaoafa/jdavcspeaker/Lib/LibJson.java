@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class LibJson {
-    public static void write(String path, JSONObject jsonObject) {
+    public static void writeObject(String path, JSONObject jsonObject) {
         try {
             FileWriter file = new FileWriter(path);
             PrintWriter pw = new PrintWriter(new BufferedWriter(file));
