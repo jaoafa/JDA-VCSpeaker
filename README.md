@@ -71,3 +71,34 @@ VCSpeaker の初期設定など、VCSpeaker 関連の設定を行います。サ
 - `vcspeaker server add`: サーバを VCSpeaker の読み上げサーバとして設定します。コマンドを実行したチャンネルをチャット読み上げチャンネルとして設定します。
 - `vcspeaker server remove`: サーバを VCSpeaker の読み上げサーバから削除します。
 - `vcspeaker server notifychannel <channel>`: VCSpeaker の会話開始通知チャンネルを設定します。
+
+## Parameters
+
+### speaker
+
+- show
+- haruka
+- hikari (デフォルト)
+- takeru
+- santa 
+- bear
+
+### emotion
+
+※ haruka, hikari, takeru, santa, bearのみ
+
+- happiness
+- anger
+- sadness
+
+### emotion_level
+
+1 ～ 4
+
+### pitch
+
+50 ～ 200 (%) デフォルト100
+
+### speed
+
+50 ～ 400 (%) デフォルト120
