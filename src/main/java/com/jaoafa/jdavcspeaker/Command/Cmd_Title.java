@@ -22,7 +22,7 @@ public class Cmd_Title implements CmdInterface {
         return new CmdBuilders(
                 builder
                         .handler(context -> execute(context, this::title))
-                        .argument(StringArgument.of("title"))
+                        .argument(StringArgument.greedy("title"))
                         .build()
         );
     }
