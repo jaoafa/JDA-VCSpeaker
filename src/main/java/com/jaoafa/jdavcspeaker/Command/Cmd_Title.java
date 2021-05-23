@@ -20,33 +20,33 @@ public class Cmd_Title implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::title))
-                        .argument(StringArgument.greedy("title"))
-                        .build()
+            builder
+                .handler(context -> execute(context, this::title))
+                .argument(StringArgument.greedy("title"))
+                .build()
         );
     }
 
     void title(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (member.getVoiceState().getChannel() == null){
+        if (member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":no_entry_sign: VCに入ってから実行してください")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":no_entry_sign: VCに入ってから実行してください")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
         boolean profileExists = LibTitle.setTitle(member.getVoiceState().getChannel(), context.get("title"));
-        if (!profileExists){
+        if (!profileExists) {
             LibTitle.saveAsOriginal(member.getVoiceState().getChannel());
             LibTitle.setTitle(member.getVoiceState().getChannel(), context.get("title"));
         }
         String title = context.get("title");
         message.reply(new EmbedBuilder()
-                .setTitle(":magic_wand: タイトルを変更しました！")
-                .setDescription(String.format("`%s`\n全員退出したらリセットされます。", title))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":magic_wand: タイトルを変更しました！")
+            .setDescription(String.format("`%s`\n全員退出したらリセットされます。", title))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 }

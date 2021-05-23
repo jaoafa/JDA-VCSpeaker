@@ -28,6 +28,29 @@ public class VisionAPI {
         }
     }
 
+    @Nullable
+    private static String getJapaneseDesc(String englishDesc) {
+        try {
+            File file = new File("vision-api-translate.json");
+            JSONObject obj = new JSONObject();
+            if (file.exists()) {
+                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+            }
+            if (!obj.has(englishDesc)) {
+                obj.put(englishDesc, "");
+                Files.write(file.toPath(), Collections.singleton(obj.toString()));
+                return null;
+            }
+            if (obj.getString(englishDesc).isEmpty()) {
+                return null;
+            }
+            return obj.getString(englishDesc);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * 画像のラベル情報を取得します。<br />
      * 対象のファイルではない、もしくはリミッターに拒否された場合は null を返します。
@@ -164,29 +187,6 @@ public class VisionAPI {
     public String getMimeType(File file) throws IOException {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         return URLConnection.guessContentTypeFromStream(is);
-    }
-
-    @Nullable
-    private static String getJapaneseDesc(String englishDesc) {
-        try {
-            File file = new File("vision-api-translate.json");
-            JSONObject obj = new JSONObject();
-            if (file.exists()) {
-                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
-            }
-            if (!obj.has(englishDesc)) {
-                obj.put(englishDesc, "");
-                Files.write(file.toPath(), Collections.singleton(obj.toString()));
-                return null;
-            }
-            if (obj.getString(englishDesc).isEmpty()) {
-                return null;
-            }
-            return obj.getString(englishDesc);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static class Result {

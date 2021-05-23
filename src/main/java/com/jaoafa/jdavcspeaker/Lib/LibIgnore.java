@@ -36,7 +36,7 @@ public class LibIgnore {
         }
     }
 
-    public static void fetchJson() {
+    public static void saveJson() {
         JSONObject obj = new JSONObject();
         StaticData.ignoreMap.forEach(obj::put);
         try {
@@ -48,11 +48,11 @@ public class LibIgnore {
 
     public static void addToIgnore(String value1, String value2) {
         StaticData.ignoreMap.put(value1, value2);
-        fetchJson();
+        saveJson();
     }
 
     public static void removeFromIgnore(String value1, String value2) {
         StaticData.ignoreMap.remove(value1, value2);
-        fetchJson();
+        saveJson();
     }
 }

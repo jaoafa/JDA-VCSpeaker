@@ -23,34 +23,34 @@ public class Cmd_Ignore implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-                builder
-                    .literal("add")
-                    .literal("contain", "contains")
-                    .argument(StringArgument.greedy("text"))
-                        .handler(context -> execute(context, this::addContains))
-                        .build(),
+            builder
+                .literal("add")
+                .literal("contain", "contains")
+                .argument(StringArgument.greedy("text"))
+                .handler(context -> execute(context, this::addContains))
+                .build(),
             builder
                 .literal("add")
                 .literal("equal", "equals")
                 .argument(StringArgument.greedy("text"))
-                        .handler(context -> execute(context, this::addEquals))
-                        .build(),
+                .handler(context -> execute(context, this::addEquals))
+                .build(),
             builder
                 .literal("remove", "rm", "delete", "del")
                 .literal("contain", "contains")
                 .argument(StringArgument.greedy("text"))
-                        .handler(context -> execute(context, this::removeContains))
-                        .build(),
+                .handler(context -> execute(context, this::removeContains))
+                .build(),
             builder
                 .literal("remove", "rm", "delete", "del")
                 .literal("equal", "equals")
                 .argument(StringArgument.greedy("text"))
-                        .handler(context -> execute(context, this::removeEquals))
-                        .build(),
-                builder
-                        .literal("list")
-                        .handler(context -> execute(context, this::list))
-                        .build()
+                .handler(context -> execute(context, this::removeEquals))
+                .build(),
+            builder
+                .literal("list")
+                .handler(context -> execute(context, this::list))
+                .build()
         );
     }
 
@@ -58,11 +58,11 @@ public class Cmd_Ignore implements CmdInterface {
         String text = context.getOrDefault("text", null);
         if (text == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription("無視するテキストを入力してください。")
-                    .addField(":beginner: EX:", "`;ignore add contains 含んでいたら無視するテキスト`", false)
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("無視するテキストを入力してください。")
+                .addField(":beginner: EX:", "`;ignore add contains 含んでいたら無視するテキスト`", false)
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -70,10 +70,10 @@ public class Cmd_Ignore implements CmdInterface {
         LibIgnore.addToIgnore("contain", text);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":pencil: 無視項目を設定しました！")
-                .setDescription(String.format("`%s`が含まれるメッセージは読み上げません。", text))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":pencil: 無視項目を設定しました！")
+            .setDescription(String.format("`%s`が含まれるメッセージは読み上げません。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
@@ -81,11 +81,11 @@ public class Cmd_Ignore implements CmdInterface {
         String text = context.getOrDefault("text", null);
         if (text == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription("無視するテキストを入力してください。")
-                    .addField(":beginner: EX:", "`;ignore add equals 含んでいたら無視するテキスト`", false)
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("無視するテキストを入力してください。")
+                .addField(":beginner: EX:", "`;ignore add equals 含んでいたら無視するテキスト`", false)
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -93,10 +93,10 @@ public class Cmd_Ignore implements CmdInterface {
         LibIgnore.addToIgnore("equal", text);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":pencil: 無視項目を設定しました！")
-                .setDescription(String.format("`%s`に一致するメッセージは読み上げません。", text))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":pencil: 無視項目を設定しました！")
+            .setDescription(String.format("`%s`に一致するメッセージは読み上げません。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
@@ -104,10 +104,10 @@ public class Cmd_Ignore implements CmdInterface {
         String text = context.getOrDefault("text", null);
         if (text == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription("無視するテキストを入力してください。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("無視するテキストを入力してください。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -115,20 +115,20 @@ public class Cmd_Ignore implements CmdInterface {
         LibIgnore.removeFromIgnore("contain", text);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":wastebasket: 無視項目を削除しました！")
-                .setDescription(String.format("今後は`%s`が含まれているメッセージも読み上げます。", text))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":wastebasket: 無視項目を削除しました！")
+            .setDescription(String.format("今後は`%s`が含まれているメッセージも読み上げます。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
     void removeEquals(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
-                    .setTitle(":warning: 何かがうまくいきませんでした…")
-                    .setDescription("メッセージデータを取得できませんでした。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -136,10 +136,10 @@ public class Cmd_Ignore implements CmdInterface {
         String text = context.getOrDefault("text", null);
         if (text == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription("textパラメーターが足りません。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("textパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -147,33 +147,33 @@ public class Cmd_Ignore implements CmdInterface {
         LibIgnore.removeFromIgnore("equal", text);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":wastebasket: 無視項目を削除しました！")
-                .setDescription(String.format("今後は`%s`と一致するメッセージも読み上げます。", text))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":wastebasket: 無視項目を削除しました！")
+            .setDescription(String.format("今後は`%s`と一致するメッセージも読み上げます。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
     void list(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
-                    .setTitle(":warning: 何かがうまくいきませんでした…")
-                    .setDescription("メッセージデータを取得できませんでした。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription("メッセージデータを取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
 
         String list = StaticData.ignoreMap.entrySet().stream()
-                .map(entry -> String.format("`%s` : `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
-                .collect(Collectors.joining("\n")); // それぞれを改行で連結する
+            .map(entry -> String.format("`%s` : `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
+            .collect(Collectors.joining("\n")); // それぞれを改行で連結する
 
         message.reply(new EmbedBuilder()
-                .setTitle(":bookmark_tabs: 現在の無視項目")
-                .setDescription(list)
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":bookmark_tabs: 現在の無視項目")
+            .setDescription(list)
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 }

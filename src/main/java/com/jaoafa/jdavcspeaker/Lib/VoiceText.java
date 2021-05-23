@@ -51,22 +51,6 @@ public class VoiceText {
         return speaker;
     }
 
-    public int getSpeed() {
-        return speed;
-    }
-
-    public Emotion getEmotion() {
-        return emotion;
-    }
-
-    public EmotionLevel getEmotionLevel() {
-        return emotionLevel;
-    }
-
-    public int getPitch() {
-        return pitch;
-    }
-
     /**
      * Set the speaker
      *
@@ -81,6 +65,10 @@ public class VoiceText {
         }
         this.speaker = speaker;
         return this;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 
     /**
@@ -99,6 +87,10 @@ public class VoiceText {
         return this;
     }
 
+    public Emotion getEmotion() {
+        return emotion;
+    }
+
     /**
      * Set the emotion
      *
@@ -115,6 +107,10 @@ public class VoiceText {
         return this;
     }
 
+    public EmotionLevel getEmotionLevel() {
+        return emotionLevel;
+    }
+
     /**
      * Set the emotion level
      *
@@ -129,6 +125,10 @@ public class VoiceText {
         }
         this.emotionLevel = emotionLevel;
         return this;
+    }
+
+    public int getPitch() {
+        return pitch;
     }
 
     /**
@@ -405,10 +405,6 @@ public class VoiceText {
             this.lvl = lvl;
         }
 
-        public int getLevel() {
-            return lvl;
-        }
-
         public static EmotionLevel getEnum(String name) {
             return Arrays.stream(values())
                 .filter(emotion_level ->
@@ -416,6 +412,10 @@ public class VoiceText {
                         String.valueOf(emotion_level.getLevel()).equals(name))
                 .findFirst()
                 .orElse(EmotionLevel.__WRONG__);
+        }
+
+        public int getLevel() {
+            return lvl;
         }
     }
 

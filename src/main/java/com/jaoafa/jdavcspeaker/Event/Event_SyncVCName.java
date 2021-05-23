@@ -10,8 +10,8 @@ public class Event_SyncVCName extends ListenerAdapter {
     public void onVoiceChannelUpdateName(VoiceChannelUpdateNameEvent event) {
         //新しい値がcurrentかoriginalと同じだったら
         //VCSpeakerの作業だからSkip
-        if (event.getNewName().equals(LibJson.readObject("./title.json").getJSONObject(event.getChannel().getId()).getString("current"))||
-                event.getNewName().equals(LibJson.readObject("./title.json").getJSONObject(event.getChannel().getId()).getString("original"))){
+        if (event.getNewName().equals(LibJson.readObject("./title.json").getJSONObject(event.getChannel().getId()).getString("current")) ||
+            event.getNewName().equals(LibJson.readObject("./title.json").getJSONObject(event.getChannel().getId()).getString("original"))) {
             return;
         }
         //もし手動で変更されたらOriginalとして設定

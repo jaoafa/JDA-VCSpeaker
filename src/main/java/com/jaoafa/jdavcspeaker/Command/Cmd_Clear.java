@@ -19,9 +19,9 @@ public class Cmd_Clear implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::clear))
-                        .build()
+            builder
+                .handler(context -> execute(context, this::clear))
+                .build()
         );
     }
 
@@ -29,9 +29,9 @@ public class Cmd_Clear implements CmdInterface {
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.queue.clear();
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).player.destroy();
         message.reply(new EmbedBuilder()
-                .setTitle(":track_next: 読み上げをクリアしました！")
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":track_next: 読み上げをクリアしました！")
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 }

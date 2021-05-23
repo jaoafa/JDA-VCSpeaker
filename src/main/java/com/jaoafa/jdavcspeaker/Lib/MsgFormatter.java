@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class MsgFormatter {
     static Pattern parenthesesPattern = Pattern.compile("\\(.+\\)");
+
     public static String format(String text) {
         //LengthCheck
         if (text.length() >= 180) {
@@ -25,10 +26,10 @@ public class MsgFormatter {
             text = text.replace(m.group(), ":" + m.group(1) + ":");
         }
 
-        String[] splitedText = text.split(" ");
+        String[] splitText = text.split(" ");
 
         //URLCheck
-        for (String s : splitedText) {
+        for (String s : splitText) {
             if (s.startsWith("https://") || s.startsWith("http://")) {
                 String[] urlSplit = s.split("/");
                 text = text.replace(s, urlSplit[urlSplit.length - 1]);

@@ -47,7 +47,6 @@ public class Main extends ListenerAdapter {
             builder.setChunkingFilter(ChunkingFilter.ALL);
             builder.setMemberCachePolicy(MemberCachePolicy.ALL);
             builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
-            //builder.setEventManager(new AnnotatedEventManager()); // <- こいつが生きているとコマンドが動作しない
 
             builder.addEventListeners(new Main());
 
@@ -189,6 +188,15 @@ public class Main extends ListenerAdapter {
         }
     }
 
+    @Nullable
+    public static VisionAPI getVisionAPI() {
+        return visionAPI;
+    }
+
+    public static String getPrefix() {
+        return prefix;
+    }
+
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         File newdir = new File("./Temp");
@@ -199,14 +207,5 @@ public class Main extends ListenerAdapter {
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
-    }
-
-    @Nullable
-    public static VisionAPI getVisionAPI() {
-        return visionAPI;
-    }
-
-    public static String getPrefix() {
-        return prefix;
     }
 }
