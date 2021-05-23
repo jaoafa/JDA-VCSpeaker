@@ -15,12 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Vision APIを使用した画像の文章化
+ *
+ * @author Tomachi (book000)
  */
 public class VisionAPI {
     String apikey;
     File file = new File("vision-api.json");
 
-    public VisionAPI(String apikey) throws IOException {
+    public VisionAPI(String apikey) throws Exception {
         this.apikey = apikey;
 
         if (!file.exists()) {

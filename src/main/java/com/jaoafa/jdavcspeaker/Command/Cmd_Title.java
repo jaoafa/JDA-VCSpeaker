@@ -8,11 +8,9 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.*;
 
 import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
 
@@ -36,15 +34,33 @@ public class Cmd_Title implements CmdInterface {
             ).queue();
             return;
         }
-        boolean profileExists = LibTitle.setTitle(member.getVoiceState().getChannel(), context.get("title"));
-        if (!profileExists) {
-            LibTitle.saveAsOriginal(member.getVoiceState().getChannel());
-            LibTitle.setTitle(member.getVoiceState().getChannel(), context.get("title"));
+        String new_title = context.get("title");
+        VoiceChannel targetVC = member.getVoiceState().getChannel();
+
+        LibTitle libTitle = Main.getLibTitle();
+        if (libTitle == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: 初期化に失敗しています")
+                .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
         }
-        String title = context.get("title");
+
+        boolean isInitialized = false;
+        String old_title = targetVC.getName();
+        if (!libTitle.existsTitle(targetVC)) {
+            isInitialized = libTitle.saveAsOriginal(targetVC);
+        }
+        libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
+
         message.reply(new EmbedBuilder()
             .setTitle(":magic_wand: タイトルを変更しました！")
-            .setDescription(String.format("`%s`\n全員退出したらリセットされます。", title))
+            .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
+                old_title,
+                new_title,
+                isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();

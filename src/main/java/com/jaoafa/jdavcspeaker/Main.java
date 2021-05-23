@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -36,52 +37,83 @@ import java.util.stream.Stream;
 public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
     static String prefix;
+    static LibTitle libTitle = null;
 
     public static void main(String[] args) {
+        Logger.print("VCSpeaker Starting...");
+
+        JSONObject config;
         try {
-            Logger.print("VCSpeaker Starting...");
-            JSONObject config = LibJson.readObject("./VCSpeaker.json");
-            LibTitle.titleSetting = LibJson.readObject("./title.json");
-            JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
-            prefix = config.optString("prefix", ";");
-            builder.setChunkingFilter(ChunkingFilter.ALL);
-            builder.setMemberCachePolicy(MemberCachePolicy.ALL);
-            builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
-
-            builder.addEventListeners(new Main());
-
-            builder.addEventListeners(new AutoJoin());
-            builder.addEventListeners(new AutoMove());
-            builder.addEventListeners(new AutoDisconnect());
-
-            builder.addEventListeners(new Event_Join());
-            builder.addEventListeners(new Event_Move());
-            builder.addEventListeners(new Event_Disconnect());
-            builder.addEventListeners(new Event_SpeakVCText());
-            builder.addEventListeners(new Event_GeneralNotify());
-            builder.addEventListeners(new Event_SyncVCName());
-            JDA jda = builder.build();
-
-            commandRegister(jda);
-
-            if (config.has("visionAPIKey")) {
-                visionAPI = new VisionAPI(config.getString("visionAPIKey"));
-            }
-            if (new File("tmp").exists()) {
-                try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
-                    List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .filter(f -> !f.delete())
-                        .collect(Collectors.toList());
-                    if (missDeletes.size() != 0) {
-                        System.out.println("Failed to delete " + missDeletes.size() + " temporary files.");
-                    }
-                } catch (IOException ie) {
-                    ie.printStackTrace();
-                }
-            }
+            config = LibJson.readObject("./VCSpeaker.json");
         } catch (Exception e) {
+            System.out.println("[ERROR] 基本設定の読み込みに失敗しました。");
             e.printStackTrace();
+            System.exit(1);
+            return;
+        }
+
+        JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
+        prefix = config.optString("prefix", ";");
+        builder.setChunkingFilter(ChunkingFilter.ALL);
+        builder.setMemberCachePolicy(MemberCachePolicy.ALL);
+        builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
+
+        builder.addEventListeners(new Main());
+
+        builder.addEventListeners(new AutoJoin());
+        builder.addEventListeners(new AutoMove());
+        builder.addEventListeners(new AutoDisconnect());
+
+        builder.addEventListeners(new Event_Join());
+        builder.addEventListeners(new Event_Move());
+        builder.addEventListeners(new Event_Disconnect());
+        builder.addEventListeners(new Event_SpeakVCText());
+        builder.addEventListeners(new Event_GeneralNotify());
+        builder.addEventListeners(new Event_SyncVCName());
+
+        JDA jda;
+        try {
+            jda = builder.build();
+        } catch (LoginException e) {
+            System.out.println("[ERROR] Discordへのログインに失敗しました。");
+            e.printStackTrace();
+            System.exit(1);
+            return;
+        }
+
+        commandRegister(jda);
+
+        if (config.has("visionAPIKey")) {
+            try {
+                visionAPI = new VisionAPI(config.getString("visionAPIKey"));
+            } catch (Exception e) {
+                System.out.println("[ERROR] VisionAPIの初期化に失敗しました。関連機能は動作しません。");
+                e.printStackTrace();
+                visionAPI = null;
+            }
+        }
+
+        try {
+            libTitle = new LibTitle("./title.json");
+        } catch (Exception e) {
+            System.out.println("[ERROR] タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
+            e.printStackTrace();
+            System.exit(1);
+            return;
+        }
+
+        if (new File("tmp").exists()) {
+            try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
+                List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .filter(f -> !f.delete())
+                    .collect(Collectors.toList());
+                if (missDeletes.size() != 0) {
+                    System.out.println("Failed to delete " + missDeletes.size() + " temporary files.");
+                }
+            } catch (IOException ie) {
+                ie.printStackTrace();
+            }
         }
     }
 
@@ -207,5 +239,10 @@ public class Main extends ListenerAdapter {
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
+    }
+
+    @Nullable
+    public static LibTitle getLibTitle() {
+        return libTitle;
     }
 }

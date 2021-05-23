@@ -1,8 +1,10 @@
 package com.jaoafa.jdavcspeaker.Event;
 
+import com.jaoafa.jdavcspeaker.Lib.LibTitle;
 import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -16,12 +18,20 @@ public class Event_Move extends ListenerAdapter {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
+
+        VoiceChannel oldChannel = event.getOldValue();
+        VoiceChannel newChannel = event.getNewValue();
+
+        LibTitle libTitle = Main.getLibTitle();
+        if (libTitle != null) {
+            libTitle.processLeftTitle(oldChannel);
+        }
+
         if (event.getMember().getUser().isBot()) {
             return;
         }
+
         User user = event.getMember().getUser();
-        VoiceChannel oldChannel = event.getOldValue();
-        VoiceChannel newChannel = event.getNewValue();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())

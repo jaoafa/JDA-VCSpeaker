@@ -7,6 +7,7 @@ import com.jaoafa.jdavcspeaker.CmdInterface;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -48,7 +49,26 @@ public class Cmd_Vcname implements CmdInterface {
             ).queue();
             return;
         }
-        LibTitle.saveAsOriginal(member.getVoiceState().getChannel());
+        LibTitle libTitle = Main.getLibTitle();
+        if (libTitle == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: 初期化に失敗しています")
+                .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        boolean bool = libTitle.saveAsOriginal(member.getVoiceState().getChannel());
+        if (!bool) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":x: 保存に失敗しました。")
+                .setDescription("何らかのエラーが発生したため、VC名の保存に失敗しました。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
         message.reply(new EmbedBuilder()
             .setTitle(":white_check_mark: 保存に成功しました！")
             .setDescription("VC名を保存しました。\n現在のVC名をデフォルトとして使用します。")
@@ -66,7 +86,26 @@ public class Cmd_Vcname implements CmdInterface {
             ).queue();
             return;
         }
-        LibTitle.saveAsOriginalAll(guild);
+        LibTitle libTitle = Main.getLibTitle();
+        if (libTitle == null) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":warning: 初期化に失敗しています")
+                .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        boolean bool = libTitle.saveAsOriginalAll(guild);
+        if (!bool) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":x: 保存に失敗しました。")
+                .setDescription("何らかのエラーが発生したため、VC名の保存に失敗しました。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
         message.reply(new EmbedBuilder()
             .setTitle(":white_check_mark: 保存に成功しました！")
             .setDescription("タイトル設定中のVCを除き、全てのVC名を保存しました。\n現在のVC名をデフォルトとして使用します。")
