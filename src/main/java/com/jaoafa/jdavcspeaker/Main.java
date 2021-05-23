@@ -238,6 +238,7 @@ public class Main extends ListenerAdapter {
         }
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
+        LibIgnore.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }
 
