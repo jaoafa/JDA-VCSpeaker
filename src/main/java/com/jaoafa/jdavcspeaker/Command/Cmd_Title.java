@@ -53,7 +53,16 @@ public class Cmd_Title implements CmdInterface {
         if (!libTitle.existsTitle(targetVC)) {
             isInitialized = libTitle.saveAsOriginal(targetVC);
         }
-        libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
+        boolean bool = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
+        if (!bool) {
+            message.reply(new EmbedBuilder()
+                .setTitle(":x: 保存に失敗しました。")
+                .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
 
         message.reply(new EmbedBuilder()
             .setTitle(":magic_wand: タイトルを変更しました！")

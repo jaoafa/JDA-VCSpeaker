@@ -48,6 +48,7 @@ public class LibTitle {
      * @param channel 対象チャンネル
      * @return 設定中のVCタイトル
      */
+    @Nullable
     public String getCurrentTitle(VoiceChannel channel) {
         if (titleSetting == null) return null;
         if (!titleSetting.has(channel.getId())) return null;
@@ -60,6 +61,7 @@ public class LibTitle {
      * @param channel 対象チャンネル
      * @return 設定中のオリジナルVCタイトル
      */
+    @Nullable
     public String getOriginalTitle(VoiceChannel channel) {
         if (titleSetting == null) return null;
         if (!titleSetting.has(channel.getId())) return null;

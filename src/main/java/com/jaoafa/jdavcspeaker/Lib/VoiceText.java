@@ -400,7 +400,7 @@ public class VoiceText {
         SUPER(4),
         __WRONG__(Integer.MAX_VALUE);
 
-        int lvl;
+        final int lvl;
 
         EmotionLevel(int lvl) {
             this.lvl = lvl;

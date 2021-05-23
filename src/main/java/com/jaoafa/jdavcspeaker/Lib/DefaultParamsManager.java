@@ -11,10 +11,10 @@ import java.util.Collections;
 
 public class DefaultParamsManager {
     private static final File file = new File("user-default-params.json");
-    User user;
-    VoiceText defaultVoiceText = new VoiceText();
+    final User user;
+    final VoiceText defaultVoiceText = new VoiceText();
 
-    public DefaultParamsManager(User user) throws VoiceText.WrongException {
+    public DefaultParamsManager(User user) {
         this.user = user;
     }
 
@@ -34,6 +34,7 @@ public class DefaultParamsManager {
         return getData().optJSONObject(user.getId());
     }
 
+    @Nullable
     public VoiceText getDefaultVoiceText() throws VoiceText.WrongException {
         JSONObject object = getDefaultUserParams();
         if (object == null) return null;

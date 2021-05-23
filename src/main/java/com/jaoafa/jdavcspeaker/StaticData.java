@@ -7,6 +7,6 @@ import java.util.Map;
 
 public class StaticData {
     public static JDA jda;
-    public static Map<String, String> aliasMap = new HashMap<>();
-    public static Map<String, String> ignoreMap = new HashMap<>();
+    public static final Map<String, String> aliasMap = new HashMap<>();
+    public static final Map<String, String> ignoreMap = new HashMap<>();
 }

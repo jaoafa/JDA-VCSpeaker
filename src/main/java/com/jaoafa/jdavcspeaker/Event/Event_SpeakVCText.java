@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,10 +27,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Event_SpeakVCText extends ListenerAdapter {
-    Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
-    Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
-    Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
-    Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
+    final Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
+    final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
+    final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -159,12 +160,16 @@ public class Event_SpeakVCText extends ListenerAdapter {
             }
 
             String title = getTitle(url);
-            System.out.println("title: " + title);
-            if (title.length() >= 30) {
-                title = title.substring(0, 30) + "以下略";
+            if (title != null) {
+                System.out.println("title: " + title);
+                if (title.length() >= 30) {
+                    title = title.substring(0, 30) + "以下略";
+                }
+                System.out.println("title 2: " + title);
+                content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
+            } else {
+                content = content.replace(url, "Webページへのリンク");
             }
-            System.out.println("title 2: " + title);
-            content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
         }
         return content;
     }
@@ -173,6 +178,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
         return spoilerPattern.matcher(content).replaceAll(" ピー ");
     }
 
+    @Nullable
     String getTitle(String url) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
@@ -200,18 +206,14 @@ public class Event_SpeakVCText extends ListenerAdapter {
         try {
             return new UserVoiceTextResult(new VoiceText(user), false);
         } catch (VoiceText.WrongException e) {
-            try {
-                new DefaultParamsManager(user).setDefaultVoiceText(null);
-            } catch (VoiceText.WrongException ignored) {
-                throw new RuntimeException("VoiceText.WrongException");
-            }
+            new DefaultParamsManager(user).setDefaultVoiceText(null);
             return new UserVoiceTextResult(new VoiceText(), true);
         }
     }
 
     static class UserVoiceTextResult {
-        VoiceText vt;
-        boolean isReset;
+        final VoiceText vt;
+        final boolean isReset;
 
         public UserVoiceTextResult(VoiceText vt, boolean isReset) {
             this.vt = vt;

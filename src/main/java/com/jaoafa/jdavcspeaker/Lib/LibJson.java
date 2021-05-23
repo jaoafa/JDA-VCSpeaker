@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,6 +40,7 @@ public class LibJson {
      * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
      * @throws InvalidPathException パス文字列をPathに変換できない場合
      */
+    /*
     public static JSONArray readArray(String _path) throws IOException, JSONException, InvalidPathException {
         Path path = Paths.get(_path);
         JSONArray array = new JSONArray();
@@ -50,6 +50,7 @@ public class LibJson {
         String json = String.join("\n", Files.readAllLines(path, Charset.defaultCharset()));
         return new JSONArray(json);
     }
+    */
 
     /**
      * オブジェクトをJSONファイルに書き出します。
@@ -71,7 +72,9 @@ public class LibJson {
      * @throws IOException          入出力例外が発生した場合
      * @throws InvalidPathException パス文字列をPathに変換できない場合
      */
+    /*
     public static void writeArray(String path, JSONArray array) throws IOException, InvalidPathException {
         Files.write(Paths.get(path), Collections.singleton(array.toString()));
     }
+    */
 }

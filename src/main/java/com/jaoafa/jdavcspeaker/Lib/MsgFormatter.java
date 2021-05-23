@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MsgFormatter {
-    static Pattern parenthesesPattern = Pattern.compile("\\(.+\\)");
+    static final Pattern parenthesesPattern = Pattern.compile("\\(.+\\)");
 
     public static String format(String text) {
         // LengthCheck
