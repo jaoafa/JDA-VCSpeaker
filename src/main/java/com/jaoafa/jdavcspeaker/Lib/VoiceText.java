@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -310,7 +311,7 @@ public class VoiceText {
             Request request = new Request.Builder()
                 .post(form.build())
                 .url("https://api.voicetext.jp/v1/tts")
-                .header("Authorization", Credentials.basic(LibJson.readObject("./VCSpeaker.json").getString("SpeakToken"), ""))
+                .header("Authorization", Credentials.basic(Main.getSpeakToken(), ""))
                 .build();
             try (Response response = client.newCall(request).execute()) {
                 ResponseBody body = response.body();

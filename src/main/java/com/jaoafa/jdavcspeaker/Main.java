@@ -38,6 +38,7 @@ public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
     static String prefix;
     static LibTitle libTitle = null;
+    static String speakToken = null;
 
     public static void main(String[] args) {
         Logger.print("VCSpeaker Starting...");
@@ -51,6 +52,19 @@ public class Main extends ListenerAdapter {
             System.exit(1);
             return;
         }
+
+        if (!config.has("DiscordToken")) {
+            System.out.println("[ERROR] DiscordTokenが未定義であるため、初期設定に失敗しました。");
+            System.exit(1);
+            return;
+        }
+
+        if (!config.has("SpeakToken")) {
+            System.out.println("[ERROR] SpeakTokenが未定義であるため、初期設定に失敗しました。");
+            System.exit(1);
+            return;
+        }
+        speakToken = config.getString("SpeakToken");
 
         JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
         prefix = config.optString("prefix", ";");
@@ -245,5 +259,9 @@ public class Main extends ListenerAdapter {
     @Nullable
     public static LibTitle getLibTitle() {
         return libTitle;
+    }
+
+    public static String getSpeakToken() {
+        return speakToken;
     }
 }
