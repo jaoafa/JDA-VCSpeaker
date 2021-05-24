@@ -13,6 +13,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+         
     <repositories>
         <repository>
             <id>dv8tion</id>
@@ -24,6 +25,7 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
     </repositories>
+         
     <dependencies>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -33,7 +35,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_222</version>
+            <version>4.2.1_265</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
