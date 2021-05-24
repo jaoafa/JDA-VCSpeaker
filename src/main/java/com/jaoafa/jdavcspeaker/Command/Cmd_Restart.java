@@ -19,22 +19,22 @@ public class Cmd_Restart implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::restart))
-                        .build()
+            builder
+                .handler(context -> execute(context, this::restart))
+                .build()
         );
     }
 
     void restart(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         message.reply(new EmbedBuilder()
-                .setTitle(":wave: 再起動します。")
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":wave: 再起動します。")
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue(
-                m -> {
-                    guild.getAudioManager().closeAudioConnection();
-                    System.exit(0);
-                }
+            m -> {
+                guild.getAudioManager().closeAudioConnection();
+                System.exit(0);
+            }
         );
     }
 }

@@ -10,10 +10,4 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 @FunctionalInterface
 public interface CmdFunction {
     void execute(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context);
-
-    class NullCommandExecutionHandler implements CmdFunction {
-        @Override
-        public void execute(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        }
-    }
 }

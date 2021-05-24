@@ -109,16 +109,7 @@ public class Cmd_Default implements CmdInterface {
         }
 
         boolean bool;
-        try {
-            bool = new DefaultParamsManager(user).setDefaultVoiceText(vt);
-        } catch (VoiceText.WrongException e) {
-            message.reply(new EmbedBuilder()
-                .setTitle(":joystick: ユーザーデフォルトパラメータ")
-                .setDescription("デフォルトパラメータの設定に失敗しました。一度リセットしてからもう一度お試しください。")
-                .setColor(LibEmbedColor.error)
-                .build()).queue();
-            return;
-        }
+        bool = new DefaultParamsManager(user).setDefaultVoiceText(vt);
         if (bool) {
             message.reply(new EmbedBuilder()
                 .setTitle(":joystick: ユーザーデフォルトパラメータ")
@@ -169,19 +160,11 @@ public class Cmd_Default implements CmdInterface {
 
     void resetUser(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         User user = member.getUser();
-        try {
-            boolean bool = new DefaultParamsManager(user).setDefaultVoiceText(null);
-            message.reply(new EmbedBuilder()
-                .setTitle(":joystick: ユーザーデフォルトパラメータ")
-                .setDescription("デフォルトパラメータのリセットに" + (bool ? "成功" : "失敗") + "しました。")
-                .setColor(bool ? LibEmbedColor.success : LibEmbedColor.error)
-                .build()).queue();
-        } catch (VoiceText.WrongException e) {
-            message.reply(new EmbedBuilder()
-                .setTitle(":joystick: ユーザーデフォルトパラメータ")
-                .setDescription("デフォルトパラメータのリセットに失敗しました。正しくない値が指定されています。")
-                .setColor(LibEmbedColor.error)
-                .build()).queue();
-        }
+        boolean bool = new DefaultParamsManager(user).setDefaultVoiceText(null);
+        message.reply(new EmbedBuilder()
+            .setTitle(":joystick: ユーザーデフォルトパラメータ")
+            .setDescription("デフォルトパラメータのリセットに" + (bool ? "成功" : "失敗") + "しました。")
+            .setColor(bool ? LibEmbedColor.success : LibEmbedColor.error)
+            .build()).queue();
     }
 }

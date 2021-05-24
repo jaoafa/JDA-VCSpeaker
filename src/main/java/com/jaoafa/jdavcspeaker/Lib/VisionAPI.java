@@ -15,16 +15,41 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Vision APIを使用した画像の文章化
+ *
+ * @author Tomachi (book000)
  */
 public class VisionAPI {
-    String apikey;
-    File file = new File("vision-api.json");
+    final String apikey;
+    final File file = new File("vision-api.json");
 
-    public VisionAPI(String apikey) throws IOException {
+    public VisionAPI(String apikey) throws Exception {
         this.apikey = apikey;
 
         if (!file.exists()) {
             Files.write(file.toPath(), Collections.singleton(new JSONObject().toString()));
+        }
+    }
+
+    @Nullable
+    private static String getJapaneseDesc(String englishDesc) {
+        try {
+            File file = new File("vision-api-translate.json");
+            JSONObject obj = new JSONObject();
+            if (file.exists()) {
+                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+            }
+            if (!obj.has(englishDesc)) {
+                obj.put(englishDesc, "");
+                Files.write(file.toPath(), Collections.singleton(obj.toString()));
+                return null;
+            }
+            if (obj.getString(englishDesc).isEmpty()) {
+                return null;
+            }
+            return obj.getString(englishDesc);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -36,6 +61,7 @@ public class VisionAPI {
      * @return ラベル情報のリスト
      * @throws IOException IOExceptionが発生した場合
      */
+    @Nullable
     public List<Result> getImageLabel(File file) throws IOException {
         if (isLimited()) {
             return null;
@@ -113,6 +139,7 @@ public class VisionAPI {
         Files.write(file.toPath(), Collections.singleton(obj.toString()));
     }
 
+    @Nullable
     public List<Result> loadCache(String hash) throws IOException {
         File file = new File("vision-api-caches", hash);
         if (!file.exists()) {
@@ -166,33 +193,10 @@ public class VisionAPI {
         return URLConnection.guessContentTypeFromStream(is);
     }
 
-    @Nullable
-    private static String getJapaneseDesc(String englishDesc) {
-        try {
-            File file = new File("vision-api-translate.json");
-            JSONObject obj = new JSONObject();
-            if (file.exists()) {
-                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
-            }
-            if (!obj.has(englishDesc)) {
-                obj.put(englishDesc, "");
-                Files.write(file.toPath(), Collections.singleton(obj.toString()));
-                return null;
-            }
-            if (obj.getString(englishDesc).isEmpty()) {
-                return null;
-            }
-            return obj.getString(englishDesc);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public static class Result {
-        String description;
-        String jpDesc;
-        double score;
+        final String description;
+        final String jpDesc;
+        final double score;
 
         public Result(String description, double score) {
             this.description = description;

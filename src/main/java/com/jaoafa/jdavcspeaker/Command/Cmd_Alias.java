@@ -20,21 +20,21 @@ public class Cmd_Alias implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-                builder
-                        .literal("add")
-                        .argument(StringArgument.quoted("from"))
-                        .argument(StringArgument.quoted("to"))
-                        .handler(context -> execute(context, this::addAlias))
-                        .build(),
-                builder
-                        .literal("remove", "rm", "delete", "del")
-                        .argument(StringArgument.quoted("from"))
-                        .handler(context -> execute(context, this::removeAlias))
-                        .build(),
-                builder
-                        .literal("list")
-                        .handler(context -> execute(context, this::listAlias))
-                        .build()
+            builder
+                .literal("add")
+                .argument(StringArgument.quoted("from"))
+                .argument(StringArgument.quoted("to"))
+                .handler(context -> execute(context, this::addAlias))
+                .build(),
+            builder
+                .literal("remove", "rm", "delete", "del")
+                .argument(StringArgument.quoted("from"))
+                .handler(context -> execute(context, this::removeAlias))
+                .build(),
+            builder
+                .literal("list")
+                .handler(context -> execute(context, this::listAlias))
+                .build()
         );
     }
 
@@ -46,7 +46,7 @@ public class Cmd_Alias implements CmdInterface {
             message.reply(new EmbedBuilder()
                 .setTitle(":warning: パラメーターが足りません！")
                 .setDescription("fromパラメーターが足りません。")
-                    .addField(exField)
+                .addField(exField)
                 .setColor(LibEmbedColor.error)
                 .build()
             ).queue();
@@ -56,7 +56,7 @@ public class Cmd_Alias implements CmdInterface {
             message.reply(new EmbedBuilder()
                 .setTitle(":warning: パラメーターが足りません！")
                 .setDescription("toパラメーターが足りません。")
-                    .addField(exField)
+                .addField(exField)
                 .setColor(LibEmbedColor.error)
                 .build()
             ).queue();
@@ -66,10 +66,10 @@ public class Cmd_Alias implements CmdInterface {
         LibAlias.addToAlias(from, to);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":pencil: エイリアスを設定しました！")
-                .setDescription(String.format("`%s`を`%s`に置き換えて読み上げます。", from, to))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":pencil: エイリアスを設定しました！")
+            .setDescription(String.format("`%s`を`%s`に置き換えて読み上げます。", from, to))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
@@ -77,21 +77,21 @@ public class Cmd_Alias implements CmdInterface {
         String from = context.getOrDefault("from", null);
         if (from == null) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":warning: パラメーターが足りません！")
-                    .setDescription("fromパラメーターが足りません。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":warning: パラメーターが足りません！")
+                .setDescription("fromパラメーターが足りません。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
 
         if (!StaticData.aliasMap.containsKey(from)) {
             message.reply(new EmbedBuilder()
-                    .setTitle(":mag_right: エイリアスが見つかりませんでした！")
-                    .setDescription(String.format("`%s`に一致するエイリアスが見つかりませんでした。\n", from)
-                            + "`/alias list`で現在のエイリアスを確認することが出来ます。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+                .setTitle(":mag_right: エイリアスが見つかりませんでした！")
+                .setDescription(String.format("`%s`に一致するエイリアスが見つかりませんでした。\n", from)
+                    + "`/alias list`で現在のエイリアスを確認することが出来ます。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -99,23 +99,23 @@ public class Cmd_Alias implements CmdInterface {
         LibAlias.removeFromAlias(from);
 
         message.reply(new EmbedBuilder()
-                .setTitle(":wastebasket: エイリアスを削除しました！")
-                .setDescription(String.format("`%s`の置き換えを削除しました。", from))
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":wastebasket: エイリアスを削除しました！")
+            .setDescription(String.format("`%s`の置き換えを削除しました。", from))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 
     void listAlias(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         String list = StaticData.aliasMap.entrySet().stream()
-                .map(entry -> String.format("`%s` -> `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
-                .collect(Collectors.joining("\n")); // それぞれを改行で連結する
+            .map(entry -> String.format("`%s` -> `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
+            .collect(Collectors.joining("\n")); // それぞれを改行で連結する
 
         message.reply(new EmbedBuilder()
-                .setTitle(":bookmark_tabs: 現在のエイリアス")
-                .setDescription(list)
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setTitle(":bookmark_tabs: 現在のエイリアス")
+            .setDescription(list)
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 }

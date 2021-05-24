@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -15,10 +16,6 @@ public class ClassFinder {
 
     public ClassFinder() {
         classLoader = Thread.currentThread().getContextClassLoader();
-    }
-
-    public ClassFinder(ClassLoader classLoader) {
-        this.classLoader = classLoader;
     }
 
     private String fileNameToClassName(String name) {
@@ -58,7 +55,7 @@ public class ClassFinder {
     private List<Class<?>> findClassesWithFile(String packageName, File dir) throws ClassNotFoundException {
         List<Class<?>> classes = new ArrayList<>();
 
-        for (String path : dir.list()) {
+        for (String path : Objects.requireNonNull(dir.list())) {
             File entry = new File(dir, path);
             if (entry.isFile() && isClassFile(entry.getName())) {
                 classes.add(classLoader.loadClass(packageName + "." + fileNameToClassName(entry.getName())));

@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -51,22 +52,6 @@ public class VoiceText {
         return speaker;
     }
 
-    public int getSpeed() {
-        return speed;
-    }
-
-    public Emotion getEmotion() {
-        return emotion;
-    }
-
-    public EmotionLevel getEmotionLevel() {
-        return emotionLevel;
-    }
-
-    public int getPitch() {
-        return pitch;
-    }
-
     /**
      * Set the speaker
      *
@@ -81,6 +66,10 @@ public class VoiceText {
         }
         this.speaker = speaker;
         return this;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 
     /**
@@ -99,6 +88,10 @@ public class VoiceText {
         return this;
     }
 
+    public Emotion getEmotion() {
+        return emotion;
+    }
+
     /**
      * Set the emotion
      *
@@ -115,6 +108,10 @@ public class VoiceText {
         return this;
     }
 
+    public EmotionLevel getEmotionLevel() {
+        return emotionLevel;
+    }
+
     /**
      * Set the emotion level
      *
@@ -129,6 +126,10 @@ public class VoiceText {
         }
         this.emotionLevel = emotionLevel;
         return this;
+    }
+
+    public int getPitch() {
+        return pitch;
     }
 
     /**
@@ -310,7 +311,7 @@ public class VoiceText {
             Request request = new Request.Builder()
                 .post(form.build())
                 .url("https://api.voicetext.jp/v1/tts")
-                .header("Authorization", Credentials.basic(LibJson.readObject("./VCSpeaker.json").getString("SpeakToken"), ""))
+                .header("Authorization", Credentials.basic(Main.getSpeakToken(), ""))
                 .build();
             try (Response response = client.newCall(request).execute()) {
                 ResponseBody body = response.body();
@@ -399,14 +400,10 @@ public class VoiceText {
         SUPER(4),
         __WRONG__(Integer.MAX_VALUE);
 
-        int lvl;
+        final int lvl;
 
         EmotionLevel(int lvl) {
             this.lvl = lvl;
-        }
-
-        public int getLevel() {
-            return lvl;
         }
 
         public static EmotionLevel getEnum(String name) {
@@ -416,6 +413,10 @@ public class VoiceText {
                         String.valueOf(emotion_level.getLevel()).equals(name))
                 .findFirst()
                 .orElse(EmotionLevel.__WRONG__);
+        }
+
+        public int getLevel() {
+            return lvl;
         }
     }
 
