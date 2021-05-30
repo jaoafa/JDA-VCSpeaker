@@ -159,6 +159,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 continue;
             }
 
+            //GIFリンク
+            if (url.endsWith(".gif")){
+                content = content.replace(url, "GIF画像へのリンク");
+            }
+
             String title = getTitle(url);
             if (title != null) {
                 System.out.println("title: " + title);
