@@ -1,4 +1,4 @@
-# JDA-VCSpeaker
+![image](https://user-images.githubusercontent.com/53546237/120327499-cbc73080-c324-11eb-9298-85a45789f0ee.png)
 
 JDA + Lavaplayer で作られている VCSpeaker のリポジトリです。
 
