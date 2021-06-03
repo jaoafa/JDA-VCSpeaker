@@ -18,19 +18,19 @@ public class Cmd_Title implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-            builder
-                .handler(context -> execute(context, this::title))
-                .argument(StringArgument.greedy("title"))
-                .build()
+                builder
+                        .handler(context -> execute(context, this::title))
+                        .argument(StringArgument.greedy("title"))
+                        .build()
         );
     }
 
     void title(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if (member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
             message.reply(new EmbedBuilder()
-                .setTitle(":no_entry_sign: VCに入ってから実行してください")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":no_entry_sign: VCに入ってから実行してください")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -40,10 +40,10 @@ public class Cmd_Title implements CmdInterface {
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle == null) {
             message.reply(new EmbedBuilder()
-                .setTitle(":warning: 初期化に失敗しています")
-                .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":warning: 初期化に失敗しています")
+                    .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
@@ -56,22 +56,22 @@ public class Cmd_Title implements CmdInterface {
         boolean bool = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
         if (!bool) {
             message.reply(new EmbedBuilder()
-                .setTitle(":x: 保存に失敗しました。")
-                .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":x: 保存に失敗しました。")
+                    .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
 
         message.reply(new EmbedBuilder()
-            .setTitle(":magic_wand: タイトルを変更しました！")
-            .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
-                old_title,
-                new_title,
-                isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
-            .setColor(LibEmbedColor.success)
-            .build()
+                .setTitle(":magic_wand: タイトルを変更しました！")
+                .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
+                        old_title,
+                        new_title,
+                        isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
+                .setColor(LibEmbedColor.success)
+                .build()
         ).queue();
     }
 }

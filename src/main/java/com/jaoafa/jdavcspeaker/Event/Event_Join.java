@@ -24,17 +24,17 @@ public class Event_Join extends ListenerAdapter {
         VoiceChannel channel = event.getChannelJoined();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
-            .getVCChannel(event.getGuild())
-            .sendMessage(MessageFormat.format(":inbox_tray: `{0}` が <#{1}> に参加しました。",
-                user.getName(),
-                channel.getId()))
-            .queue(
-                message ->
-                    new VoiceText()
-                        .play(message,
-                            MessageFormat.format("{0}が{1}に参加しました。",
-                                user.getName(),
-                                MsgFormatter.formatChannelName(channel)))
-            );
+                .getVCChannel(event.getGuild())
+                .sendMessage(MessageFormat.format(":inbox_tray: `{0}` が <#{1}> に参加しました。",
+                        user.getName(),
+                        channel.getId()))
+                .queue(
+                        message ->
+                                new VoiceText()
+                                        .play(message,
+                                                MessageFormat.format("{0}が{1}に参加しました。",
+                                                        user.getName(),
+                                                        MsgFormatter.formatChannelName(channel)))
+                );
     }
 }

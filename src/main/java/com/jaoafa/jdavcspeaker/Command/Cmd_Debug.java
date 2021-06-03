@@ -21,18 +21,18 @@ public class Cmd_Debug implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-            builder
-                .handler(context -> execute(context, this::debug))
-                .build()
+                builder
+                        .handler(context -> execute(context, this::debug))
+                        .build()
         );
     }
 
     void debug(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
         if (!member.getId().equals("492088741167366144") && !member.hasPermission(Permission.ADMINISTRATOR)) {
             message.reply(new EmbedBuilder()
-                .setTitle(":no_pedestrians: あなたはデバッグを実行する権限がありません！")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":no_pedestrians: あなたはデバッグを実行する権限がありません！")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }

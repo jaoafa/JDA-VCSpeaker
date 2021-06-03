@@ -43,6 +43,25 @@ public class LibTitle {
     }
 
     /**
+     * 現在のVC名と設定で保持しているVC名が同じかどうか調べます
+     *
+     * @param channel 対象チャンネル
+     * @return 同じかどうか
+     */
+    public boolean checkTitleIsSame(VoiceChannel channel) {
+        if (titleSetting == null) return false;
+        if (!titleSetting.has(channel.getId())) return false;
+        //Title使用中だったら中止
+        if (isModifiedTitle(channel)) return false;
+
+        if (getOriginalTitle(channel).equals(channel.getName())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 現在の設定中VCタイトルを取得します
      *
      * @param channel 対象チャンネル
@@ -81,16 +100,27 @@ public class LibTitle {
         if (!titleSetting.has(channel.getId())) {
             return false;
         }
+        //もし手動で変更されていたら(設定ファイルと違ったら)
+        //変更する前にオリジナルとして保存
+        if (!checkTitleIsSame(channel)) {
+            saveSetting(
+                    titleSetting.put(
+                            channel.getId(),
+                            new JSONObject()
+                                    .put("original", channel.getName())
+                    )
+            );
+        }
         // 名前変えて、設定ファイルにも記述
         channel.getManager().setName(name).queue();
         saveSetting(
-            titleSetting.put(
-                channel.getId(),
-                titleSetting
-                    .getJSONObject(channel.getId())
-                    .put("current", name)
-                    .put("modified", true)
-            )
+                titleSetting.put(
+                        channel.getId(),
+                        titleSetting
+                                .getJSONObject(channel.getId())
+                                .put("current", name)
+                                .put("modified", true)
+                )
         );
         return true;
     }
@@ -108,16 +138,16 @@ public class LibTitle {
         }
         //名前を戻して設定ファイルに記述
         channel.getManager().setName(
-            titleSetting.getJSONObject(channel.getId()).getString("original")
+                titleSetting.getJSONObject(channel.getId()).getString("original")
         ).queue();
         saveSetting(
-            titleSetting.put(
-                channel.getId(),
-                titleSetting
-                    .getJSONObject(channel.getId())
-                    .put("current", "")
-                    .put("modified", false)
-            )
+                titleSetting.put(
+                        channel.getId(),
+                        titleSetting
+                                .getJSONObject(channel.getId())
+                                .put("current", "")
+                                .put("modified", false)
+                )
         );
     }
 
@@ -136,13 +166,13 @@ public class LibTitle {
             }
             // profileが存在するかしないかに関わらず更新
             saveSetting(
-                titleSetting.put(
-                    s.getId(),
-                    new JSONObject()
-                        .put("original", s.getName())
-                        .put("current", "")
-                        .put("modified", false)
-                )
+                    titleSetting.put(
+                            s.getId(),
+                            new JSONObject()
+                                    .put("original", s.getName())
+                                    .put("current", "")
+                                    .put("modified", false)
+                    )
             );
         });
         return true;
@@ -158,13 +188,13 @@ public class LibTitle {
         if (titleSetting == null) return false;
         if (titleSetting.has(channel.getId())) {
             saveSetting(
-                titleSetting.put(
-                    channel.getId(),
-                    new JSONObject()
-                        .put("original", channel.getName())
-                        .put("current", "")
-                        .put("modified", false)
-                )
+                    titleSetting.put(
+                            channel.getId(),
+                            new JSONObject()
+                                    .put("original", channel.getName())
+                                    .put("current", "")
+                                    .put("modified", false)
+                    )
             );
         }
         return true;
@@ -177,10 +207,10 @@ public class LibTitle {
      */
     public void processLeftTitle(VoiceChannel vc) {
         long nonBotUsers = vc
-            .getMembers()
-            .stream()
-            .filter(member -> !member.getUser().isBot())
-            .count();
+                .getMembers()
+                .stream()
+                .filter(member -> !member.getUser().isBot())
+                .count();
         if (nonBotUsers != 0) {
             return;
         }

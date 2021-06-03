@@ -80,24 +80,24 @@ public class VisionAPI {
         String base64 = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
         // めんどくさいからJSONそのまま構築する
         String json = "{\n" +
-            "    \"requests\": [\n" +
-            "        {\n" +
-            "            \"image\": {\n" +
-            "                \"content\": \"" + base64 + "\"\n" +
-            "            },\n" +
-            "            \"features\": {\n" +
-            "                \"type\": \"LABEL_DETECTION\",\n" +
-            "                \"maxResults\": 3\n" +
-            "            }\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+                "    \"requests\": [\n" +
+                "        {\n" +
+                "            \"image\": {\n" +
+                "                \"content\": \"" + base64 + "\"\n" +
+                "            },\n" +
+                "            \"features\": {\n" +
+                "                \"type\": \"LABEL_DETECTION\",\n" +
+                "                \"maxResults\": 3\n" +
+                "            }\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=UTF-8"));
         String apiurl = String.format("https://vision.googleapis.com/v1/images:annotate?key=%s", apikey);
         OkHttpClient client = new OkHttpClient().newBuilder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .build();
+                                                .connectTimeout(10, TimeUnit.SECONDS)
+                                                .readTimeout(10, TimeUnit.SECONDS)
+                                                .build();
         Request request = new Request.Builder().url(apiurl).post(requestBody).build();
         try (Response response = client.newCall(request).execute()) {
             requested();
@@ -107,9 +107,9 @@ public class VisionAPI {
             ResponseBody body = response.body();
             assert body != null;
             JSONArray results = new JSONObject(body.string())
-                .getJSONArray("responses")
-                .getJSONObject(0)
-                .getJSONArray("labelAnnotations");
+                    .getJSONArray("responses")
+                    .getJSONObject(0)
+                    .getJSONArray("labelAnnotations");
 
             LinkedList<Result> ret = new LinkedList<>();
             for (int i = 0; i < results.length(); i++) {
@@ -150,8 +150,8 @@ public class VisionAPI {
         for (int i = 0; i < array.length(); i++) {
             JSONObject result = array.getJSONObject(i);
             results.add(new Result(
-                result.getString("description"),
-                result.getDouble("score")
+                    result.getString("description"),
+                    result.getDouble("score")
             ));
         }
         return results;
@@ -175,10 +175,10 @@ public class VisionAPI {
 
     public boolean isCheckTarget(File file) {
         List<String> targets = Arrays.asList(
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/bmp"
+                "image/jpeg",
+                "image/png",
+                "image/gif",
+                "image/bmp"
         );
         try {
             String mime = getMimeType(file);

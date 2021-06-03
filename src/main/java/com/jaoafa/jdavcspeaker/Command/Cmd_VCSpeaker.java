@@ -23,24 +23,24 @@ public class Cmd_VCSpeaker implements CmdInterface {
     @Override
     public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
         return new CmdBuilders(
-            builder
-                .literal("server")
-                .literal("add")
-                .handler(context -> execute(context, this::addServer, false))
-                .build(),
-            builder
-                .literal("server")
-                .literal("remove")
-                .handler(context -> execute(context, this::removeServer))
-                .build(),
-            builder
-                .literal("server")
-                .literal("notifychannel")
-                .argument(ChannelArgument
-                    .<JDACommandSender>newBuilder("channel")
-                    .withParsers(new HashSet<>(Arrays.asList(ChannelArgument.ParserMode.values()))))
-                .handler(context -> execute(context, this::setNotifyChannel))
-                .build()
+                builder
+                        .literal("server")
+                        .literal("add")
+                        .handler(context -> execute(context, this::addServer, false))
+                        .build(),
+                builder
+                        .literal("server")
+                        .literal("remove")
+                        .handler(context -> execute(context, this::removeServer))
+                        .build(),
+                builder
+                        .literal("server")
+                        .literal("notifychannel")
+                        .argument(ChannelArgument
+                                .<JDACommandSender>newBuilder("channel")
+                                .withParsers(new HashSet<>(Arrays.asList(ChannelArgument.ParserMode.values()))))
+                        .handler(context -> execute(context, this::setNotifyChannel))
+                        .build()
         );
     }
 
@@ -51,13 +51,13 @@ public class Cmd_VCSpeaker implements CmdInterface {
         }
         if (MultipleServer.isTargetServer(guild)) {
             message.reply(MessageFormat.format("既にこのサーバは登録されており、<#{0}> がVCチャンネルとして登録されています。",
-                String.valueOf(MultipleServer.getVCChannelId(guild)))).queue();
+                    String.valueOf(MultipleServer.getVCChannelId(guild)))).queue();
             return;
         }
         boolean bool = MultipleServer.addServer(guild, channel);
         message.reply(MessageFormat.format("このサーバの登録に{0}しました。{1}",
-            bool ? "成功" : "失敗",
-            bool ? MessageFormat.format("<#{0}>がVCチャンネルとして登録されました。", String.valueOf(MultipleServer.getVCChannelId(guild))) : "")).queue();
+                bool ? "成功" : "失敗",
+                bool ? MessageFormat.format("<#{0}>がVCチャンネルとして登録されました。", String.valueOf(MultipleServer.getVCChannelId(guild))) : "")).queue();
     }
 
     void removeServer(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
@@ -81,7 +81,7 @@ public class Cmd_VCSpeaker implements CmdInterface {
         }
         if (MultipleServer.isNotifiable(guild)) {
             message.reply(MessageFormat.format("既にこのサーバの通知チャンネルは登録されており、<#{0}> が通知チャンネルとして登録されています。",
-                String.valueOf(MultipleServer.getNotifyChannelId(guild)))).queue();
+                    String.valueOf(MultipleServer.getNotifyChannelId(guild)))).queue();
             return;
         }
         if (notifyChannel == null) {
@@ -91,7 +91,7 @@ public class Cmd_VCSpeaker implements CmdInterface {
         }
         boolean bool = MultipleServer.setNotifyChannel(guild, notifyChannel);
         message.reply(MessageFormat.format("このサーバの通知チャンネル登録に{0}しました。{1}",
-            bool ? "成功" : "失敗",
-            bool ? MessageFormat.format("<#{0}>が通知チャンネルとして登録されました。", String.valueOf(MultipleServer.getNotifyChannelId(guild))) : "")).queue();
+                bool ? "成功" : "失敗",
+                bool ? MessageFormat.format("<#{0}>が通知チャンネルとして登録されました。", String.valueOf(MultipleServer.getNotifyChannelId(guild))) : "")).queue();
     }
 }

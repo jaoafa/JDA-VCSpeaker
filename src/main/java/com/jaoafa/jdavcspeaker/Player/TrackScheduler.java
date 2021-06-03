@@ -82,8 +82,8 @@ public class TrackScheduler extends AudioEventAdapter {
         TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());
         if (channel == null) return;
         channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
-                .queue(null, Throwable::printStackTrace));
+               .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
+                                .queue(null, Throwable::printStackTrace));
     }
 
     void reactionSpeaking(AudioTrack track) {
@@ -99,9 +99,9 @@ public class TrackScheduler extends AudioEventAdapter {
             return; // channelはnullである可能性がある
         }
         channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.addReaction("\uD83D\uDDE3") // :speaking_head:
-                    .queue(null, Throwable::printStackTrace),
-                Throwable::printStackTrace);
+               .queue(msg -> msg.addReaction("\uD83D\uDDE3") // :speaking_head:
+                                .queue(null, Throwable::printStackTrace),
+                       Throwable::printStackTrace);
     }
 }
 

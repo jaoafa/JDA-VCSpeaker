@@ -32,13 +32,13 @@ public class MsgFormatter {
 
         // RemoveParams
         text = Arrays
-            .stream(text.split(" "))
-            .filter(s -> !s.startsWith("speaker:"))
-            .filter(s -> !s.startsWith("speed:"))
-            .filter(s -> !s.startsWith("emotion:"))
-            .filter(s -> !s.startsWith("emotion_level:"))
-            .filter(s -> !s.startsWith("pitch:"))
-            .collect(Collectors.joining(" "));
+                .stream(text.split(" "))
+                .filter(s -> !s.startsWith("speaker:"))
+                .filter(s -> !s.startsWith("speed:"))
+                .filter(s -> !s.startsWith("emotion:"))
+                .filter(s -> !s.startsWith("emotion_level:"))
+                .filter(s -> !s.startsWith("pitch:"))
+                .collect(Collectors.joining(" "));
 
         String[] splitText = text.split(" ");
 

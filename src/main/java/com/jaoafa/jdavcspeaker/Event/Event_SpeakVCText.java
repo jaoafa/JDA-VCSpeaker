@@ -62,19 +62,19 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
 
             if (member.getVoiceState() != null &&
-                member.getVoiceState().getChannel() != null) {
+                    member.getVoiceState().getChannel() != null) {
                 // メッセージ送信者がどこかのVCに入っている場合
 
                 event.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
                 if (MultipleServer.getVCChannel(event.getGuild()) != null) {
                     EmbedBuilder embed = new EmbedBuilder()
-                        .setTitle(":white_check_mark: AutoJoined")
-                        .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
-                        .setColor(LibEmbedColor.success);
+                            .setTitle(":white_check_mark: AutoJoined")
+                            .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
+                            .setColor(LibEmbedColor.success);
                     MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
                 }
             } else {
@@ -84,11 +84,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
         // ignore
         boolean ignoreEquals = StaticData.ignoreMap.entrySet().stream()
-            .anyMatch(entry -> entry.getKey().equals("equal") &&
-                content.equals(entry.getValue()));
+                                                   .anyMatch(entry -> entry.getKey().equals("equal") &&
+                                                           content.equals(entry.getValue()));
         boolean ignoreContain = StaticData.ignoreMap.entrySet().stream()
-            .anyMatch(entry -> entry.getKey().equals("contain") &&
-                content.contains(entry.getValue()));
+                                                    .anyMatch(entry -> entry.getKey().equals("contain") &&
+                                                            content.contains(entry.getValue()));
 
         if (ignoreEquals || ignoreContain) return;
 
@@ -111,7 +111,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
             message.getAttachments()
-                .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+                   .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
         if (!new File("tmp").exists()) {
@@ -153,14 +153,14 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 if (message == null) continue;
 
                 String replaceTo = MessageFormat.format("{0}が{1}で送信したメッセージのリンク",
-                    message.getAuthor().getAsTag(),
-                    channel.getName());
+                        message.getAuthor().getAsTag(),
+                        channel.getName());
                 content = content.replace(url, replaceTo);
                 continue;
             }
 
             //GIFリンク
-            if (url.endsWith(".gif")){
+            if (url.endsWith(".gif")) {
                 content = content.replace(url, "GIF画像へのリンク");
             }
 
@@ -187,9 +187,9 @@ public class Event_SpeakVCText extends ListenerAdapter {
     String getTitle(String url) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .build();
+                                                    .connectTimeout(10, TimeUnit.SECONDS)
+                                                    .readTimeout(10, TimeUnit.SECONDS)
+                                                    .build();
             Request request = new Request.Builder().url(url).build();
             try (Response response = client.newCall(request).execute()) {
                 if (response.code() != 200 && response.code() != 302) {

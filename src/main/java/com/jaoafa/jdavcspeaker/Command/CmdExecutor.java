@@ -16,10 +16,10 @@ public class CmdExecutor {
         MessageChannel channel = context.getSender().getChannel();
         if (!context.getSender().getEvent().isPresent()) {
             channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("メッセージデータを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
-                .build()
+                    .setTitle(":warning: 何かがうまくいきませんでした…")
+                    .setDescription("メッセージデータを取得できませんでした。")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue();
             return;
         }
