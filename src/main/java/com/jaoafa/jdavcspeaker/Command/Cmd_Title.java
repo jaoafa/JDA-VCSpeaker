@@ -5,12 +5,12 @@ import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.jda.JDACommandSender;
 import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
-import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.Lib.LibTitle;
+import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+
+import java.text.MessageFormat;
 
 import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
 
@@ -64,6 +64,7 @@ public class Cmd_Title implements CmdInterface {
             return;
         }
 
+
         message.reply(new EmbedBuilder()
                 .setTitle(":magic_wand: タイトルを変更しました！")
                 .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
@@ -72,6 +73,10 @@ public class Cmd_Title implements CmdInterface {
                         isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
                 .setColor(LibEmbedColor.success)
                 .build()
-        ).queue();
+        ).queue(
+                msg ->
+                        new VoiceText()
+                                .play(msg, String.format("タイトルを%sに変更しました", new_title))
+        );
     }
 }

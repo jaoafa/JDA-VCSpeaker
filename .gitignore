@@ -1,4 +1,7 @@
-/.idea/
+/.idea/libraries
+/.idea/*.xml
+/.idea/.gitignore
+
 *.iml
 
 VCSpeaker.json
