@@ -48,11 +48,11 @@ public class LibTitle {
      * @param channel 対象チャンネル
      * @return 同じかどうか
      */
-    public boolean checkTitleIsSame(VoiceChannel channel) {
+    public Boolean checkTitleIsSame(VoiceChannel channel) {
         if (titleSetting == null) return false;
         if (!titleSetting.has(channel.getId())) return false;
         //Title使用中だったら中止
-        if (isModifiedTitle(channel)) return false;
+        if (isModifiedTitle(channel)) return null;
 
         if (getOriginalTitle(channel).equals(channel.getName())) {
             return true;
@@ -102,7 +102,7 @@ public class LibTitle {
         }
         //もし手動で変更されていたら(設定ファイルと違ったら)
         //変更する前にオリジナルとして保存
-        if (!checkTitleIsSame(channel)) {
+        if (checkTitleIsSame(channel) != null&&!checkTitleIsSame(channel)) {
             saveSetting(
                     titleSetting.put(
                             channel.getId(),
