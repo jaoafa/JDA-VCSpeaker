@@ -23,6 +23,7 @@ public class LibTitle {
      * VCタイトル設定が存在するかを調べます
      *
      * @param channel 対象チャンネル
+     *
      * @return 存在するか
      */
     public boolean existsTitle(VoiceChannel channel) {
@@ -34,6 +35,7 @@ public class LibTitle {
      * VCタイトル設定が存在し、かつ変更済みかどうかを調べます
      *
      * @param channel 対象チャンネル
+     *
      * @return 存在するか
      */
     public boolean isModifiedTitle(VoiceChannel channel) {
@@ -46,6 +48,7 @@ public class LibTitle {
      * 現在のVC名と設定で保持しているVC名が同じかどうか調べます
      *
      * @param channel 対象チャンネル
+     *
      * @return 同じかどうか
      */
     public Boolean checkTitleIsSame(VoiceChannel channel) {
@@ -54,17 +57,14 @@ public class LibTitle {
         //Title使用中だったら中止
         if (isModifiedTitle(channel)) return null;
 
-        if (getOriginalTitle(channel).equals(channel.getName())) {
-            return true;
-        } else {
-            return false;
-        }
+        return getOriginalTitle(channel).equals(channel.getName());
     }
 
     /**
      * 現在の設定中VCタイトルを取得します
      *
      * @param channel 対象チャンネル
+     *
      * @return 設定中のVCタイトル
      */
     @Nullable
@@ -78,6 +78,7 @@ public class LibTitle {
      * 現在の設定中オリジナルVCタイトルを取得します
      *
      * @param channel 対象チャンネル
+     *
      * @return 設定中のオリジナルVCタイトル
      */
     @Nullable
@@ -92,6 +93,7 @@ public class LibTitle {
      *
      * @param channel 対象チャンネル
      * @param name    変更後のタイトル
+     *
      * @return 成功したか
      */
     public boolean setTitle(VoiceChannel channel, String name) {
@@ -102,25 +104,25 @@ public class LibTitle {
         }
         //もし手動で変更されていたら(設定ファイルと違ったら)
         //変更する前にオリジナルとして保存
-        if (checkTitleIsSame(channel) != null&&!checkTitleIsSame(channel)) {
+        if (checkTitleIsSame(channel) != null && !checkTitleIsSame(channel)) {
             saveSetting(
-                    titleSetting.put(
-                            channel.getId(),
-                            new JSONObject()
-                                    .put("original", channel.getName())
-                    )
+                titleSetting.put(
+                    channel.getId(),
+                    new JSONObject()
+                        .put("original", channel.getName())
+                )
             );
         }
         // 名前変えて、設定ファイルにも記述
         channel.getManager().setName(name).queue();
         saveSetting(
-                titleSetting.put(
-                        channel.getId(),
-                        titleSetting
-                                .getJSONObject(channel.getId())
-                                .put("current", name)
-                                .put("modified", true)
-                )
+            titleSetting.put(
+                channel.getId(),
+                titleSetting
+                    .getJSONObject(channel.getId())
+                    .put("current", name)
+                    .put("modified", true)
+            )
         );
         return true;
     }
@@ -138,16 +140,16 @@ public class LibTitle {
         }
         //名前を戻して設定ファイルに記述
         channel.getManager().setName(
-                titleSetting.getJSONObject(channel.getId()).getString("original")
+            titleSetting.getJSONObject(channel.getId()).getString("original")
         ).queue();
         saveSetting(
-                titleSetting.put(
-                        channel.getId(),
-                        titleSetting
-                                .getJSONObject(channel.getId())
-                                .put("current", "")
-                                .put("modified", false)
-                )
+            titleSetting.put(
+                channel.getId(),
+                titleSetting
+                    .getJSONObject(channel.getId())
+                    .put("current", "")
+                    .put("modified", false)
+            )
         );
     }
 
@@ -155,6 +157,7 @@ public class LibTitle {
      * 全VCをOriginalとして強制的に保存します。(上書き/modifiedがtrueの場合は除く)
      *
      * @param guild 対象サーバ
+     *
      * @return 成功したか
      */
     public boolean saveAsOriginalAll(Guild guild) {
@@ -166,13 +169,13 @@ public class LibTitle {
             }
             // profileが存在するかしないかに関わらず更新
             saveSetting(
-                    titleSetting.put(
-                            s.getId(),
-                            new JSONObject()
-                                    .put("original", s.getName())
-                                    .put("current", "")
-                                    .put("modified", false)
-                    )
+                titleSetting.put(
+                    s.getId(),
+                    new JSONObject()
+                        .put("original", s.getName())
+                        .put("current", "")
+                        .put("modified", false)
+                )
             );
         });
         return true;
@@ -182,19 +185,20 @@ public class LibTitle {
      * 指定VCをOriginalとして強制的に保存します。(上書き)
      *
      * @param channel 対象チャンネル
+     *
      * @return 成功したか
      */
     public boolean saveAsOriginal(VoiceChannel channel) {
         if (titleSetting == null) return false;
         if (titleSetting.has(channel.getId())) {
             saveSetting(
-                    titleSetting.put(
-                            channel.getId(),
-                            new JSONObject()
-                                    .put("original", channel.getName())
-                                    .put("current", "")
-                                    .put("modified", false)
-                    )
+                titleSetting.put(
+                    channel.getId(),
+                    new JSONObject()
+                        .put("original", channel.getName())
+                        .put("current", "")
+                        .put("modified", false)
+                )
             );
         }
         return true;
@@ -207,10 +211,10 @@ public class LibTitle {
      */
     public void processLeftTitle(VoiceChannel vc) {
         long nonBotUsers = vc
-                .getMembers()
-                .stream()
-                .filter(member -> !member.getUser().isBot())
-                .count();
+            .getMembers()
+            .stream()
+            .filter(member -> !member.getUser().isBot())
+            .count();
         if (nonBotUsers != 0) {
             return;
         }

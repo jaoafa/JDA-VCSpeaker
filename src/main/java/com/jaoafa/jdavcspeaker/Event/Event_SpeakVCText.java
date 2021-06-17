@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -62,19 +63,19 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
 
             if (member.getVoiceState() != null &&
-                    member.getVoiceState().getChannel() != null) {
+                member.getVoiceState().getChannel() != null) {
                 // メッセージ送信者がどこかのVCに入っている場合
 
                 event.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
                 if (MultipleServer.getVCChannel(event.getGuild()) != null) {
                     EmbedBuilder embed = new EmbedBuilder()
-                            .setTitle(":white_check_mark: AutoJoined")
-                            .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
-                            .setColor(LibEmbedColor.success);
+                        .setTitle(":white_check_mark: AutoJoined")
+                        .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
+                        .setColor(LibEmbedColor.success);
                     MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
                 }
             } else {
@@ -84,11 +85,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
         // ignore
         boolean ignoreEquals = StaticData.ignoreMap.entrySet().stream()
-                                                   .anyMatch(entry -> entry.getKey().equals("equal") &&
-                                                           content.equals(entry.getValue()));
+            .anyMatch(entry -> entry.getKey().equals("equal") &&
+                content.equals(entry.getValue()));
         boolean ignoreContain = StaticData.ignoreMap.entrySet().stream()
-                                                    .anyMatch(entry -> entry.getKey().equals("contain") &&
-                                                            content.contains(entry.getValue()));
+            .anyMatch(entry -> entry.getKey().equals("contain") &&
+                content.contains(entry.getValue()));
 
         if (ignoreEquals || ignoreContain) return;
 
@@ -111,7 +112,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
             message.getAttachments()
-                   .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+                .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
         if (!new File("tmp").exists()) {
@@ -121,16 +122,39 @@ public class Event_SpeakVCText extends ListenerAdapter {
         for (Message.Attachment attachment : message.getAttachments()) {
             attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
                 try {
-                    List<VisionAPI.Result> results = visionAPI.getImageLabel(file);
+                    List<VisionAPI.Result> results = visionAPI.getImageLabelOrText(file);
                     boolean bool = file.delete();
-                    System.out.println("Temp attachment file have been " + (bool ? "successfully" : "failed") + " deleted");
+                    System.out.println("Temp attachment file have been delete " + (bool ? "successfully" : "failed"));
                     if (results == null) {
                         vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
                         return;
                     }
-                    String descriptions = results.stream().map(VisionAPI.Result::getDescription).collect(Collectors.joining("、"));
+
+                    List<VisionAPI.Result> sortedResults = results.stream()
+                        .sorted(Comparator.comparing(VisionAPI.Result::getType)
+                            .thenComparing(VisionAPI.Result::getScore))
+                        .collect(Collectors.toList());
+                    String descriptions = sortedResults.stream()
+                        .map(VisionAPI.Result::getDescription)
+                        .map(s -> s.length() > 10 ? s.substring(0, 10) : s)
+                        .limit(3)
+                        .collect(Collectors.joining("、"));
                     vt.play(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
-                } catch (IOException ignored) {
+
+                    String text = sortedResults.stream()
+                        .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
+                        .map(VisionAPI.Result::getDescription)
+                        .findFirst()
+                        .orElse(null);
+                    String details = sortedResults.stream()
+                        .filter(r -> r.getType() == VisionAPI.ResultType.LABEL_DETECTION)
+                        .map(r -> String.format("`%s`%s",
+                            r.getDescription(),
+                            r.getDescription().equals(r.getRawDescription()) ? "" : " (`" + r.getRawDescription() + "`)"))
+                        .collect(Collectors.joining("\n・"));
+                    message.reply((text != null ? "```\n" + text.replaceAll("\n", " ") + "\n```" : "") + "・" + details).queue();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -153,17 +177,18 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 if (message == null) continue;
 
                 String replaceTo = MessageFormat.format("{0}が{1}で送信したメッセージのリンク",
-                        message.getAuthor().getAsTag(),
-                        channel.getName());
+                    message.getAuthor().getAsTag(),
+                    channel.getName());
                 content = content.replace(url, replaceTo);
                 continue;
             }
 
-            //GIFリンク
+            // GIFリンク
             if (url.endsWith(".gif")) {
                 content = content.replace(url, "GIF画像へのリンク");
             }
 
+            // Webページのタイトル取得
             String title = getTitle(url);
             if (title != null) {
                 System.out.println("title: " + title);
@@ -187,9 +212,9 @@ public class Event_SpeakVCText extends ListenerAdapter {
     String getTitle(String url) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder()
-                                                    .connectTimeout(10, TimeUnit.SECONDS)
-                                                    .readTimeout(10, TimeUnit.SECONDS)
-                                                    .build();
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
             Request request = new Request.Builder().url(url).build();
             try (Response response = client.newCall(request).execute()) {
                 if (response.code() != 200 && response.code() != 302) {

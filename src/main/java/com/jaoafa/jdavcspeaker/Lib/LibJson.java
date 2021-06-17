@@ -16,7 +16,9 @@ public class LibJson {
      * JSONファイルをオブジェクトとして読み出します。
      *
      * @param _path JSONファイルへのパス
+     *
      * @return JSONオブジェクト
+     *
      * @throws IOException          入出力例外が発生した場合
      * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
      * @throws InvalidPathException パス文字列をPathに変換できない場合
@@ -57,6 +59,7 @@ public class LibJson {
      *
      * @param path   書き出すJSONファイルのパス
      * @param object 書き出すオブジェクト
+     *
      * @throws IOException          入出力例外が発生した場合
      * @throws InvalidPathException パス文字列をPathに変換できない場合
      */
