@@ -118,26 +118,35 @@ public class VisionAPI {
 
             Files.write(Paths.get("output.json"), Collections.singleton(object.toString()));
 
-            JSONArray labelResults = object
-                .getJSONArray("responses")
-                .getJSONObject(0)
-                .getJSONArray("labelAnnotations");
-
             LinkedList<Result> ret = new LinkedList<>();
-            for (int i = 0; i < labelResults.length(); i++) {
-                JSONObject result = labelResults.getJSONObject(i);
-                ret.add(new Result(result.getString("description"), result.getDouble("score"), ResultType.LABEL_DETECTION));
-            }
-
-            JSONArray textResults = object
+            if (object
                 .getJSONArray("responses")
-                .getJSONObject(0)
-                .getJSONArray("textAnnotations");
+                .getJSONObject(0).has("labelAnnotations")) {
+                JSONArray labelResults = object
+                    .getJSONArray("responses")
+                    .getJSONObject(0)
+                    .getJSONArray("labelAnnotations");
 
-            if (textResults.length() > 0) {
-                JSONObject result = textResults.getJSONObject(0);
-                ret.add(new Result(result.getString("description"), 1, ResultType.TEXT_DETECTION));
+                for (int i = 0; i < labelResults.length(); i++) {
+                    JSONObject result = labelResults.getJSONObject(i);
+                    ret.add(new Result(result.getString("description"), result.getDouble("score"), ResultType.LABEL_DETECTION));
+                }
             }
+
+            if (object
+                .getJSONArray("responses")
+                .getJSONObject(0).has("textAnnotations")) {
+                JSONArray textResults = object
+                    .getJSONArray("responses")
+                    .getJSONObject(0)
+                    .getJSONArray("textAnnotations");
+
+                if (textResults.length() > 0) {
+                    JSONObject result = textResults.getJSONObject(0);
+                    ret.add(new Result(result.getString("description"), 1, ResultType.TEXT_DETECTION));
+                }
+            }
+
             saveCache(hash, ret);
             System.out.println("getImageLabel: Saved cache");
             return ret;
