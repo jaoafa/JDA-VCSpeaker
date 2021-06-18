@@ -19,6 +19,7 @@ public class MultipleServer {
      *
      * @param guild   追加するサーバ
      * @param channel サーバのVCチャンネル
+     *
      * @return 追加できたかどうか
      */
     public static boolean addServer(Guild guild, MessageChannel channel) {
@@ -34,7 +35,9 @@ public class MultipleServer {
      * VCSpeakerの対象サーバから削除します。
      *
      * @param guild 削除するサーバ
+     *
      * @return 削除できたかどうか
+     *
      * @see #isTargetServer(Guild)
      */
     public static boolean removeServer(Guild guild) {
@@ -50,7 +53,9 @@ public class MultipleServer {
      * VCSpeakerの対象サーバであるかどうかを返します
      *
      * @param guild 確認するサーバ
+     *
      * @return 対象であるかどうか
+     *
      * @see #addServer(Guild, MessageChannel)
      * @see #removeServer(Guild)
      */
@@ -62,7 +67,9 @@ public class MultipleServer {
      * サーバのvCチャンネルを返します
      *
      * @param guild サーバ
+     *
      * @return 設定されているVCチャンネル
+     *
      * @see #isTargetServer(Guild)
      */
     public static TextChannel getVCChannel(Guild guild) {
@@ -73,7 +80,9 @@ public class MultipleServer {
      * サーバのVCチャンネルのIDを返します
      *
      * @param guild サーバ
+     *
      * @return 設定されているVCチャンネルのID
+     *
      * @see #isTargetServer(Guild)
      */
     public static long getVCChannelId(Guild guild) {
@@ -85,6 +94,7 @@ public class MultipleServer {
      *
      * @param guild   設定するサーバ
      * @param channel 通知先として設定するチャンネル
+     *
      * @return 設定できたかどうか
      */
     public static boolean setNotifyChannel(Guild guild, MessageChannel channel) {
@@ -100,7 +110,9 @@ public class MultipleServer {
      * サーバから通知チャンネル設定を削除します
      *
      * @param guild 通知チャンネル設定を削除するサーバ
+     *
      * @return 削除できたかどうか
+     *
      * @see #isNotifiable(Guild)
      */
     public static boolean removeNotifyChannel(Guild guild) {
@@ -116,7 +128,9 @@ public class MultipleServer {
      * サーバに通知チャンネル設定がされているかどうかを返します
      *
      * @param guild サーバ
+     *
      * @return 通知チャンネル設定がされているかどうか
+     *
      * @see #setNotifyChannel(Guild, MessageChannel)
      */
     public static boolean isNotifiable(Guild guild) {
@@ -127,6 +141,7 @@ public class MultipleServer {
      * 通知チャンネルを返します
      *
      * @param guild サーバ
+     *
      * @return サーバの通知チャンネル
      */
     public static TextChannel getNotifyChannel(Guild guild) {
@@ -137,6 +152,7 @@ public class MultipleServer {
      * 通知チャンネルのIDを返します
      *
      * @param guild サーバ
+     *
      * @return サーバの通知チャンネルのID
      */
     public static long getNotifyChannelId(Guild guild) {

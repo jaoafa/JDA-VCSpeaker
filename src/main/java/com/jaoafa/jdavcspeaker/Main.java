@@ -118,9 +118,9 @@ public class Main extends ListenerAdapter {
         if (new File("tmp").exists()) {
             try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
                 List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
-                                             .map(Path::toFile)
-                                             .filter(f -> !f.delete())
-                                             .collect(Collectors.toList());
+                    .map(Path::toFile)
+                    .filter(f -> !f.delete())
+                    .collect(Collectors.toList());
                 if (missDeletes.size() != 0) {
                     System.out.println("Failed to delete " + missDeletes.size() + " temporary files.");
                 }
@@ -133,67 +133,67 @@ public class Main extends ListenerAdapter {
     static void commandRegister(JDA jda) {
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
-                    jda,
-                    message -> getPrefix(),
-                    (sender, perm) -> true,
-                    CommandExecutionCoordinator.simpleCoordinator(),
-                    sender -> {
-                        MessageReceivedEvent event = sender.getEvent().orElse(null);
+                jda,
+                message -> getPrefix(),
+                (sender, perm) -> true,
+                CommandExecutionCoordinator.simpleCoordinator(),
+                sender -> {
+                    MessageReceivedEvent event = sender.getEvent().orElse(null);
 
-                        if (sender instanceof JDAGuildSender) {
-                            JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-                            return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-                        }
-
-                        return null;
-                    },
-                    user -> {
-                        MessageReceivedEvent event = user.getEvent().orElse(null);
-
-                        if (user instanceof JDAGuildSender) {
-                            JDAGuildSender guildUser = (JDAGuildSender) user;
-                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-                        }
-
-                        return null;
+                    if (sender instanceof JDAGuildSender) {
+                        JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
+                        return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
                     }
+
+                    return null;
+                },
+                user -> {
+                    MessageReceivedEvent event = user.getEvent().orElse(null);
+
+                    if (user instanceof JDAGuildSender) {
+                        JDAGuildSender guildUser = (JDAGuildSender) user;
+                        return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
+                    }
+
+                    return null;
+                }
             );
 
             manager.registerExceptionHandler(NoSuchCommandException.class,
-                    (c, e) -> c.getChannel().sendMessage(
-                            new EmbedBuilder()
-                                    .setTitle(":thinking: コマンドが見つかりませんでした！")
-                                    .setColor(LibEmbedColor.error)
-                                    .build()
-                    ).queue());
-            manager.registerExceptionHandler(InvalidSyntaxException.class,
-                    (c, e) -> c.getChannel().sendMessage(
-                            new EmbedBuilder()
-                                    .setTitle(":scroll: コマンドの構文が不正です！")
-                                    .setDescription("`" + e.getCorrectSyntax() + "`")
-                                    .setColor(LibEmbedColor.error)
-                                    .build()
-                    ).queue());
-            manager.registerExceptionHandler(NoPermissionException.class, (c, e) -> c.getChannel().sendMessage(
+                (c, e) -> c.getChannel().sendMessage(
                     new EmbedBuilder()
-                            .setTitle(":octagonal_sign: 権限がありません！")
-                            .setColor(LibEmbedColor.error)
-                            .build()
+                        .setTitle(":thinking: コマンドが見つかりませんでした！")
+                        .setColor(LibEmbedColor.error)
+                        .build()
+                ).queue());
+            manager.registerExceptionHandler(InvalidSyntaxException.class,
+                (c, e) -> c.getChannel().sendMessage(
+                    new EmbedBuilder()
+                        .setTitle(":scroll: コマンドの構文が不正です！")
+                        .setDescription("`" + e.getCorrectSyntax() + "`")
+                        .setColor(LibEmbedColor.error)
+                        .build()
+                ).queue());
+            manager.registerExceptionHandler(NoPermissionException.class, (c, e) -> c.getChannel().sendMessage(
+                new EmbedBuilder()
+                    .setTitle(":octagonal_sign: 権限がありません！")
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue());
             manager.registerExceptionHandler(ArgumentParseException.class, (c, e) -> c.getChannel().sendMessage(
-                    new EmbedBuilder()
-                            .setTitle(":bangbang: 引数が不正です")
-                            .setDescription(String.format("`%s`", e.getCause().getMessage()))
-                            .setColor(LibEmbedColor.error)
-                            .build()
+                new EmbedBuilder()
+                    .setTitle(":bangbang: 引数が不正です")
+                    .setDescription(String.format("`%s`", e.getCause().getMessage()))
+                    .setColor(LibEmbedColor.error)
+                    .build()
             ).queue());
             manager.registerExceptionHandler(CommandExecutionException.class, (c, e) -> {
                 c.getChannel().sendMessage(
-                        new EmbedBuilder()
-                                .setTitle(":no_entry_sign: 処理中にエラーが発生しました")
-                                .setDescription(String.format("```\n%s\n```", e.getCause().getClass().getName()))
-                                .setColor(LibEmbedColor.error)
-                                .build()
+                    new EmbedBuilder()
+                        .setTitle(":no_entry_sign: 処理中にエラーが発生しました")
+                        .setDescription(String.format("```\n%s\n```", e.getCause().getClass().getName()))
+                        .setColor(LibEmbedColor.error)
+                        .build()
                 ).queue();
                 e.printStackTrace();
             });
@@ -211,7 +211,7 @@ public class Main extends ListenerAdapter {
                     continue;
                 }
                 String commandName = clazz.getName().substring("com.jaoafa.jdavcspeaker.Command.Cmd_".length())
-                                          .toLowerCase();
+                    .toLowerCase();
 
                 try {
                     Constructor<?> construct = clazz.getConstructor();
@@ -242,6 +242,15 @@ public class Main extends ListenerAdapter {
         return prefix;
     }
 
+    @Nullable
+    public static LibTitle getLibTitle() {
+        return libTitle;
+    }
+
+    public static String getSpeakToken() {
+        return speakToken;
+    }
+
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         File newdir = new File("./Temp");
@@ -253,14 +262,5 @@ public class Main extends ListenerAdapter {
         LibAlias.fetchMap();
         LibIgnore.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
-    }
-
-    @Nullable
-    public static LibTitle getLibTitle() {
-        return libTitle;
-    }
-
-    public static String getSpeakToken() {
-        return speakToken;
     }
 }

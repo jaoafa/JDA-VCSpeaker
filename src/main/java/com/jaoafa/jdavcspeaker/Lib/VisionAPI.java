@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -58,11 +59,13 @@ public class VisionAPI {
      * 対象のファイルではない、もしくはリミッターに拒否された場合は null を返します。
      *
      * @param file ラベル情報を取得する画像ファイル
+     *
      * @return ラベル情報のリスト
+     *
      * @throws IOException IOExceptionが発生した場合
      */
     @Nullable
-    public List<Result> getImageLabel(File file) throws IOException {
+    public List<Result> getImageLabelOrText(File file) throws IOException {
         if (isLimited()) {
             return null;
         }
@@ -80,41 +83,60 @@ public class VisionAPI {
         String base64 = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
         // めんどくさいからJSONそのまま構築する
         String json = "{\n" +
-                "    \"requests\": [\n" +
-                "        {\n" +
-                "            \"image\": {\n" +
-                "                \"content\": \"" + base64 + "\"\n" +
-                "            },\n" +
-                "            \"features\": {\n" +
-                "                \"type\": \"LABEL_DETECTION\",\n" +
-                "                \"maxResults\": 3\n" +
-                "            }\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+            "    \"requests\": [\n" +
+            "        {\n" +
+            "            \"image\": {\n" +
+            "                \"content\": \"" + base64 + "\"\n" +
+            "            },\n" +
+            "            \"features\": [{\n" +
+            "                \"type\": \"LABEL_DETECTION\",\n" +
+            "                \"maxResults\": 3\n" +
+            "            }, {\n" +
+            "                \"type\": \"TEXT_DETECTION\",\n" +
+            "                \"maxResults\": 1\n" +
+            "            }]\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}";
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=UTF-8"));
         String apiurl = String.format("https://vision.googleapis.com/v1/images:annotate?key=%s", apikey);
         OkHttpClient client = new OkHttpClient().newBuilder()
-                                                .connectTimeout(10, TimeUnit.SECONDS)
-                                                .readTimeout(10, TimeUnit.SECONDS)
-                                                .build();
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .build();
         Request request = new Request.Builder().url(apiurl).post(requestBody).build();
         try (Response response = client.newCall(request).execute()) {
             requested();
-            if (response.code() != 200 && response.code() != 302) {
-                return null;
-            }
             ResponseBody body = response.body();
             assert body != null;
-            JSONArray results = new JSONObject(body.string())
-                    .getJSONArray("responses")
-                    .getJSONObject(0)
-                    .getJSONArray("labelAnnotations");
+            if (response.code() != 200 && response.code() != 302) {
+                System.out.println("error: " + response.code() + " -> " + body.string());
+                return null;
+            }
+
+            JSONObject object = new JSONObject(body.string());
+
+            Files.write(Paths.get("output.json"), Collections.singleton(object.toString()));
+
+            JSONArray labelResults = object
+                .getJSONArray("responses")
+                .getJSONObject(0)
+                .getJSONArray("labelAnnotations");
 
             LinkedList<Result> ret = new LinkedList<>();
-            for (int i = 0; i < results.length(); i++) {
-                JSONObject result = results.getJSONObject(i);
-                ret.add(new Result(result.getString("description"), result.getDouble("score")));
+            for (int i = 0; i < labelResults.length(); i++) {
+                JSONObject result = labelResults.getJSONObject(i);
+                ret.add(new Result(result.getString("description"), result.getDouble("score"), ResultType.LABEL_DETECTION));
+            }
+
+            JSONArray textResults = object
+                .getJSONArray("responses")
+                .getJSONObject(0)
+                .getJSONArray("textAnnotations");
+
+            if (textResults.length() > 0) {
+                JSONObject result = textResults.getJSONObject(0);
+                ret.add(new Result(result.getString("description"), 1, ResultType.TEXT_DETECTION));
             }
             saveCache(hash, ret);
             System.out.println("getImageLabel: Saved cache");
@@ -134,7 +156,7 @@ public class VisionAPI {
     private void requested() throws IOException {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
         JSONObject obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
-        int i = obj.optInt(date, 0) + 1;
+        int i = obj.optInt(date, 0) + 2;
         obj.put(date, i);
         Files.write(file.toPath(), Collections.singleton(obj.toString()));
     }
@@ -150,8 +172,9 @@ public class VisionAPI {
         for (int i = 0; i < array.length(); i++) {
             JSONObject result = array.getJSONObject(i);
             results.add(new Result(
-                    result.getString("description"),
-                    result.getDouble("score")
+                result.getString("description"),
+                result.getDouble("score"),
+                result.optEnum(ResultType.class, "type", ResultType.LABEL_DETECTION)
             ));
         }
         return results;
@@ -168,6 +191,7 @@ public class VisionAPI {
             JSONObject object = new JSONObject();
             object.put("description", result.getDescription());
             object.put("score", result.getScore());
+            object.put("type", result.getType());
             array.put(object);
         }
         Files.write(file.toPath(), Collections.singleton(array.toString()));
@@ -175,10 +199,10 @@ public class VisionAPI {
 
     public boolean isCheckTarget(File file) {
         List<String> targets = Arrays.asList(
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-                "image/bmp"
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/bmp"
         );
         try {
             String mime = getMimeType(file);
@@ -193,23 +217,56 @@ public class VisionAPI {
         return URLConnection.guessContentTypeFromStream(is);
     }
 
+    public enum ResultType {
+        LABEL_DETECTION,
+        TEXT_DETECTION
+    }
+
     public static class Result {
         final String description;
         final String jpDesc;
         final double score;
+        final ResultType type;
 
+        @Deprecated
         public Result(String description, double score) {
             this.description = description;
             this.score = score;
             this.jpDesc = getJapaneseDesc(description);
+            this.type = ResultType.LABEL_DETECTION;
+        }
+
+        public Result(String description, double score, ResultType type) {
+            this.description = description;
+            this.score = score;
+            this.jpDesc = getJapaneseDesc(description);
+            this.type = type;
         }
 
         public String getDescription() {
             return jpDesc != null ? jpDesc : description;
         }
 
+        public String getRawDescription() {
+            return description;
+        }
+
         public double getScore() {
             return score;
+        }
+
+        public ResultType getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return "Result{" +
+                "description='" + description + '\'' +
+                ", jpDesc='" + jpDesc + '\'' +
+                ", score=" + score +
+                ", type=" + type +
+                '}';
         }
     }
 }
