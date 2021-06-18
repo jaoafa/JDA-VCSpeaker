@@ -131,12 +131,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     }
 
                     List<VisionAPI.Result> sortedResults = results.stream()
-                        .sorted(Comparator.comparing(VisionAPI.Result::getType)
-                            .thenComparing(VisionAPI.Result::getScore))
+                        .sorted(Comparator.comparing(VisionAPI.Result::getScore, Comparator.reverseOrder()))
                         .collect(Collectors.toList());
                     String descriptions = sortedResults.stream()
                         .map(VisionAPI.Result::getDescription)
-                        .map(s -> s.length() > 10 ? s.substring(0, 10) : s)
+                        .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
                         .limit(3)
                         .collect(Collectors.joining("、"));
                     vt.play(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
