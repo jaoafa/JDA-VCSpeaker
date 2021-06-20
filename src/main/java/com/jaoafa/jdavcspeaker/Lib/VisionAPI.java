@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -66,18 +65,18 @@ public class VisionAPI {
      */
     @Nullable
     public List<Result> getImageLabelOrText(File file) throws IOException {
-        if (isLimited()) {
-            return null;
-        }
-        if (!isCheckTarget(file)) {
-            return null;
-        }
-
         String hash = DigestUtils.md5Hex(Files.readAllBytes(file.toPath()));
         List<Result> cache = loadCache(hash);
         if (cache != null) {
             System.out.println("getImageLabel: Used cache");
             return cache;
+        }
+
+        if (isLimited()) {
+            return null;
+        }
+        if (!isCheckTarget(file)) {
+            return null;
         }
 
         String base64 = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
@@ -115,8 +114,6 @@ public class VisionAPI {
             }
 
             JSONObject object = new JSONObject(body.string());
-
-            Files.write(Paths.get("output.json"), Collections.singleton(object.toString()));
 
             LinkedList<Result> ret = new LinkedList<>();
             if (object
