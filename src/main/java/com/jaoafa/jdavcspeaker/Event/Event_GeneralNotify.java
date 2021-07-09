@@ -3,10 +3,16 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Collections;
 
 /**
  * In Guild's all VCs except for the AFK channel, if there is no user except Bot, and someone joins the VC (except for move)
@@ -57,10 +63,30 @@ public class Event_GeneralNotify extends ListenerAdapter {
         }
         lastNotificationTime = System.currentTimeMillis();
 
+        Path notify_id_path = Paths.get("last-notify-id");
+
+        if (Files.exists(notify_id_path)) {
+            try {
+                String last_notify_id = String.join("\n", Files.readAllLines(notify_id_path));
+                //noinspection ResultOfMethodCallIgnored
+                MultipleServer.getNotifyChannel(event.getGuild()).retrieveMessageById(last_notify_id).queue(Message::delete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle(":inbox_tray: 会話が始まりました！")
-                .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
-                .setColor(LibEmbedColor.normal);
-        MultipleServer.getNotifyChannel(event.getGuild()).sendMessage(embed.build()).queue();
+            .setTitle(":inbox_tray: 会話が始まりました！")
+            .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
+            .setColor(LibEmbedColor.normal);
+        MultipleServer.getNotifyChannel(event.getGuild()).sendMessage(embed.build()).queue(
+            message -> {
+                try {
+                    Files.write(notify_id_path, Collections.singleton(message.getId()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        );
     }
 }
