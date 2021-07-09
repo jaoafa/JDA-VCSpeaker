@@ -63,7 +63,7 @@ public class Event_GeneralNotify extends ListenerAdapter {
         }
         lastNotificationTime = System.currentTimeMillis();
 
-        Path notify_id_path = Paths.get("general-notify-id");
+        Path notify_id_path = Paths.get("last-notify-id");
 
         if (Files.exists(notify_id_path)) {
             try {
