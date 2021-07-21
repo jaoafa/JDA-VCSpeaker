@@ -1,15 +1,9 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.jda.JDACommandSender;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
-import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -18,10 +12,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
-
-import java.util.stream.Collectors;
-
-import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
 
 public class Cmd_Ignore implements CmdSubstrate {
     @Override
@@ -45,7 +35,7 @@ public class Cmd_Ignore implements CmdSubstrate {
                                 new SubcommandData("equal", "内容に一致するテキストの無視設定")
                                     .addOption(OptionType.STRING, "text", "内容", true)
                             )
-                        )
+                    )
             );
     }
 
@@ -54,7 +44,7 @@ public class Cmd_Ignore implements CmdSubstrate {
                        MessageChannel channel, ChannelType type,
                        Member member, User user,
                        SlashCommandEvent event, String subCmd) {
-        switch (subCmd){
+        switch (subCmd) {
             case "add:contain" -> addContains(event);
             case "add:equal" -> addEquals(event);
             case "remove:contain" -> removeContains(event);

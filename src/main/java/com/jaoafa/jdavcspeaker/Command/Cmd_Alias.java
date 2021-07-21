@@ -1,12 +1,7 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.jda.JDACommandSender;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.StaticData;
@@ -20,8 +15,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.stream.Collectors;
 
-import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
-
 public class Cmd_Alias implements CmdSubstrate {
     @Override
     public CmdDetail detail() {
@@ -31,11 +24,11 @@ public class Cmd_Alias implements CmdSubstrate {
                 new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "読みのエイリアスを設定します")
                     .addSubcommands(
                         new SubcommandData("add", "エイリアスを作成します")
-                            .addOption(OptionType.STRING, "from", "変換元テキスト",true)
-                            .addOption(OptionType.STRING, "to", "変換先テキスト",true),
+                            .addOption(OptionType.STRING, "from", "変換元テキスト", true)
+                            .addOption(OptionType.STRING, "to", "変換先テキスト", true),
                         new SubcommandData("remove", "エイリアスを削除します")
-                            .addOption(OptionType.STRING, "from", "変換を削除するテキスト",true),
-                        new SubcommandData("list","エイリアス一覧を表示します")
+                            .addOption(OptionType.STRING, "from", "変換を削除するテキスト", true),
+                        new SubcommandData("list", "エイリアス一覧を表示します")
                     )
             );
     }

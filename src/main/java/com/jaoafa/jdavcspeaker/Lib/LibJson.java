@@ -85,7 +85,8 @@ public class LibJson {
      * JSONObjectのString値をパスで検索します。
      *
      * @param object 対象のJSONObject
-     * @param path String値へのパス (yabai.json.powa)
+     * @param path   String値へのパス (yabai.json.powa)
+     *
      * @return String値
      */
     public static String getByPath(JSONObject object, String path) {

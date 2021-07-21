@@ -38,20 +38,20 @@ public class Event_GeneralNotify extends ListenerAdapter {
         }
 
         boolean isExistsJoinedChannel = event.getGuild().getVoiceChannels().stream()
-                                             .filter(vc -> vc.getGuild().getAfkChannel() != null && // AFKチャンネルが定義されているうえで
-                                                     vc.getIdLong() != vc.getGuild().getAfkChannel().getIdLong()) // AFKチャンネル以外であり
-                                             .filter(vc -> vc.getIdLong() != event.getChannelJoined().getIdLong()) // 今回参加されたチャンネル以外であり
-                                             .anyMatch(vc -> vc.getMembers().stream().anyMatch(member -> !member.getUser().isBot())); // Bot以外のユーザーがいるチャンネルがあるか？
+            .filter(vc -> vc.getGuild().getAfkChannel() != null && // AFKチャンネルが定義されているうえで
+                vc.getIdLong() != vc.getGuild().getAfkChannel().getIdLong()) // AFKチャンネル以外であり
+            .filter(vc -> vc.getIdLong() != event.getChannelJoined().getIdLong()) // 今回参加されたチャンネル以外であり
+            .anyMatch(vc -> vc.getMembers().stream().anyMatch(member -> !member.getUser().isBot())); // Bot以外のユーザーがいるチャンネルがあるか？
         if (isExistsJoinedChannel) {
             return; // 他のVCに誰か人がいる
         }
 
         long nonBotUsers = event
-                .getChannelJoined()
-                .getMembers()
-                .stream()
-                .filter(member -> !member.getUser().isBot())
-                .count();
+            .getChannelJoined()
+            .getMembers()
+            .stream()
+            .filter(member -> !member.getUser().isBot())
+            .count();
 
         if (nonBotUsers != 1) {
             return;

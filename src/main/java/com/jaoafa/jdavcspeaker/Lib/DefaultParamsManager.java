@@ -39,13 +39,13 @@ public class DefaultParamsManager {
         JSONObject object = getDefaultUserParams();
         if (object == null) return null;
         VoiceText.Emotion emotion = object.has("emotion") ?
-                VoiceText.Emotion.valueOf(object.getString("emotion")) : null;
+            VoiceText.Emotion.valueOf(object.getString("emotion")) : null;
         return defaultVoiceText
-                .setSpeaker(VoiceText.Speaker.valueOf(object.getString("speaker")))
-                .setSpeed(object.getInt("speed"))
-                .setEmotion(emotion)
-                .setEmotionLevel(VoiceText.EmotionLevel.valueOf(object.getString("emotionLevel")))
-                .setPitch(object.getInt("pitch"));
+            .setSpeaker(VoiceText.Speaker.valueOf(object.getString("speaker")))
+            .setSpeed(object.getInt("speed"))
+            .setEmotion(emotion)
+            .setEmotionLevel(VoiceText.EmotionLevel.valueOf(object.getString("emotionLevel")))
+            .setPitch(object.getInt("pitch"));
     }
 
     public boolean setDefaultVoiceText(VoiceText vt) {

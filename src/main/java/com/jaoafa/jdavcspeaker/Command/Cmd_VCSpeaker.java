@@ -17,6 +17,14 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import java.util.Optional;
 
 public class Cmd_VCSpeaker implements CmdSubstrate {
+    EmbedBuilder NOPERMISSION =
+        new EmbedBuilder()
+            .setDescription("""
+                あなたは管理者権限を所持していないため、
+                このサーバでVCSpeakerの設定をすることはできません。
+                """)
+            .setColor(LibEmbedColor.error);
+
     //todo 絵文字&説明見直し(ぜんぶ)
     @Override
     public CmdDetail detail() {
@@ -48,14 +56,6 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
             case "server:remove" -> addServer(guild, channel, member, event);
         }
     }
-
-    EmbedBuilder NOPERMISSION =
-        new EmbedBuilder()
-            .setDescription("""
-                あなたは管理者権限を所持していないため、
-                このサーバでVCSpeakerの設定をすることはできません。
-                """)
-            .setColor(LibEmbedColor.error);
 
     void addServer(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {

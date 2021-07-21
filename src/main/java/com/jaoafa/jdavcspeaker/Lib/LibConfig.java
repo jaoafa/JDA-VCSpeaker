@@ -12,7 +12,7 @@ public class LibConfig {
         try {
             config = LibJson.readObject("./VCSpeaker.json").getJSONObject("yuuaTone");
         } catch (IOException e) {
-            new LibReporter(null,e);
+            new LibReporter(null, e);
         }
     }
 }

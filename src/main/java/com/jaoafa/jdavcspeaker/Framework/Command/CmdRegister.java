@@ -3,14 +3,10 @@ package com.jaoafa.jdavcspeaker.Framework.Command;
 import com.jaoafa.jdavcspeaker.Lib.LibClassFinder;
 import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.LibReporter;
-import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 
 public class CmdRegister {
@@ -20,8 +16,8 @@ public class CmdRegister {
         try {
             for (Class<?> cmdClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.Command")) {
                 if (!cmdClass.getSimpleName().startsWith("Cmd_")
-                        || cmdClass.getEnclosingClass() != null
-                        || cmdClass.getName().contains("$")) {
+                    || cmdClass.getEnclosingClass() != null
+                    || cmdClass.getName().contains("$")) {
                     new LibFlow().error("%sはCommandクラスではありません。スキップします...", cmdClass.getSimpleName());
                     continue;
                 }
@@ -30,7 +26,7 @@ public class CmdRegister {
                 new LibFlow().success("%sを登録キューに挿入しました。", cmdClass.getSimpleName());
             }
         } catch (Exception e) {
-            new LibReporter(null,e);
+            new LibReporter(null, e);
         }
 
         //全てのサーバーで登録

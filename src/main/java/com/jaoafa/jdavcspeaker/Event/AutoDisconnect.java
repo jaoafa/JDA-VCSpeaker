@@ -18,7 +18,7 @@ public class AutoDisconnect extends ListenerAdapter {
             return;
         }
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
-                event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             return; // 自身がどのVCにも参加していない
         }
         if (event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong() != event.getChannelLeft().getIdLong()) {
@@ -27,14 +27,14 @@ public class AutoDisconnect extends ListenerAdapter {
 
         // VCに残ったユーザーが全員Bot、または誰もいなくなった
         boolean existsUser = event
-                .getChannelLeft()
-                .getMembers()
-                .stream()
-                .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
+            .getChannelLeft()
+            .getMembers()
+            .stream()
+            .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
         System.out.println(MessageFormat.format("[AutoDisconnect] {0}: {1} -> {2}",
-                event.getMember().getUser().getAsTag(),
-                event.getChannelLeft().getName(),
-                !existsUser));
+            event.getMember().getUser().getAsTag(),
+            event.getChannelLeft().getName(),
+            !existsUser));
 
         if (existsUser) {
             return;
@@ -43,8 +43,8 @@ public class AutoDisconnect extends ListenerAdapter {
 
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         EmbedBuilder embed = new EmbedBuilder()
-                .setTitle(":white_check_mark: AutoDisconnected")
-                .setColor(LibEmbedColor.success);
+            .setTitle(":white_check_mark: AutoDisconnected")
+            .setColor(LibEmbedColor.success);
         MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
     }
 }

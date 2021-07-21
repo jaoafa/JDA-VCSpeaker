@@ -13,8 +13,8 @@ public class EventRegister {
         try {
             for (Class<?> eventClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.Event")) {
                 if (!eventClass.getSimpleName().startsWith("Event_")
-                        || eventClass.getEnclosingClass() != null
-                        || eventClass.getName().contains("$")) {
+                    || eventClass.getEnclosingClass() != null
+                    || eventClass.getName().contains("$")) {
                     new LibFlow().error("%sはEventクラスではありません。スキップします...", eventClass.getSimpleName());
                     continue;
                 }
@@ -26,7 +26,7 @@ public class EventRegister {
                 }
             }
         } catch (Exception e) {
-            new LibReporter(null,e);
+            new LibReporter(null, e);
         }
     }
 }

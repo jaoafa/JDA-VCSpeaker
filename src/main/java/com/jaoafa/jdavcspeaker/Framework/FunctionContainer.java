@@ -88,12 +88,12 @@ public class FunctionContainer {
      * Setter
      */
     public FunctionContainer setAll(String functionType, String functionName,
-                       String subFunction, JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType channelType,
-                       Member member, User user, Event event,
-                       Message message, Button button, JSONObject data) {
+                                    String subFunction, JDA jda, Guild guild,
+                                    MessageChannel channel, ChannelType channelType,
+                                    Member member, User user, Event event,
+                                    Message message, Button button, JSONObject data) {
         this.functionType = functionType;
-        this.funcionName = functionName.substring(0, 1).toUpperCase() + functionName.substring(1).toLowerCase();;
+        this.funcionName = functionName.substring(0, 1).toUpperCase() + functionName.substring(1).toLowerCase();
         this.subFunction = subFunction;
         this.jda = jda;
         this.guild = guild;

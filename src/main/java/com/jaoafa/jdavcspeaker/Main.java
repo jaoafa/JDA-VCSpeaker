@@ -1,23 +1,16 @@
 package com.jaoafa.jdavcspeaker;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.exceptions.*;
-import cloud.commandframework.execution.CommandExecutionCoordinator;
-import cloud.commandframework.jda.JDA4CommandManager;
-import cloud.commandframework.jda.JDACommandSender;
-import cloud.commandframework.jda.JDAGuildSender;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jaoafa.jdavcspeaker.Event.AutoDisconnect;
 import com.jaoafa.jdavcspeaker.Event.AutoJoin;
 import com.jaoafa.jdavcspeaker.Event.AutoMove;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdRegister;
 import com.jaoafa.jdavcspeaker.Framework.Event.EventRegister;
+import com.jaoafa.jdavcspeaker.Framework.FunctionHooker;
 import com.jaoafa.jdavcspeaker.Lib.*;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
@@ -29,8 +22,6 @@ import org.json.JSONObject;
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,9 +33,9 @@ import java.util.stream.Stream;
 
 public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
-    static String prefix;
     static LibTitle libTitle = null;
     static String speakToken = null;
+    static String prefix = "/";
 
     public static void main(String[] args) {
         new LibFlow()
@@ -53,22 +44,22 @@ public class Main extends ListenerAdapter {
             .action("設定を読み込み中...");
 
         //Task: Config読み込み
-        
+
         JSONObject config;
         JSONObject tokenConfig;
         try {
             config = LibJson.readObject("./VCSpeaker.json");
         } catch (Exception e) {
             new LibFlow().error("基本設定の読み込みに失敗しました。");
-            new LibReporter(null,e);
+            new LibReporter(null, e);
             System.exit(1);
             return;
         }
 
         //Task: Config未定義チェック
-        
+
         boolean missingConfigDetected = false;
-        Function<String,String> missingDetectionMsg = "%sが未定義であるため、初期設定に失敗しました。"::formatted;
+        Function<String, String> missingDetectionMsg = "%sが未定義であるため、初期設定に失敗しました。"::formatted;
 
         //SubTask: Tokenクラスが無かったら終了
         if (!config.has("Token")) {
@@ -97,11 +88,10 @@ public class Main extends ListenerAdapter {
         }
 
         //Task: Token,JDA設定
-        speakToken = config.getString("SpeakToken");
-        prefix = config.optString("prefix", ";");
+        speakToken = tokenConfig.getString("Speaker");
         EventWaiter eventWaiter = new EventWaiter();
 
-        JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"))
+        JDABuilder builder = JDABuilder.createDefault(tokenConfig.getString("Discord"))
             //JDASettings
             .setChunkingFilter(ChunkingFilter.ALL)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -114,6 +104,7 @@ public class Main extends ListenerAdapter {
             )
             //EventListeners
             .addEventListeners(new Main())
+            .addEventListeners(new FunctionHooker())
             //AutoFunction
             .addEventListeners(new AutoJoin())
             .addEventListeners(new AutoMove())
@@ -129,10 +120,10 @@ public class Main extends ListenerAdapter {
         //Task: ログイン
         JDA jda;
         try {
-            jda = builder.build();
-        } catch (LoginException e) {
+            jda = builder.build().awaitReady();
+        } catch (InterruptedException | LoginException e) {
             new LibFlow().error("Discordへのログインに失敗しました。");
-            new LibReporter(null,e);
+            new LibReporter(null, e);
             System.exit(1);
             return;
         }
@@ -144,7 +135,7 @@ public class Main extends ListenerAdapter {
                 visionAPI = new VisionAPI(tokenConfig.getString("VisionAPI"));
             } catch (Exception e) {
                 new LibFlow().error("VisionAPIの初期化に失敗しました。関連機能は動作しません。");
-                new LibReporter(null,e);
+                new LibReporter(null, e);
                 visionAPI = null;
             }
         }
@@ -153,7 +144,7 @@ public class Main extends ListenerAdapter {
             libTitle = new LibTitle("./title.json");
         } catch (Exception e) {
             new LibFlow().error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
-            new LibReporter(null,e);
+            new LibReporter(null, e);
             System.exit(1);
             return;
         }
@@ -174,7 +165,7 @@ public class Main extends ListenerAdapter {
         }
     }
 
-    static void commandRegister(JDA jda) {
+    /*static void commandRegister(JDA jda) {
         try {
             final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
                 jda,
@@ -275,7 +266,7 @@ public class Main extends ListenerAdapter {
         } catch (InterruptedException | IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Nullable
     public static VisionAPI getVisionAPI() {

@@ -1,14 +1,13 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 public class LibReporter {
     public LibReporter(MessageChannel channel, Exception e) {
         e.printStackTrace();
 
-        if (channel != null){
+        if (channel != null) {
             StringBuilder stacktrace = new StringBuilder();
 
             for (StackTraceElement stackTraceElement : e.getStackTrace())
