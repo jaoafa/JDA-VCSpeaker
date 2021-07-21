@@ -16,3 +16,7 @@ Temp/
 test/SandBox.java
 
 servers.json
+
+vision-api.json
+
+ignore.json
