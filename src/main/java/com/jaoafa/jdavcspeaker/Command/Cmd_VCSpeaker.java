@@ -1,97 +1,161 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.jda.JDACommandSender;
-import cloud.commandframework.jda.parsers.ChannelArgument;
-import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
+import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
 
-import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
-
-public class Cmd_VCSpeaker implements CmdInterface {
+public class Cmd_VCSpeaker implements CmdSubstrate {
+    //todo 絵文字&説明見直し(ぜんぶ)
     @Override
-    public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
-        return new CmdBuilders(
-                builder
-                        .literal("server")
-                        .literal("add")
-                        .handler(context -> execute(context, this::addServer, false))
-                        .build(),
-                builder
-                        .literal("server")
-                        .literal("remove")
-                        .handler(context -> execute(context, this::removeServer))
-                        .build(),
-                builder
-                        .literal("server")
-                        .literal("notifychannel")
-                        .argument(ChannelArgument
-                                .<JDACommandSender>newBuilder("channel")
-                                .withParsers(new HashSet<>(Arrays.asList(ChannelArgument.ParserMode.values()))))
-                        .handler(context -> execute(context, this::setNotifyChannel))
-                        .build()
-        );
+    public CmdDetail detail() {
+        return new CmdDetail()
+            .setEmoji(":expressionless:")
+            .setData(
+                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerをサーバーに設定します")
+                    .addSubcommandGroups(
+                        new SubcommandGroupData("server", "サーバー設定")
+                            .addSubcommands(
+                                new SubcommandData("add", "読み上げるチャンネルを設定します")
+                                    .addOption(OptionType.CHANNEL, "channel", "設定するチャンネル", false),
+                                new SubcommandData("notify", "通知チャンネルを設定します")
+                                    .addOption(OptionType.CHANNEL, "channel", "設定するチャンネル", false),
+                                new SubcommandData("remove", "サーバーからVCSpeakerの設定を削除します")
+                            )
+                    )
+            );
     }
 
-    void addServer(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
+    @Override
+    public void hooker(JDA jda, Guild guild,
+                       MessageChannel channel, ChannelType type,
+                       Member member, User user,
+                       SlashCommandEvent event, String subCmd) {
+        switch (subCmd) {
+            case "server:add" -> addServer(guild, channel, member, event);
+            case "server:notify" -> addServer(guild, channel, member, event);
+            case "server:remove" -> addServer(guild, channel, member, event);
+        }
+    }
+
+    EmbedBuilder NOPERMISSION =
+        new EmbedBuilder()
+            .setDescription("""
+                あなたは管理者権限を所持していないため、
+                このサーバでVCSpeakerの設定をすることはできません。
+                """)
+            .setColor(LibEmbedColor.error);
+
+    void addServer(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            message.reply("あなたには管理者権限がないため、このサーバでVCSpeakerの設定をすることはできません。").queue();
+            event.replyEmbeds(NOPERMISSION.build()).queue();
             return;
         }
         if (MultipleServer.isTargetServer(guild)) {
-            message.reply(MessageFormat.format("既にこのサーバは登録されており、<#{0}> がVCチャンネルとして登録されています。",
-                    String.valueOf(MultipleServer.getVCChannelId(guild)))).queue();
+            event.replyEmbeds(new EmbedBuilder()
+                .setDescription("""
+                    既にこのサーバは登録されており、
+                    <#%s> がVCチャンネルとして登録されています。
+                    """.formatted(MultipleServer.getVCChannelId(guild)))
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
         }
-        boolean bool = MultipleServer.addServer(guild, channel);
-        message.reply(MessageFormat.format("このサーバの登録に{0}しました。{1}",
-                bool ? "成功" : "失敗",
-                bool ? MessageFormat.format("<#{0}>がVCチャンネルとして登録されました。", String.valueOf(MultipleServer.getVCChannelId(guild))) : "")).queue();
+
+        boolean isSuccessful =
+            MultipleServer
+                .addServer(
+                    guild,
+                    Optional.ofNullable(
+                        event
+                            .getOption("channel")
+                            .getAsMessageChannel()
+                    ).orElse(channel)
+                );
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle("サーバーの登録に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
+            .setDescription(
+                isSuccessful ?
+                    "<#%s>がVCチャンネルとして登録されました".formatted(MultipleServer.getVCChannelId(guild)) :
+                    "[この問題を報告する](https://github.com/jaoafa/JDA-VCSpeaker/issues/new)"
+            )
+            .setColor(isSuccessful ? LibEmbedColor.success : LibEmbedColor.error)
+            .build()
+        ).queue();
     }
 
-    void removeServer(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
+    void removeServer(Guild guild, Member member, SlashCommandEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            message.reply("あなたには管理者権限がないため、このサーバでVCSpeakerの設定をすることはできません。").queue();
+            event.replyEmbeds(NOPERMISSION.build()).queue();
             return;
         }
         if (!MultipleServer.isTargetServer(guild)) {
-            message.reply("このサーバは登録されていません。").queue();
+            event.replyEmbeds(new EmbedBuilder()
+                .setDescription("まだ登録されていないので、削除もできません！")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
         }
-        boolean bool = MultipleServer.removeServer(guild);
-        message.reply(MessageFormat.format("このサーバの登録解除に{0}しました。", bool ? "成功" : "失敗")).queue();
+        boolean isSuccessful = MultipleServer.removeServer(guild) && MultipleServer.removeNotifyChannel(guild);
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setDescription("このサーバの登録解除に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
+            .setColor(LibEmbedColor.error)
+            .build()
+        ).queue();
     }
 
-    void setNotifyChannel(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        MessageChannel notifyChannel = context.getOrDefault("channel", null);
+    void setNotifyChannel(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
+
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            message.reply("あなたには管理者権限がないため、このサーバでVCSpeakerの設定をすることはできません。").queue();
+            event.replyEmbeds(NOPERMISSION.build()).queue();
             return;
         }
         if (MultipleServer.isNotifiable(guild)) {
-            message.reply(MessageFormat.format("既にこのサーバの通知チャンネルは登録されており、<#{0}> が通知チャンネルとして登録されています。",
-                    String.valueOf(MultipleServer.getNotifyChannelId(guild)))).queue();
+            event.replyEmbeds(new EmbedBuilder()
+                .setDescription("""
+                    "既にこのサーバの通知チャンネルは登録されており、
+                    <#%s> が通知チャンネルとして登録されています。
+                    """.formatted(MultipleServer.getNotifyChannelId(guild)))
+                .setColor(LibEmbedColor.cation)
+                .build()
+            ).queue();
             return;
         }
-        if (notifyChannel == null) {
-            boolean bool = MultipleServer.removeNotifyChannel(guild);
-            message.reply(MessageFormat.format("このサーバの通知チャンネル解除に{0}しました。", bool ? "成功" : "失敗")).queue();
-            return;
-        }
-        boolean bool = MultipleServer.setNotifyChannel(guild, notifyChannel);
-        message.reply(MessageFormat.format("このサーバの通知チャンネル登録に{0}しました。{1}",
-                bool ? "成功" : "失敗",
-                bool ? MessageFormat.format("<#{0}>が通知チャンネルとして登録されました。", String.valueOf(MultipleServer.getNotifyChannelId(guild))) : "")).queue();
+
+        boolean isSuccessful =
+            MultipleServer
+                .setNotifyChannel(guild,
+                    Optional.ofNullable(
+                        event
+                            .getOption("channel")
+                            .getAsMessageChannel()
+                    ).orElse(channel)
+                );
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle("通知チャンネルの登録に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
+            .setDescription(
+                isSuccessful ?
+                    "<#%s>が通知チャンネルとして登録されました。".formatted(MultipleServer.getNotifyChannelId(guild)) :
+                    "[この問題を報告する](https://github.com/jaoafa/JDA-VCSpeaker/issues/new)"
+            )
+            .setColor(isSuccessful ? LibEmbedColor.success : LibEmbedColor.error)
+            .build()
+        ).queue();
     }
 }

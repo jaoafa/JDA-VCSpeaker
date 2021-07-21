@@ -4,47 +4,61 @@ import cloud.commandframework.Command;
 import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.jda.JDACommandSender;
-import com.jaoafa.jdavcspeaker.CmdInterface;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
 
-public class Cmd_Title implements CmdInterface {
+public class Cmd_Title implements CmdSubstrate {
     @Override
-    public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
-        return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::title))
-                        .argument(StringArgument.greedy("title"))
-                        .build()
-        );
+    public CmdDetail detail() {
+        return new CmdDetail()
+            .setEmoji(":regional_indicator_t:")
+            .setData(
+                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "参加中VCにタイトルを設定します")
+                    .addOption(OptionType.STRING, "title", "設定するタイトル", true)
+            );
     }
 
-    void title(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
+    @Override
+    public void hooker(JDA jda, Guild guild,
+                       MessageChannel channel, ChannelType type,
+                       Member member, User user,
+                       SlashCommandEvent event, String subCmd) {
+        title(member, event);
+    }
+
+    void title(Member member, SlashCommandEvent event) {
         if (member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
-            message.reply(new EmbedBuilder()
-                    .setTitle(":no_entry_sign: VCに入ってから実行してください")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":no_entry_sign: VCに入ってから実行してください")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
-        String new_title = context.get("title");
+
+        String new_title = event.getOption("title").getAsString(/*絶対100%確実にRequired*/);
         VoiceChannel targetVC = member.getVoiceState().getChannel();
 
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle == null) {
-            message.reply(new EmbedBuilder()
-                    .setTitle(":warning: 初期化に失敗しています")
-                    .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":warning: 初期化に失敗しています")
+                .setDescription("タイトル機能の初期化に失敗しているため、この機能は動作しません。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
@@ -56,28 +70,28 @@ public class Cmd_Title implements CmdInterface {
         }
         boolean bool = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
         if (!bool) {
-            message.reply(new EmbedBuilder()
-                    .setTitle(":x: 保存に失敗しました。")
-                    .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
-                    .setColor(LibEmbedColor.error)
-                    .build()
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":x: 保存に失敗しました。")
+                .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
+                .setColor(LibEmbedColor.error)
+                .build()
             ).queue();
             return;
         }
 
 
-        message.reply(new EmbedBuilder()
-                .setTitle(":magic_wand: タイトルを変更しました！")
-                .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
-                        old_title,
-                        new_title,
-                        isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
-                .setColor(LibEmbedColor.success)
-                .build()
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle(":magic_wand: タイトルを変更しました！")
+            .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
+                old_title,
+                new_title,
+                isInitialized ? "\n初期設定がされていなかったため、元のチャンネル名をデフォルトとして登録しました。" : ""))
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue(
-                msg ->
-                        new VoiceText()
-                                .play(msg, String.format("タイトルを%sに変更しました", new_title))
+            msg ->
+                new VoiceText()
+                    .play(msg.retrieveOriginal().complete(), String.format("タイトルを%sに変更しました", new_title))
         );
     }
 }

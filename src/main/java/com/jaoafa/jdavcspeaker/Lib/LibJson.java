@@ -80,4 +80,27 @@ public class LibJson {
         Files.write(Paths.get(path), Collections.singleton(array.toString()));
     }
     */
+
+    /**
+     * JSONObjectのString値をパスで検索します。
+     *
+     * @param object 対象のJSONObject
+     * @param path String値へのパス (yabai.json.powa)
+     * @return String値
+     */
+    public static String getByPath(JSONObject object, String path) {
+        int currentPathCount = 1;
+        String resultString = "";
+        JSONObject currentObject = object;
+        String[] pathString = path.split("\\.");
+        for (String s : pathString) {
+            if (pathString.length == currentPathCount) {
+                resultString = currentObject.getString(s);
+            } else {
+                currentObject = currentObject.getJSONObject(s);
+            }
+            currentPathCount++;
+        }
+        return resultString;
+    }
 }

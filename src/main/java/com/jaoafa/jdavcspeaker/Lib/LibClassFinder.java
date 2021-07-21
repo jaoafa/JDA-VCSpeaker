@@ -11,10 +11,10 @@ import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class ClassFinder {
+public class LibClassFinder {
     private final ClassLoader classLoader;
 
-    public ClassFinder() {
+    public LibClassFinder() {
         classLoader = Thread.currentThread().getContextClassLoader();
     }
 

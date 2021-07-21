@@ -6,7 +6,12 @@ import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.jda.JDA4CommandManager;
 import cloud.commandframework.jda.JDACommandSender;
 import cloud.commandframework.jda.JDAGuildSender;
-import com.jaoafa.jdavcspeaker.Event.*;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jaoafa.jdavcspeaker.Event.AutoDisconnect;
+import com.jaoafa.jdavcspeaker.Event.AutoJoin;
+import com.jaoafa.jdavcspeaker.Event.AutoMove;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdRegister;
+import com.jaoafa.jdavcspeaker.Framework.Event.EventRegister;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -31,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,67 +47,104 @@ public class Main extends ListenerAdapter {
     static String speakToken = null;
 
     public static void main(String[] args) {
-        Logger.print("VCSpeaker Starting...");
+        new LibFlow()
+            .setName("BootStrap")
+            .header("VCSpeaker StartUp")
+            .action("設定を読み込み中...");
 
+        //Task: Config読み込み
+        
         JSONObject config;
+        JSONObject tokenConfig;
         try {
             config = LibJson.readObject("./VCSpeaker.json");
         } catch (Exception e) {
-            System.out.println("[ERROR] 基本設定の読み込みに失敗しました。");
-            e.printStackTrace();
+            new LibFlow().error("基本設定の読み込みに失敗しました。");
+            new LibReporter(null,e);
             System.exit(1);
             return;
         }
 
-        if (!config.has("DiscordToken")) {
-            System.out.println("[ERROR] DiscordTokenが未定義であるため、初期設定に失敗しました。");
+        //Task: Config未定義チェック
+        
+        boolean missingConfigDetected = false;
+        Function<String,String> missingDetectionMsg = "%sが未定義であるため、初期設定に失敗しました。"::formatted;
+
+        //SubTask: Tokenクラスが無かったら終了
+        if (!config.has("Token")) {
+            new LibFlow().error(missingDetectionMsg.apply("Tokenクラス"));
+            System.exit(1);
+            return;
+        } else {
+            tokenConfig = config.getJSONObject("Token");
+        }
+
+        //SubTask: DiscordTokenの欠落を検知
+        if (!config.getJSONObject("Token").has("Discord")) {
+            new LibFlow().error(missingDetectionMsg.apply("DiscordToken"));
+            missingConfigDetected = true;
+        }
+        //SubTask: SpeakerTokenの欠落を検知
+        if (!config.getJSONObject("Token").has("Speaker")) {
+            new LibFlow().error(missingDetectionMsg.apply("SpeakerToken"));
+            missingConfigDetected = true;
+        }
+
+        //SubTask: 終了
+        if (missingConfigDetected) {
             System.exit(1);
             return;
         }
 
-        if (!config.has("SpeakToken")) {
-            System.out.println("[ERROR] SpeakTokenが未定義であるため、初期設定に失敗しました。");
-            System.exit(1);
-            return;
-        }
+        //Task: Token,JDA設定
         speakToken = config.getString("SpeakToken");
-
-        JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"));
         prefix = config.optString("prefix", ";");
-        builder.setChunkingFilter(ChunkingFilter.ALL);
-        builder.setMemberCachePolicy(MemberCachePolicy.ALL);
-        builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES);
+        EventWaiter eventWaiter = new EventWaiter();
 
-        builder.addEventListeners(new Main());
+        JDABuilder builder = JDABuilder.createDefault(config.getString("DiscordToken"))
+            //JDASettings
+            .setChunkingFilter(ChunkingFilter.ALL)
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            //Intents
+            .enableIntents(
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_PRESENCES,
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_VOICE_STATES
+            )
+            //EventListeners
+            .addEventListeners(new Main())
+            //AutoFunction
+            .addEventListeners(new AutoJoin())
+            .addEventListeners(new AutoMove())
+            .addEventListeners(new AutoDisconnect())
+            //EventFunction
+            .addEventListeners(eventWaiter);
 
-        builder.addEventListeners(new AutoJoin());
-        builder.addEventListeners(new AutoMove());
-        builder.addEventListeners(new AutoDisconnect());
+        //自動登録
+        new EventRegister(builder);
+        //EventWaiterを記録
+        LibValue.eventWaiter = eventWaiter;
 
-        builder.addEventListeners(new Event_Join());
-        builder.addEventListeners(new Event_Move());
-        builder.addEventListeners(new Event_Disconnect());
-        builder.addEventListeners(new Event_SpeakVCText());
-        builder.addEventListeners(new Event_GeneralNotify());
-
+        //Task: ログイン
         JDA jda;
         try {
             jda = builder.build();
         } catch (LoginException e) {
-            System.out.println("[ERROR] Discordへのログインに失敗しました。");
-            e.printStackTrace();
+            new LibFlow().error("Discordへのログインに失敗しました。");
+            new LibReporter(null,e);
             System.exit(1);
             return;
         }
 
-        commandRegister(jda);
+        new CmdRegister(jda);
 
-        if (config.has("visionAPIKey")) {
+        if (tokenConfig.has("VisionAPI")) {
             try {
-                visionAPI = new VisionAPI(config.getString("visionAPIKey"));
+                visionAPI = new VisionAPI(tokenConfig.getString("VisionAPI"));
             } catch (Exception e) {
-                System.out.println("[ERROR] VisionAPIの初期化に失敗しました。関連機能は動作しません。");
-                e.printStackTrace();
+                new LibFlow().error("VisionAPIの初期化に失敗しました。関連機能は動作しません。");
+                new LibReporter(null,e);
                 visionAPI = null;
             }
         }
@@ -109,12 +152,13 @@ public class Main extends ListenerAdapter {
         try {
             libTitle = new LibTitle("./title.json");
         } catch (Exception e) {
-            System.out.println("[ERROR] タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
-            e.printStackTrace();
+            new LibFlow().error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
+            new LibReporter(null,e);
             System.exit(1);
             return;
         }
 
+        //Task: 一時ファイル消去
         if (new File("tmp").exists()) {
             try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
                 List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
@@ -199,7 +243,7 @@ public class Main extends ListenerAdapter {
             });
 
 
-            ClassFinder classFinder = new ClassFinder();
+            LibClassFinder classFinder = new LibClassFinder();
             for (Class<?> clazz : classFinder.findClasses("com.jaoafa.jdavcspeaker.Command")) {
                 if (!clazz.getName().startsWith("com.jaoafa.jdavcspeaker.Command.Cmd_")) {
                     continue;

@@ -1,40 +1,44 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.jda.JDACommandSender;
-import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-
-import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 
-public class Cmd_Restart implements CmdInterface {
+public class Cmd_Restart implements CmdSubstrate {
     @Override
-    public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
-        return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::restart))
-                        .build()
-        );
+    public CmdDetail detail() {
+        return new CmdDetail()
+            .setEmoji(":expressionless:")
+            .setData(
+                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを再起動します")
+            );
     }
 
-    void restart(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        message.reply(new EmbedBuilder()
-                .setTitle(":wave: 再起動します。")
-                .setColor(LibEmbedColor.success)
-                .build()
+    @Override
+    public void hooker(JDA jda, Guild guild,
+                       MessageChannel channel, ChannelType type,
+                       Member member, User user,
+                       SlashCommandEvent event, String subCmd) {
+        restart(guild, event);
+    }
+
+
+    void restart(Guild guild, SlashCommandEvent event) {
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle(":wave: 再起動します")
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue(
-                m -> {
-                    guild.getAudioManager().closeAudioConnection();
-                    System.exit(0);
-                }
+            m -> {
+                guild.getAudioManager().closeAudioConnection();
+                System.exit(0);
+            }
         );
     }
 }

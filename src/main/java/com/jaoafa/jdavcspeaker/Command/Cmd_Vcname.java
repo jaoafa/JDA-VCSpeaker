@@ -1,4 +1,4 @@
-package com.jaoafa.jdavcspeaker.Command;
+package com.jaoafa.jdavcspeaker.Command.Public;
 
 import cloud.commandframework.Command;
 import cloud.commandframework.context.CommandContext;

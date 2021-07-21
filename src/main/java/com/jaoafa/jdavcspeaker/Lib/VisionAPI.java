@@ -81,22 +81,25 @@ public class VisionAPI {
 
         String base64 = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
         // めんどくさいからJSONそのまま構築する
-        String json = "{\n" +
-            "    \"requests\": [\n" +
-            "        {\n" +
-            "            \"image\": {\n" +
-            "                \"content\": \"" + base64 + "\"\n" +
-            "            },\n" +
-            "            \"features\": [{\n" +
-            "                \"type\": \"LABEL_DETECTION\",\n" +
-            "                \"maxResults\": 3\n" +
-            "            }, {\n" +
-            "                \"type\": \"TEXT_DETECTION\",\n" +
-            "                \"maxResults\": 1\n" +
-            "            }]\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+        String json = """
+            {
+               "requests": [
+                  {
+                     "image": {
+                        "content": "%s"
+                     },
+                     "features": [{
+                        "type": "LABEL_DETECTION",
+                        "maxResults": 3
+                     }, {
+                        "type": "TEXT_DETECTION",
+                        "maxResults": 1
+                     }]
+                  }
+               ]
+            }
+            """.formatted(base64);
+
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=UTF-8"));
         String apiurl = String.format("https://vision.googleapis.com/v1/images:annotate?key=%s", apikey);
         OkHttpClient client = new OkHttpClient().newBuilder()

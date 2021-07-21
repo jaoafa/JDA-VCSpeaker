@@ -1,37 +1,40 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import cloud.commandframework.Command;
-import cloud.commandframework.context.CommandContext;
-import cloud.commandframework.jda.JDACommandSender;
-import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Lib.CmdBuilders;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import static com.jaoafa.jdavcspeaker.Command.CmdExecutor.execute;
-
-public class Cmd_Clear implements CmdInterface {
+public class Cmd_Clear implements CmdSubstrate {
     @Override
-    public CmdBuilders register(Command.Builder<JDACommandSender> builder) {
-        return new CmdBuilders(
-                builder
-                        .handler(context -> execute(context, this::clear))
-                        .build()
-        );
+    public CmdDetail detail() {
+        return new CmdDetail()
+            .setEmoji(":boom:")
+            .setData(
+                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "今までのメッセージの読み上げをすべてキャンセルします")
+            );
     }
 
-    void clear(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
+    @Override
+    public void hooker(JDA jda, Guild guild,
+                       MessageChannel channel, ChannelType type,
+                       Member member, User user,
+                       SlashCommandEvent event, String subCmd) {
+        clear(guild, event);
+    }
+
+    void clear(Guild guild, SlashCommandEvent event) {
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.queue.clear();
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).player.destroy();
-        message.reply(new EmbedBuilder()
+        event.replyEmbeds(new EmbedBuilder()
             .setTitle(":stop_button: 読み上げをクリアしました！")
-                .setColor(LibEmbedColor.success)
-                .build()
+            .setColor(LibEmbedColor.success)
+            .build()
         ).queue();
     }
 }
