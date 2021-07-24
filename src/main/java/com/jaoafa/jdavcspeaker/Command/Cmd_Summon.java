@@ -53,7 +53,7 @@ public class Cmd_Summon implements CmdSubstrate {
         guild.getAudioManager().openAudioConnection(connectedChannel);
 
         event.replyEmbeds(new EmbedBuilder()
-            .setDescription(":satellite: <#%s> に接続しました。")
+            .setDescription(":satellite: <#%s> に接続しました。".formatted(connectedChannel.getId()))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
