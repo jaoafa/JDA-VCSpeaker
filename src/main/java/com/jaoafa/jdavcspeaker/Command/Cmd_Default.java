@@ -114,7 +114,7 @@ public class Cmd_Default implements CmdSubstrate {
             if (vt == null) {
                 event.replyEmbeds(new EmbedBuilder()
                     .setTitle(":joystick: ユーザーデフォルトパラメータ")
-                    .setDescription("あなたのデフォルトパラメーターは現在設定されていません。`" + Main.getPrefix() + "default user <Params>` で指定できます。")
+                    .setDescription("あなたのデフォルトパラメーターは現在設定されていません。`" + Main.getPrefix() + "default <Params>` で指定できます。")
                     .setColor(LibEmbedColor.cation)
                     .build()).queue();
                 return;
