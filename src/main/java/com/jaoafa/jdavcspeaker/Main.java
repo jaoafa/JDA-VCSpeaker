@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -163,110 +164,20 @@ public class Main extends ListenerAdapter {
                 ie.printStackTrace();
             }
         }
-    }
 
-    /*static void commandRegister(JDA jda) {
+        //Task: Devのコマンド削除
         try {
-            final JDA4CommandManager<JDACommandSender> manager = new JDA4CommandManager<>(
-                jda,
-                message -> getPrefix(),
-                (sender, perm) -> true,
-                CommandExecutionCoordinator.simpleCoordinator(),
-                sender -> {
-                    MessageReceivedEvent event = sender.getEvent().orElse(null);
-
-                    if (sender instanceof JDAGuildSender) {
-                        JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-                        return new JDAGuildSender(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-                    }
-
-                    return null;
-                },
-                user -> {
-                    MessageReceivedEvent event = user.getEvent().orElse(null);
-
-                    if (user instanceof JDAGuildSender) {
-                        JDAGuildSender guildUser = (JDAGuildSender) user;
-                        return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-                    }
-
-                    return null;
-                }
+            JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
+            devJda.getGuilds().forEach(
+                guild -> guild.retrieveCommands().queue(
+                    cmds -> cmds.forEach(cmd -> cmd.delete().queue())
+                )
             );
-
-            manager.registerExceptionHandler(NoSuchCommandException.class,
-                (c, e) -> c.getChannel().sendMessage(
-                    new EmbedBuilder()
-                        .setTitle(":thinking: コマンドが見つかりませんでした！")
-                        .setColor(LibEmbedColor.error)
-                        .build()
-                ).queue());
-            manager.registerExceptionHandler(InvalidSyntaxException.class,
-                (c, e) -> c.getChannel().sendMessage(
-                    new EmbedBuilder()
-                        .setTitle(":scroll: コマンドの構文が不正です！")
-                        .setDescription("`" + e.getCorrectSyntax() + "`")
-                        .setColor(LibEmbedColor.error)
-                        .build()
-                ).queue());
-            manager.registerExceptionHandler(NoPermissionException.class, (c, e) -> c.getChannel().sendMessage(
-                new EmbedBuilder()
-                    .setTitle(":octagonal_sign: 権限がありません！")
-                    .setColor(LibEmbedColor.error)
-                    .build()
-            ).queue());
-            manager.registerExceptionHandler(ArgumentParseException.class, (c, e) -> c.getChannel().sendMessage(
-                new EmbedBuilder()
-                    .setTitle(":bangbang: 引数が不正です")
-                    .setDescription(String.format("`%s`", e.getCause().getMessage()))
-                    .setColor(LibEmbedColor.error)
-                    .build()
-            ).queue());
-            manager.registerExceptionHandler(CommandExecutionException.class, (c, e) -> {
-                c.getChannel().sendMessage(
-                    new EmbedBuilder()
-                        .setTitle(":no_entry_sign: 処理中にエラーが発生しました")
-                        .setDescription(String.format("```\n%s\n```", e.getCause().getClass().getName()))
-                        .setColor(LibEmbedColor.error)
-                        .build()
-                ).queue();
-                e.printStackTrace();
-            });
-
-
-            LibClassFinder classFinder = new LibClassFinder();
-            for (Class<?> clazz : classFinder.findClasses("com.jaoafa.jdavcspeaker.Command")) {
-                if (!clazz.getName().startsWith("com.jaoafa.jdavcspeaker.Command.Cmd_")) {
-                    continue;
-                }
-                if (clazz.getEnclosingClass() != null) {
-                    continue;
-                }
-                if (clazz.getName().contains("$")) {
-                    continue;
-                }
-                String commandName = clazz.getName().substring("com.jaoafa.jdavcspeaker.Command.Cmd_".length())
-                    .toLowerCase();
-
-                try {
-                    Constructor<?> construct = clazz.getConstructor();
-                    Object instance = construct.newInstance();
-                    CmdInterface cmdInterface = (CmdInterface) instance;
-
-                    Command.Builder<JDACommandSender> builder = manager.commandBuilder(commandName); // ビルダーを生成
-                    cmdInterface.register(builder).getCommands().forEach(manager::command); // manager.command で登録
-                    System.out.println(commandName + " register successful");
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    System.out.println(commandName + " register failed");
-                    e.printStackTrace();
-                }
-            }
-
-            System.out.println(manager.getCommands());
-        } catch (InterruptedException | IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            devJda.shutdownNow();
+        } catch (InterruptedException | LoginException e) {
+            new LibReporter(null,e);
         }
-    }*/
+    }
 
     @Nullable
     public static VisionAPI getVisionAPI() {
