@@ -28,6 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -175,7 +177,16 @@ public class Main extends ListenerAdapter {
                     ))
                 )
             );
-            devJda.shutdown();
+
+            new Timer(false).schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        devJda.shutdown();
+                    }
+                },
+                180000
+            );
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null,e);
         }
