@@ -170,10 +170,12 @@ public class Main extends ListenerAdapter {
             JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
             devJda.getGuilds().forEach(
                 guild -> guild.retrieveCommands().queue(
-                    cmds -> cmds.forEach(cmd -> cmd.delete().queue())
+                    cmds -> cmds.forEach(cmd -> cmd.delete().queue(
+                        unused -> System.out.printf("%sで%sが削除されました。%n", guild.getId(),cmd.getName())
+                    ))
                 )
             );
-            devJda.shutdownNow();
+            devJda.shutdown();
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null,e);
         }
