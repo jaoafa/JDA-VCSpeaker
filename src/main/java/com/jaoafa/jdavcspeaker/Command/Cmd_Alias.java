@@ -4,6 +4,7 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -46,8 +47,8 @@ public class Cmd_Alias implements CmdSubstrate {
     }
 
     void addAlias(SlashCommandEvent event) {
-        String from = event.getOption("from").getAsString(/*絶対100%確実にRequired*/);
-        String to = event.getOption("to").getAsString(/*絶対100%確実にRequired*/);
+        String from = Main.getExistsOption(event, "from").getAsString();
+        String to = Main.getExistsOption(event, "to").getAsString();
 
         LibAlias.addToAlias(from, to);
 
@@ -60,7 +61,7 @@ public class Cmd_Alias implements CmdSubstrate {
     }
 
     void removeAlias(SlashCommandEvent event) {
-        String from = event.getOption("from").getAsString(/*絶対100%確実にRequired*/);
+        String from = Main.getExistsOption(event, "from").getAsString();
 
         if (!StaticData.aliasMap.containsKey(from)) {
             event.replyEmbeds(new EmbedBuilder()
