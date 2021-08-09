@@ -54,10 +54,12 @@ public class LibTitle {
     public Boolean checkTitleIsSame(VoiceChannel channel) {
         if (titleSetting == null) return false;
         if (!titleSetting.has(channel.getId())) return false;
+        String original_title = getOriginalTitle(channel);
+        if (original_title == null) return false;
         //Title使用中だったら中止
         if (isModifiedTitle(channel)) return null;
 
-        return getOriginalTitle(channel).equals(channel.getName());
+        return original_title.equals(channel.getName());
     }
 
     /**

@@ -77,7 +77,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                         .setTitle(":white_check_mark: AutoJoined")
                         .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
                         .setColor(LibEmbedColor.success);
-                    MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
+                    MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
                 }
             } else {
                 return; // 自身がどこにも入っておらず、送信者もどこにも入っていない場合
@@ -268,21 +268,9 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
     }
 
-    static class UserVoiceTextResult {
-        final VoiceText vt;
-        final boolean isReset;
-
-        public UserVoiceTextResult(VoiceText vt, boolean isReset) {
-            this.vt = vt;
-            this.isReset = isReset;
-        }
-
+    record UserVoiceTextResult(VoiceText vt, boolean isReset) {
         public VoiceText getVoiceText() {
             return vt;
-        }
-
-        public boolean isReset() {
-            return isReset;
         }
     }
 }

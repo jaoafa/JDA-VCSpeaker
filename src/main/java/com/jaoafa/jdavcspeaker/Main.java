@@ -11,7 +11,9 @@ import com.jaoafa.jdavcspeaker.Lib.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -37,13 +39,14 @@ public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
     static LibTitle libTitle = null;
     static String speakToken = null;
-    static String prefix = "/";
+    static final String prefix = "/";
 
     public static void main(String[] args) {
         new LibFlow()
             .setName("BootStrap")
             .header("VCSpeaker StartUp")
-            .action("設定を読み込み中...");
+            .action("設定を読み込み中...")
+            .run();
 
         //Task: Config読み込み
 
@@ -52,7 +55,7 @@ public class Main extends ListenerAdapter {
         try {
             config = LibJson.readObject("./VCSpeaker.json");
         } catch (Exception e) {
-            new LibFlow().error("基本設定の読み込みに失敗しました。");
+            new LibFlow().error("基本設定の読み込みに失敗しました。").run();
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -65,7 +68,7 @@ public class Main extends ListenerAdapter {
 
         //SubTask: Tokenクラスが無かったら終了
         if (!config.has("Token")) {
-            new LibFlow().error(missingDetectionMsg.apply("Tokenクラス"));
+            new LibFlow().error(missingDetectionMsg.apply("Tokenクラス")).run();
             System.exit(1);
             return;
         } else {
@@ -74,12 +77,12 @@ public class Main extends ListenerAdapter {
 
         //SubTask: DiscordTokenの欠落を検知
         if (!config.getJSONObject("Token").has("Discord")) {
-            new LibFlow().error(missingDetectionMsg.apply("DiscordToken"));
+            new LibFlow().error(missingDetectionMsg.apply("DiscordToken")).run();
             missingConfigDetected = true;
         }
         //SubTask: SpeakerTokenの欠落を検知
         if (!config.getJSONObject("Token").has("Speaker")) {
-            new LibFlow().error(missingDetectionMsg.apply("SpeakerToken"));
+            new LibFlow().error(missingDetectionMsg.apply("SpeakerToken")).run();
             missingConfigDetected = true;
         }
 
@@ -124,7 +127,7 @@ public class Main extends ListenerAdapter {
         try {
             jda = builder.build().awaitReady();
         } catch (InterruptedException | LoginException e) {
-            new LibFlow().error("Discordへのログインに失敗しました。");
+            new LibFlow().error("Discordへのログインに失敗しました。").run();
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -136,7 +139,7 @@ public class Main extends ListenerAdapter {
             try {
                 visionAPI = new VisionAPI(tokenConfig.getString("VisionAPI"));
             } catch (Exception e) {
-                new LibFlow().error("VisionAPIの初期化に失敗しました。関連機能は動作しません。");
+                new LibFlow().error("VisionAPIの初期化に失敗しました。関連機能は動作しません。").run();
                 new LibReporter(null, e);
                 visionAPI = null;
             }
@@ -145,7 +148,7 @@ public class Main extends ListenerAdapter {
         try {
             libTitle = new LibTitle("./title.json");
         } catch (Exception e) {
-            new LibFlow().error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
+            new LibFlow().error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。").run();
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -220,5 +223,14 @@ public class Main extends ListenerAdapter {
         LibAlias.fetchMap();
         LibIgnore.fetchMap();
         System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
+    }
+
+    @NotNull
+    public static OptionMapping getExistsOption(SlashCommandEvent event, String name) {
+        OptionMapping option = event.getOption(name);
+        if (option == null) {
+            throw new IllegalArgumentException();
+        }
+        return option;
     }
 }

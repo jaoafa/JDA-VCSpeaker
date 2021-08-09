@@ -4,11 +4,11 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import java.util.Optional;
 
 public class Cmd_VCSpeaker implements CmdSubstrate {
-    EmbedBuilder NOPERMISSION =
+    final EmbedBuilder NO_PERMISSION =
         new EmbedBuilder()
             .setDescription("""
                 あなたは管理者権限を所持していないため、
@@ -53,14 +53,14 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
                        SlashCommandEvent event, String subCmd) {
         switch (subCmd) {
             case "server:add" -> addServer(guild, channel, member, event);
-            case "server:notify" -> addServer(guild, channel, member, event);
-            case "server:remove" -> addServer(guild, channel, member, event);
+            case "server:notify" -> removeServer(guild, member, event);
+            case "server:remove" -> setNotifyChannel(guild, channel, member, event);
         }
     }
 
     void addServer(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            event.replyEmbeds(NOPERMISSION.build()).queue();
+            event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
         if (MultipleServer.isTargetServer(guild)) {
@@ -80,8 +80,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
                 .addServer(
                     guild,
                     Optional.ofNullable(
-                        event
-                            .getOption("channel")
+                        Main.getExistsOption(event, "channel")
                             .getAsMessageChannel()
                     ).orElse(channel)
                 );
@@ -100,7 +99,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
 
     void removeServer(Guild guild, Member member, SlashCommandEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            event.replyEmbeds(NOPERMISSION.build()).queue();
+            event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
         if (!MultipleServer.isTargetServer(guild)) {
@@ -123,7 +122,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
     void setNotifyChannel(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
 
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            event.replyEmbeds(NOPERMISSION.build()).queue();
+            event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
         if (MultipleServer.isNotifiable(guild)) {
@@ -142,8 +141,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
             MultipleServer
                 .setNotifyChannel(guild,
                     Optional.ofNullable(
-                        event
-                            .getOption("channel")
+                        Main.getExistsOption(event, "channel")
                             .getAsMessageChannel()
                     ).orElse(channel)
                 );

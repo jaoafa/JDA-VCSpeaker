@@ -42,7 +42,7 @@ public class Cmd_Title implements CmdSubstrate {
             return;
         }
 
-        String new_title = event.getOption("title").getAsString(/*絶対100%確実にRequired*/);
+        String new_title = Main.getExistsOption(event, "title").getAsString();
         VoiceChannel targetVC = member.getVoiceState().getChannel();
 
         LibTitle libTitle = Main.getLibTitle();
@@ -82,9 +82,10 @@ public class Cmd_Title implements CmdSubstrate {
             .setColor(LibEmbedColor.success)
             .build()
         ).queue(
-            msg ->
-                new VoiceText()
-                    .play(msg.retrieveOriginal().complete(), String.format("タイトルを%sに変更しました", new_title))
+            msg -> msg.retrieveOriginal().queue(
+                origin_msg -> new VoiceText()
+                    .play(origin_msg, String.format("タイトルを%sに変更しました", new_title))
+            )
         );
     }
 }

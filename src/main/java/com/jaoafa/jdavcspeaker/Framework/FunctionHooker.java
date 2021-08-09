@@ -12,9 +12,9 @@ import org.json.JSONObject;
 import java.lang.reflect.InvocationTargetException;
 
 public class FunctionHooker extends ListenerAdapter {
-    String ROOT_PACKAGE = "com.jaoafa.jdavcspeaker";
-    String CMD_PACKAGE = "Command";
-    String ACT_PACKAGE = "Action";
+    final String ROOT_PACKAGE = "com.jaoafa.jdavcspeaker";
+    final String CMD_PACKAGE = "Command";
+    final String ACT_PACKAGE = "Action";
 
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {

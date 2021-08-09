@@ -11,6 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import javax.annotation.CheckReturnValue;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -253,14 +254,14 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.Speaker.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`speaker` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
                 .build()).queue();
             return;
         } catch (WrongSpeedException e) {
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`speed` が正しくありません。使用可能なパラメーターは `%s` です。", "50 ～ 400"))
                 .setColor(LibEmbedColor.error)
@@ -271,7 +272,7 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.Emotion.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`emotion` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
@@ -282,14 +283,14 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.EmotionLevel.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`emotionLevel` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
                 .build()).queue();
             return;
         } catch (WrongPitchException e) {
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`pitch` が正しくありません。使用可能なパラメーターは `%s` です。", "50 ～ 200"))
                 .setColor(LibEmbedColor.error)
@@ -305,7 +306,22 @@ public class VoiceText {
         System.out.println(this);
 
         String formattedText = MsgFormatter.format(speakText);
-        String hash = DigestUtils.md5Hex(formattedText);
+        String hash = DigestUtils.md5Hex("%s_%s_%d_%s_%s_%d".formatted(speakText,
+            speaker.name(),
+            speed,
+            emotion != null ? emotion.name() : "null",
+            emotionLevel != null ? emotionLevel.name() : "null",
+            pitch));
+
+        if (new File("./Temp/" + hash + ".mp3").exists()) {
+            TrackInfo info = new TrackInfo(message);
+            PlayerManager.getINSTANCE().loadAndPlay(info, "./Temp/" + hash + ".mp3");
+            return;
+        }
+
+        message
+            .addReaction("\uD83D\uDCF2") // :calling:
+            .queue(null, Throwable::printStackTrace);
 
         try {
             OkHttpClient client = new OkHttpClient();
@@ -341,7 +357,11 @@ public class VoiceText {
                 Files.write(Paths.get("./Temp/" + hash + ".mp3"), body.bytes());
             } catch (IOException e) {
                 e.printStackTrace();
+                return;
             }
+            message
+                .removeReaction("\uD83D\uDCF2") // :calling:
+                .queue(null, Throwable::printStackTrace);
             TrackInfo info = new TrackInfo(message);
             PlayerManager.getINSTANCE().loadAndPlay(info, "./Temp/" + hash + ".mp3");
         } catch (JSONException e) {

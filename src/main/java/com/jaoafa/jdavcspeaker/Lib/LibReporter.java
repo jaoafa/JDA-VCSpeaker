@@ -14,7 +14,7 @@ public class LibReporter {
                 stacktrace.append(stackTraceElement.getClassName()).append("\n");
 
             String stacktraceString = stacktrace.length() > 900 ? stacktrace.substring(0, 800) : stacktrace.toString();
-            channel.sendMessage(new EmbedBuilder()
+            channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle(":loudspeaker: 例外が発生しました！")
                 .addField(":pencil: メッセージ", "```\n%s\n```".formatted(e.getMessage()), false)
                 .addField(":boom: 原因", "```\n%s\n```".formatted(e.getCause()), false)
