@@ -14,8 +14,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 public class CmdExecutor {
     public static void execute(CommandContext<JDACommandSender> context, CmdFunction handler, boolean checkRegistered) {
         MessageChannel channel = context.getSender().getChannel();
-        if (!context.getSender().getEvent().isPresent()) {
-            channel.sendMessage(new EmbedBuilder()
+        if (context.getSender().getEvent().isEmpty()) {
+            channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")
                 .setDescription("メッセージデータを取得できませんでした。")
                 .setColor(LibEmbedColor.error)
@@ -34,9 +34,5 @@ public class CmdExecutor {
             return;
         }
         handler.execute(guild, channel, member, message, context);
-    }
-
-    public static void execute(CommandContext<JDACommandSender> context, CmdFunction handler) {
-        execute(context, handler, true);
     }
 }

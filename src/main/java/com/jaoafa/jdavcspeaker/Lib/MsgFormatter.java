@@ -44,6 +44,7 @@ public class MsgFormatter {
 
         // URLCheck
         for (String s : splitText) {
+            //noinspection HttpUrlsUsage
             if (s.startsWith("https://") || s.startsWith("http://")) {
                 String[] urlSplit = s.split("/");
                 text = text.replace(s, urlSplit[urlSplit.length - 1]);

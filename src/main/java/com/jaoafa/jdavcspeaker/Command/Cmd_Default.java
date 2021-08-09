@@ -46,7 +46,7 @@ public class Cmd_Default implements CmdSubstrate {
     }
 
     void setUser(User user, SlashCommandEvent event) {
-        String params = event.getOption("params").getAsString(/*絶対100%確実にRequired*/);
+        String params = Main.getExistsOption(event, "params").getAsString();
         VoiceText vt;
         try {
             vt = new VoiceText().parseMessage(params);
