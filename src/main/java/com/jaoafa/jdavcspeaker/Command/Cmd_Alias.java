@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Cmd_Alias implements CmdSubstrate {
@@ -88,6 +89,7 @@ public class Cmd_Alias implements CmdSubstrate {
 
     void listAlias(SlashCommandEvent event) {
         String list = StaticData.aliasMap.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
             .map(entry -> "`%s` -> `%s`".formatted(entry.getKey(), entry.getValue())) // keyとvalueを繋げる
             .collect(Collectors.joining("\n")); // それぞれを改行で連結する
 
