@@ -31,9 +31,12 @@ public class CmdRegister {
 
         //全てのサーバーで登録
         for (Guild guild : jda.getGuilds()) {
-            guild.updateCommands().addCommands(commandList).complete();
-            new LibFlow().success("%sへの登録に成功しました。", guild.getName()).run();
+            guild.updateCommands().addCommands(commandList).queue(
+                s -> new LibFlow().success("%sへの登録に成功しました。", guild.getName()),
+                t -> new LibFlow().error("%sへの登録に失敗しました。(" + t.getMessage() + ")", guild.getName())
+            );
         }
-        new LibFlow().success("全てのGuildに登録しました。").run();
+        new LibFlow().success("全てのGuildに登録リクエストしました。");
+
     }
 }
