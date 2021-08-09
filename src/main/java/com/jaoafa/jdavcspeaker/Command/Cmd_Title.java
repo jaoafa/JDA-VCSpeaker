@@ -82,9 +82,10 @@ public class Cmd_Title implements CmdSubstrate {
             .setColor(LibEmbedColor.success)
             .build()
         ).queue(
-            msg ->
-                new VoiceText()
-                    .play(msg.retrieveOriginal().complete(), String.format("タイトルを%sに変更しました", new_title))
+            msg -> msg.retrieveOriginal().queue(
+                origin_msg -> new VoiceText()
+                    .play(origin_msg, String.format("タイトルを%sに変更しました", new_title))
+            )
         );
     }
 }
