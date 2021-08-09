@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,8 +59,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
         if (content.equals(".")) {
             return; // .のみは除外
         }
-        if (content.startsWith(";")) {
-            return; // ;から始まるコマンドと思われる文字列を除外
+        if (content.startsWith("!")) {
+            return; // !から始まるコマンドと思われる文字列を除外
         }
 
         if (event.getGuild().getSelfMember().getVoiceState() == null ||
@@ -100,12 +101,17 @@ public class Event_SpeakVCText extends ListenerAdapter {
         speakContent = replacerLink(jda, speakContent);
         // Spoiler
         speakContent = replacerSpoiler(speakContent);
+        // Emphasize
+        boolean isEmphasize = isEmphasizeMessage(speakContent);
+        if (isEmphasize) {
+            speakContent = replacerEmphasizeMessage(speakContent);
+        }
 
         UserVoiceTextResult uvtr = getUserVoiceText(user);
         if (uvtr.isReset()) {
             message.reply("デフォルトパラメーターが不正であるため、リセットしました。").queue();
         }
-        VoiceText vt = uvtr.getVoiceText();
+        VoiceText vt = isEmphasize ? changeEmphasizeSpeed(uvtr.getVoiceText()) : uvtr.getVoiceText();
         vt.play(message, speakContent);
 
         // 画像等
@@ -205,6 +211,28 @@ public class Event_SpeakVCText extends ListenerAdapter {
 
     String replacerSpoiler(String content) {
         return spoilerPattern.matcher(content).replaceAll(" ピー ");
+    }
+
+    boolean isEmphasizeMessage(String content) {
+        return
+            content.matches("^\\*\\*(.[　 ]){2,}.\\*\\*$") || // **あ い う え お** OR **あ　い　う　え　お**
+                content.matches("^(.[　 ]){2,}.$") || // あ い う え お OR あ　い　う　え　お
+                content.matches("^\\*\\*(.+)\\*\\*$"); // **あああああああ**
+    }
+
+    String replacerEmphasizeMessage(String content) {
+        for (String s : Arrays.asList("**", " ", "　")) {
+            content = content.replace(s, "");
+        }
+        return content;
+    }
+
+    VoiceText changeEmphasizeSpeed(VoiceText vt) {
+        try {
+            return vt.setSpeed(Math.max(vt.getSpeed() / 2, 50));
+        } catch (VoiceText.WrongSpeedException e) {
+            return vt;
+        }
     }
 
     @Nullable
