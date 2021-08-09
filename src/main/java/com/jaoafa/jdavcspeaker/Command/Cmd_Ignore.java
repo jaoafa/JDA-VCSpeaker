@@ -4,6 +4,7 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -54,7 +55,7 @@ public class Cmd_Ignore implements CmdSubstrate {
     }
 
     void addContains(SlashCommandEvent event) {
-        String text = event.getOption("text").getAsString(/*絶対100%確実にRequired*/);
+        String text = Main.getExistsOption(event, "text").getAsString();
         LibIgnore.addToIgnore("contain", text);
 
         event.replyEmbeds(new EmbedBuilder()
@@ -66,7 +67,7 @@ public class Cmd_Ignore implements CmdSubstrate {
     }
 
     void addEquals(SlashCommandEvent event) {
-        String text = event.getOption("text").getAsString(/*絶対100%確実にRequired*/);
+        String text = Main.getExistsOption(event, "text").getAsString();
         LibIgnore.addToIgnore("equal", text);
 
         event.replyEmbeds(new EmbedBuilder()
@@ -78,7 +79,7 @@ public class Cmd_Ignore implements CmdSubstrate {
     }
 
     void removeContains(SlashCommandEvent event) {
-        String text = event.getOption("text").getAsString(/*絶対100%確実にRequired*/);
+        String text = Main.getExistsOption(event, "text").getAsString();
 
         LibIgnore.removeFromIgnore("contain", text);
 
@@ -91,7 +92,7 @@ public class Cmd_Ignore implements CmdSubstrate {
     }
 
     void removeEquals(SlashCommandEvent event) {
-        String text = event.getOption("text").getAsString(/*絶対100%確実にRequired*/);
+        String text = Main.getExistsOption(event, "text").getAsString();
         LibIgnore.removeFromIgnore("equal", text);
 
         event.replyEmbeds(new EmbedBuilder()

@@ -45,6 +45,6 @@ public class AutoDisconnect extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":white_check_mark: AutoDisconnected")
             .setColor(LibEmbedColor.success);
-        MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
+        MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
     }
 }

@@ -54,11 +54,7 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
-            if (!(track.getUserData() instanceof TrackInfo)) {
-                return;
-            }
-            TrackInfo info = (TrackInfo) track.getUserData();
-            if (info == null) {
+            if (!(track.getUserData() instanceof TrackInfo info)) {
                 return;
             }
 
@@ -87,11 +83,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     void reactionSpeaking(AudioTrack track) {
-        if (!(track.getUserData() instanceof TrackInfo)) {
-            return;
-        }
-        TrackInfo info = (TrackInfo) track.getUserData();
-        if (info == null) {
+        if (!(track.getUserData() instanceof TrackInfo info)) {
             return;
         }
         TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());

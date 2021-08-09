@@ -42,7 +42,7 @@ public class Cmd_Title implements CmdSubstrate {
             return;
         }
 
-        String new_title = event.getOption("title").getAsString(/*絶対100%確実にRequired*/);
+        String new_title = Main.getExistsOption(event, "title").getAsString();
         VoiceChannel targetVC = member.getVoiceState().getChannel();
 
         LibTitle libTitle = Main.getLibTitle();

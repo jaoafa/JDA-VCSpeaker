@@ -6,12 +6,9 @@ import cloud.commandframework.jda.JDACommandSender;
 import java.util.Arrays;
 import java.util.List;
 
-public class CmdBuilders {
-    private final Command<JDACommandSender>[] commands;
-
+public record CmdBuilders(Command<JDACommandSender>... commands) {
     @SafeVarargs
-    public CmdBuilders(Command<JDACommandSender>... commands) {
-        this.commands = commands;
+    public CmdBuilders {
     }
 
     /**

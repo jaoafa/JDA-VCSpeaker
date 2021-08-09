@@ -79,7 +79,7 @@ public class Event_GeneralNotify extends ListenerAdapter {
             .setTitle(":inbox_tray: 会話が始まりました！")
             .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.normal);
-        MultipleServer.getNotifyChannel(event.getGuild()).sendMessage(embed.build()).queue(
+        MultipleServer.getNotifyChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue(
             message -> {
                 try {
                     Files.write(notify_id_path, Collections.singleton(message.getId()));

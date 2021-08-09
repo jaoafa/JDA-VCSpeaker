@@ -31,6 +31,6 @@ public class AutoJoin extends ListenerAdapter {
             .setTitle(":white_check_mark: AutoJoin")
             .setDescription(MessageFormat.format("<#{0}> に接続しました。", event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.success);
-        MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
+        MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
     }
 }

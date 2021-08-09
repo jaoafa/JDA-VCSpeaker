@@ -15,14 +15,14 @@ public class EventRegister {
                 if (!eventClass.getSimpleName().startsWith("Event_")
                     || eventClass.getEnclosingClass() != null
                     || eventClass.getName().contains("$")) {
-                    new LibFlow().error("%sはEventクラスではありません。スキップします...", eventClass.getSimpleName());
+                    new LibFlow().error("%sはEventクラスではありません。スキップします...", eventClass.getSimpleName()).run();
                     continue;
                 }
 
                 Object instance = ((Constructor<?>) eventClass.getConstructor()).newInstance();
                 if (instance instanceof ListenerAdapter) {
                     jdaBuilder.addEventListeners(instance);
-                    new LibFlow().success("%sを登録しました。", eventClass.getSimpleName());
+                    new LibFlow().success("%sを登録しました。", eventClass.getSimpleName()).run();
                 }
             }
         } catch (Exception e) {

@@ -253,14 +253,14 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.Speaker.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`speaker` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
                 .build()).queue();
             return;
         } catch (WrongSpeedException e) {
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`speed` が正しくありません。使用可能なパラメーターは `%s` です。", "50 ～ 400"))
                 .setColor(LibEmbedColor.error)
@@ -271,7 +271,7 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.Emotion.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`emotion` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
@@ -282,14 +282,14 @@ public class VoiceText {
                 .filter(s -> !s.equals(VoiceText.EmotionLevel.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`emotionLevel` が正しくありません。使用可能なパラメーターは `%s` です。", allowParams))
                 .setColor(LibEmbedColor.error)
                 .build()).queue();
             return;
         } catch (WrongPitchException e) {
-            message.reply(new EmbedBuilder()
+            message.replyEmbeds(new EmbedBuilder()
                 .setTitle(":bangbang: メッセージパラメーターが不正")
                 .setDescription(String.format("`pitch` が正しくありません。使用可能なパラメーターは `%s` です。", "50 ～ 200"))
                 .setColor(LibEmbedColor.error)

@@ -60,6 +60,6 @@ public class AutoMove extends ListenerAdapter {
             .setTitle(":white_check_mark: AutoMoved")
             .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))
             .setColor(LibEmbedColor.success);
-        MultipleServer.getVCChannel(event.getGuild()).sendMessage(embed.build()).queue();
+        MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
     }
 }
