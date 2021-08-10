@@ -30,7 +30,9 @@ public class Cmd_Alias implements CmdSubstrate {
                             .addOption(OptionType.STRING, "to", "変換先テキスト", true),
                         new SubcommandData("remove", "エイリアスを削除します")
                             .addOption(OptionType.STRING, "from", "変換を削除するテキスト", true),
-                        new SubcommandData("list", "エイリアス一覧を表示します")
+                        new SubcommandData("list", "エイリアス一覧を表示します"),
+                        new SubcommandData("parse", "エイリアスを適用したテキストを返します")
+                            .addOption(OptionType.STRING, "text", "エイリアスを適用するテキスト", true)
                     )
             );
     }
@@ -44,6 +46,7 @@ public class Cmd_Alias implements CmdSubstrate {
             case "add" -> addAlias(event);
             case "remove" -> removeAlias(event);
             case "list" -> listAlias(event);
+            case "parse" -> parseAlias(event);
         }
     }
 
@@ -96,6 +99,21 @@ public class Cmd_Alias implements CmdSubstrate {
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":bookmark_tabs: 現在のエイリアス")
             .setDescription(list)
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void parseAlias(SlashCommandEvent event) {
+        String orig_text = Main.getExistsOption(event, "text").getAsString();
+        String text = orig_text;
+
+        for (Map.Entry<String, String> entry : StaticData.aliasMap.entrySet()) {
+            text = text.replace(entry.getKey(), entry.getValue());
+        }
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setDescription("`%s` -> `%s`".formatted(orig_text, text))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
