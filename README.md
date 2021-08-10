@@ -33,6 +33,7 @@ JDA + Lavaplayer で作られている VCSpeaker のリポジトリです。
 - `alias add from:<from> to:<to>`: `<from>` を `<to>` に置き換えるように設定します。
 - `alias remove from:<from>`: `<from>` の置き換えを削除します。
 - `alias list`: 置き換え(エイリアス)一覧を取得します。
+- `alias parse text:<text>`: `<text>` に対して設定済みのエイリアスを適用したテキストを返します
 
 ### `clear`: 読み上げキュー削除
 
