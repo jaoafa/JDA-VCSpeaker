@@ -306,7 +306,7 @@ public class VoiceText {
         System.out.println(this);
 
         String formattedText = MsgFormatter.format(speakText);
-        String hash = DigestUtils.md5Hex("%s_%s_%d_%s_%s_%d".formatted(speakText,
+        String hash = DigestUtils.md5Hex("%s_%s_%d_%s_%s_%d".formatted(formattedText,
             speaker.name(),
             speed,
             emotion != null ? emotion.name() : "null",
