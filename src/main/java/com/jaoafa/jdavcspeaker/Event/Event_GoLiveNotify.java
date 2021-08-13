@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceStreamEvent;
@@ -47,7 +48,13 @@ public class Event_GoLiveNotify extends ListenerAdapter {
             .sendMessage(text)
             .queue(
                 message -> {
-                    if (isSpeak) new VoiceText().play(message, speakText);
+                    if (isSpeak) {
+                        new VoiceText().play(
+                            isStream ? TrackInfo.SpeakFromType.STARTED_GOLIVE : TrackInfo.SpeakFromType.ENDED_GOLIVE,
+                            message,
+                            speakText
+                        );
+                    }
                 }
             );
     }

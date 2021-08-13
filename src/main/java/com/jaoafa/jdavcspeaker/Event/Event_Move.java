@@ -5,6 +5,7 @@ import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -41,12 +42,14 @@ public class Event_Move extends ListenerAdapter {
                 newChannel.getId()))
             .queue(
                 message ->
-                    new VoiceText()
-                        .play(message,
-                            MessageFormat.format("{0}が{1}から{2}に移動しました。",
-                                user.getName(),
-                                MsgFormatter.formatChannelName(oldChannel),
-                                MsgFormatter.formatChannelName(newChannel)))
+                    new VoiceText().play(
+                        TrackInfo.SpeakFromType.MOVED_VC,
+                        message,
+                        MessageFormat.format("{0}が{1}から{2}に移動しました。",
+                            user.getName(),
+                            MsgFormatter.formatChannelName(oldChannel),
+                            MsgFormatter.formatChannelName(newChannel))
+                    )
             );
     }
 }

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -17,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 import java.util.Optional;
 
-public class Cmd_VCSpeaker implements CmdSubstrate {
+public class Cmd_Vcspeaker implements CmdSubstrate {
     final EmbedBuilder NO_PERMISSION =
         new EmbedBuilder()
             .setDescription("""
@@ -75,16 +76,15 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
             return;
         }
 
+        OptionMapping channelOpt = event.getOption("channel");
         boolean isSuccessful =
             MultipleServer
                 .addServer(
                     guild,
-                    Optional.ofNullable(
-                        Main.getExistsOption(event, "channel")
-                            .getAsMessageChannel()
-                    ).orElse(channel)
+                    channelOpt != null ? channelOpt.getAsMessageChannel() : channel
                 );
 
+        cmdFlow.success("%s がサーバ登録をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");
         event.replyEmbeds(new EmbedBuilder()
             .setTitle("サーバーの登録に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
             .setDescription(
@@ -112,6 +112,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
         }
         boolean isSuccessful = MultipleServer.removeServer(guild) && MultipleServer.removeNotifyChannel(guild);
 
+        cmdFlow.success("%s がサーバ登録解除をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");
         event.replyEmbeds(new EmbedBuilder()
             .setDescription("このサーバの登録解除に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
             .setColor(LibEmbedColor.error)
@@ -120,7 +121,6 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
     }
 
     void setNotifyChannel(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
-
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
@@ -146,6 +146,7 @@ public class Cmd_VCSpeaker implements CmdSubstrate {
                     ).orElse(channel)
                 );
 
+        cmdFlow.success("%s が通知チャンネルの設定をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");
         event.replyEmbeds(new EmbedBuilder()
             .setTitle("通知チャンネルの登録に%sしました".formatted(isSuccessful ? "成功" : "失敗"))
             .setDescription(

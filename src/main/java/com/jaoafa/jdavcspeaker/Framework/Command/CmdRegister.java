@@ -11,19 +11,20 @@ import java.util.ArrayList;
 
 public class CmdRegister {
     public CmdRegister(JDA jda) {
-        new LibFlow().header("PublicCommand").setName("PublicCmd").run();
+        LibFlow cmdRegisterFlow = new LibFlow("CmdRegister");
+        cmdRegisterFlow.header("Command Register");
         ArrayList<CommandData> commandList = new ArrayList<>();
         try {
             for (Class<?> cmdClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.Command")) {
                 if (!cmdClass.getSimpleName().startsWith("Cmd_")
                     || cmdClass.getEnclosingClass() != null
                     || cmdClass.getName().contains("$")) {
-                    new LibFlow().error("%sはCommandクラスではありません。スキップします...", cmdClass.getSimpleName()).run();
+                    cmdRegisterFlow.error("%sはCommandクラスではありません。スキップします...", cmdClass.getSimpleName());
                     continue;
                 }
                 CmdSubstrate cmd = (CmdSubstrate) cmdClass.getConstructor().newInstance();
                 commandList.add(cmd.detail().getData());
-                new LibFlow().success("%sを登録キューに挿入しました。", cmdClass.getSimpleName()).run();
+                cmdRegisterFlow.success("%sを登録キューに挿入しました。", cmdClass.getSimpleName());
             }
         } catch (Exception e) {
             new LibReporter(null, e);
@@ -32,11 +33,10 @@ public class CmdRegister {
         //全てのサーバーで登録
         for (Guild guild : jda.getGuilds()) {
             guild.updateCommands().addCommands(commandList).queue(
-                s -> new LibFlow().success("%sへの登録に成功しました。", guild.getName()),
-                t -> new LibFlow().error("%sへの登録に失敗しました。(" + t.getMessage() + ")", guild.getName())
+                s -> cmdRegisterFlow.success("%sへの登録に成功しました。", guild.getName()),
+                t -> cmdRegisterFlow.error("%sへの登録に失敗しました。(" + t.getMessage() + ")", guild.getName())
             );
         }
-        new LibFlow().success("全てのGuildに登録リクエストしました。");
-
+        cmdRegisterFlow.success("全てのGuildにコマンドの登録をリクエストしました。");
     }
 }

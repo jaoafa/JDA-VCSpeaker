@@ -16,7 +16,7 @@ public class Cmd_Skip implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":broom:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "現在の読み上げをキャンセルします")
+                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "現在の読み上げをキャンセル（スキップ）します")
             );
     }
 
@@ -30,6 +30,7 @@ public class Cmd_Skip implements CmdSubstrate {
 
     void skip(Guild guild, SlashCommandEvent event) {
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.nextTrack();
+        cmdFlow.success("%s がスキップしました。", event.getUser().getAsTag());
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":track_next: 読み上げをスキップします")
             .setColor(LibEmbedColor.success)

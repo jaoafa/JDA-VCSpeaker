@@ -13,16 +13,20 @@ import java.util.List;
 
 public class LibAlias {
     public static void fetchMap() {
+        LibFlow aliasFlow = new LibFlow("LibAlias");
         File aliasConfig = new File("./alias.json");
         //存在しない場合に作成
         if (!aliasConfig.exists()) {
             try {
                 Files.write(Paths.get("alias.json"), Collections.singleton(new JSONObject().toString()));
+                aliasFlow.success("alias.json ファイルの作成に成功しました。");
             } catch (IOException e) {
+                aliasFlow.error("alias.json ファイルの作成に失敗しました。");
                 e.printStackTrace();
             }
         }
 
+        StaticData.aliasMap.clear();
         try {
             List<String> lines = Files.readAllLines(Paths.get("alias.json"));
             JSONObject obj = new JSONObject(String.join("\n", lines));
@@ -31,7 +35,9 @@ public class LibAlias {
                 String key = it.next();
                 StaticData.aliasMap.put(key, obj.getString(key));
             }
+            aliasFlow.success("エイリアス設定を " + StaticData.aliasMap.size() + " 件ロードしました。");
         } catch (IOException e) {
+            aliasFlow.error("除外設定のロード中にエラーが発生しました。");
             e.printStackTrace();
         }
     }

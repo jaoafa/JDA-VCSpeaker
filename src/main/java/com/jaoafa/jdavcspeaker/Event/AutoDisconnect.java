@@ -1,12 +1,11 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
-import java.text.MessageFormat;
 
 /**
  * If someone disconnects, it will also exit itself if there are no users other than the bot.
@@ -31,14 +30,11 @@ public class AutoDisconnect extends ListenerAdapter {
             .getMembers()
             .stream()
             .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
-        System.out.println(MessageFormat.format("[AutoDisconnect] {0}: {1} -> {2}",
-            event.getMember().getUser().getAsTag(),
-            event.getChannelLeft().getName(),
-            !existsUser));
 
         if (existsUser) {
             return;
         }
+        new LibFlow("AutoDisconnect").success("退出に伴い、VCから誰もいなくなったため切断します。");
         event.getGuild().getAudioManager().closeAudioConnection();
 
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;

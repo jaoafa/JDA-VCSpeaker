@@ -2,63 +2,39 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 
 import javax.annotation.CheckReturnValue;
-import java.util.LinkedList;
 
 import static com.jaoafa.jdavcspeaker.Lib.LibTextColor.*;
 
-public class LibFlow {
-    private static String actionName;
-    private final LinkedList<String> messages = new LinkedList<>();
+public record LibFlow(String actionName) {
+    @CheckReturnValue
+    public LibFlow {
+    }
 
     private String getPrefix(String symbol, String color) {
         return String.format("|%s%s%s|[%s%s%s] ", color, symbol, RESET, BLUE_BRIGHT, actionName, RESET);
     }
 
-    @CheckReturnValue
-    public LibFlow setName(String name) {
-        actionName = name;
-        return this;
+    public void header(String name, String... format) {
+        System.out.println("===// " + YELLOW + name.formatted((Object[]) format) + RESET + " //===");
     }
 
-    @CheckReturnValue
-    public LibFlow header(String name, String... format) {
-        messages.add("===// " + YELLOW + name.formatted((Object[]) format) + RESET + " //===");
-        return this;
+    public void task(String task, String... format) {
+        System.out.println(getPrefix(">", BLUE) + task.formatted((Object[]) format));
     }
 
-    @CheckReturnValue
-    public LibFlow task(String task, String... format) {
-        messages.add(getPrefix(">", BLUE) + task.formatted((Object[]) format));
-        return this;
+    public void action(String action, String... format) {
+        System.out.println(getPrefix("*", PURPLE) + action.formatted((Object[]) format));
     }
 
-    @CheckReturnValue
-    public LibFlow action(String action, String... format) {
-        messages.add(getPrefix("*", PURPLE) + action.formatted((Object[]) format));
-        return this;
+    public void success(String success, String... format) {
+        System.out.println(getPrefix("+", GREEN_BRIGHT) + success.formatted((Object[]) format));
     }
 
-    @CheckReturnValue
-    public LibFlow success(String success, String... format) {
-        messages.add(getPrefix("+", GREEN_BRIGHT) + success.formatted((Object[]) format));
-        return this;
+    public void error(String error, String... format) {
+        System.out.println(getPrefix("#", RED) + error.formatted((Object[]) format));
     }
 
-    @CheckReturnValue
-    public LibFlow error(String error, String... format) {
-        messages.add(getPrefix("#", RED) + error.formatted((Object[]) format));
-        return this;
-    }
-
-    @CheckReturnValue
-    public LibFlow pipe() {
-        messages.add("|" + CYAN + "|" + RESET + "|");
-        return this;
-    }
-
-    public void run() {
-        for (String message : messages) {
-            System.out.println(message);
-        }
+    public void pipe() {
+        System.out.println("|" + CYAN + "|" + RESET + "|");
     }
 }

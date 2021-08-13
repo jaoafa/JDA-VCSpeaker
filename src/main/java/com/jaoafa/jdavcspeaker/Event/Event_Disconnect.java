@@ -5,6 +5,7 @@ import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -42,10 +43,13 @@ public class Event_Disconnect extends ListenerAdapter {
                 channel.getId()))
             .queue(
                 message ->
-                    new VoiceText().play(message,
+                    new VoiceText().play(
+                        TrackInfo.SpeakFromType.QUITED_VC,
+                        message,
                         MessageFormat.format("{0}が{1}から退出しました。",
                             user.getName(),
-                            MsgFormatter.formatChannelName(channel)))
+                            MsgFormatter.formatChannelName(channel))
+                    )
             );
     }
 }

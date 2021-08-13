@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -85,12 +86,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         // ignore
-        boolean ignoreEquals = StaticData.ignoreMap.entrySet().stream()
-            .anyMatch(entry -> entry.getKey().equals("equal") &&
-                content.equals(entry.getValue()));
-        boolean ignoreContain = StaticData.ignoreMap.entrySet().stream()
-            .anyMatch(entry -> entry.getKey().equals("contain") &&
-                content.contains(entry.getValue()));
+        boolean ignoreEquals = StaticData.ignoreEquals.contains(content);
+        boolean ignoreContain = StaticData.ignoreContains.stream().anyMatch(content::contains);
 
         if (ignoreEquals || ignoreContain) return;
 
@@ -112,13 +109,13 @@ public class Event_SpeakVCText extends ListenerAdapter {
             message.reply("デフォルトパラメーターが不正であるため、リセットしました。").queue();
         }
         VoiceText vt = isEmphasize ? changeEmphasizeSpeed(uvtr.getVoiceText()) : uvtr.getVoiceText();
-        vt.play(message, speakContent);
+        vt.play(TrackInfo.SpeakFromType.RECEIVED_MESSAGE, message, speakContent);
 
         // 画像等
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
             message.getAttachments()
-                .forEach(attachment -> vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+                .forEach(attachment -> vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
         if (!new File("tmp").exists()) {
@@ -132,7 +129,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     boolean bool = file.delete();
                     System.out.println("Temp attachment file have been delete " + (bool ? "successfully" : "failed"));
                     if (results == null) {
-                        vt.play(message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
+                        vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
                         return;
                     }
 
@@ -144,7 +141,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                         .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
                         .limit(3)
                         .collect(Collectors.joining("、"));
-                    vt.play(message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
+                    vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
 
                     String text = sortedResults.stream()
                         .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)

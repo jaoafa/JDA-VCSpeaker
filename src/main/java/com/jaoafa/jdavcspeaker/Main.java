@@ -10,11 +10,15 @@ import com.jaoafa.jdavcspeaker.Framework.FunctionHooker;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
@@ -27,10 +31,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,11 +43,9 @@ public class Main extends ListenerAdapter {
     static final String prefix = "/";
 
     public static void main(String[] args) {
-        new LibFlow()
-            .setName("BootStrap")
-            .header("VCSpeaker StartUp")
-            .action("設定を読み込み中...")
-            .run();
+        LibFlow setupFlow = new LibFlow("Setup");
+        setupFlow.header("VCSpeaker Starting");
+        setupFlow.action("設定を読み込み中...");
 
         //Task: Config読み込み
 
@@ -55,7 +54,7 @@ public class Main extends ListenerAdapter {
         try {
             config = LibJson.readObject("./VCSpeaker.json");
         } catch (Exception e) {
-            new LibFlow().error("基本設定の読み込みに失敗しました。").run();
+            setupFlow.error("基本設定の読み込みに失敗しました。");
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -68,7 +67,7 @@ public class Main extends ListenerAdapter {
 
         //SubTask: Tokenクラスが無かったら終了
         if (!config.has("Token")) {
-            new LibFlow().error(missingDetectionMsg.apply("Tokenクラス")).run();
+            setupFlow.error(missingDetectionMsg.apply("Tokenクラス"));
             System.exit(1);
             return;
         } else {
@@ -77,18 +76,23 @@ public class Main extends ListenerAdapter {
 
         //SubTask: DiscordTokenの欠落を検知
         if (!config.getJSONObject("Token").has("Discord")) {
-            new LibFlow().error(missingDetectionMsg.apply("DiscordToken")).run();
+            setupFlow.error(missingDetectionMsg.apply("DiscordToken"));
             missingConfigDetected = true;
         }
         //SubTask: SpeakerTokenの欠落を検知
         if (!config.getJSONObject("Token").has("Speaker")) {
-            new LibFlow().error(missingDetectionMsg.apply("SpeakerToken")).run();
+            setupFlow.error(missingDetectionMsg.apply("SpeakerToken"));
             missingConfigDetected = true;
         }
 
         //SubTask: 終了
         if (missingConfigDetected) {
             System.exit(1);
+            return;
+        }
+
+        if (args.length == 1 && args[0].equals("--only-remove-cmd")) {
+            removeCommands(tokenConfig);
             return;
         }
 
@@ -127,7 +131,7 @@ public class Main extends ListenerAdapter {
         try {
             jda = builder.build().awaitReady();
         } catch (InterruptedException | LoginException e) {
-            new LibFlow().error("Discordへのログインに失敗しました。").run();
+            setupFlow.error("Discordへのログインに失敗しました。");
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -139,7 +143,7 @@ public class Main extends ListenerAdapter {
             try {
                 visionAPI = new VisionAPI(tokenConfig.getString("VisionAPI"));
             } catch (Exception e) {
-                new LibFlow().error("VisionAPIの初期化に失敗しました。関連機能は動作しません。").run();
+                setupFlow.error("VisionAPIの初期化に失敗しました。関連機能は動作しません。");
                 new LibReporter(null, e);
                 visionAPI = null;
             }
@@ -148,7 +152,7 @@ public class Main extends ListenerAdapter {
         try {
             libTitle = new LibTitle("./title.json");
         } catch (Exception e) {
-            new LibFlow().error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。").run();
+            setupFlow.error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
             new LibReporter(null, e);
             System.exit(1);
             return;
@@ -162,7 +166,7 @@ public class Main extends ListenerAdapter {
                     .filter(f -> !f.delete())
                     .collect(Collectors.toList());
                 if (missDeletes.size() != 0) {
-                    System.out.println("Failed to delete " + missDeletes.size() + " temporary files.");
+                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイル(./tmp/)の削除に失敗しました。");
                 }
             } catch (IOException ie) {
                 ie.printStackTrace();
@@ -175,7 +179,7 @@ public class Main extends ListenerAdapter {
             devJda.getGuilds().forEach(
                 guild -> guild.retrieveCommands().queue(
                     cmds -> cmds.forEach(cmd -> cmd.delete().queue(
-                        unused -> System.out.printf("%sで%sが削除されました。%n", guild.getId(),cmd.getName())
+                        unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
                     ))
                 )
             );
@@ -190,7 +194,53 @@ public class Main extends ListenerAdapter {
                 180000
             );
         } catch (InterruptedException | LoginException e) {
-            new LibReporter(null,e);
+            new LibReporter(null, e);
+        }
+    }
+
+    static void removeCommands(JSONObject tokenConfig) {
+        LibFlow removeCmdFlow = new LibFlow("RemoveCmd");
+        removeCmdFlow.action("登録済みのコマンドをすべて削除します。");
+        try {
+            JDA jda = JDABuilder
+                .createDefault(tokenConfig.getString("Discord"))
+                .build()
+                .awaitReady();
+            List<Command> commands = new ArrayList<>();
+            for (Guild guild : jda.getGuilds()) {
+                removeCmdFlow.action("サーバ「%s」からコマンド一覧を取得しています…。", guild.getName());
+                try {
+                    List<Command> guildCommands = guild.retrieveCommands().complete();
+                    commands.addAll(guildCommands);
+                    removeCmdFlow.success("%d件のコマンドをコマンド削除キューに追加しました。".formatted(guildCommands.size()));
+                } catch (ErrorResponseException e) {
+                    removeCmdFlow.error("サーバ「%s」からコマンド一覧を取得するのに失敗しました（%s）。", guild.getName(), e.getMessage());
+                }
+            }
+
+
+            List<RestAction<Void>> restActions = commands
+                .stream()
+                .map(Command::delete)
+                .collect(Collectors.toList());
+            if (restActions.isEmpty()) {
+                removeCmdFlow.success("削除するべきコマンドがありませんでした。アプリケーションを終了します。");
+                jda.shutdownNow();
+                return;
+            } else {
+                removeCmdFlow.action("%d件のコマンドが見つかりました。削除を開始します。しばらくお待ちください！".formatted(commands.size()));
+            }
+
+            RestAction.allOf(restActions).mapToResult().queue(
+                s -> {
+                    removeCmdFlow.success("すべてのコマンドの削除が完了しました。アプリケーションを終了します。");
+                    jda.shutdownNow();
+                },
+                t -> removeCmdFlow.error("削除中にエラーが発生しました: %s", t.getMessage())
+            );
+        } catch (InterruptedException | LoginException e) {
+            removeCmdFlow.error("Discordへのログインに失敗しました。");
+            new LibReporter(null, e);
         }
     }
 
@@ -217,12 +267,14 @@ public class Main extends ListenerAdapter {
         File newdir = new File("./Temp");
         if (!newdir.exists()) {
             boolean bool = newdir.mkdir();
-            if (!bool) System.out.println("Failed to create the temporary directory.");
+            if (!bool) {
+                new LibFlow("RemoveTempDir").error("テンポラリディレクトリ(./Temp/)の削除に失敗しました。");
+            }
         }
         StaticData.jda = event.getJDA();
         LibAlias.fetchMap();
         LibIgnore.fetchMap();
-        System.out.println("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
+        new LibFlow("Started").success("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");
     }
 
     @NotNull

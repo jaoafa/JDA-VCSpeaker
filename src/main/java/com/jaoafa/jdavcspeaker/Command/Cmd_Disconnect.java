@@ -51,6 +51,7 @@ public class Cmd_Disconnect implements CmdSubstrate {
         }
 
         guild.getAudioManager().closeAudioConnection();
+        cmdFlow.success("%s が %s から切断するようリクエストしました。", event.getUser().getAsTag(), connectedChannel.getName());
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wave: 切断しました！")

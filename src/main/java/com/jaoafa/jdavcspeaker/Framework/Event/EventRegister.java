@@ -10,19 +10,21 @@ import java.lang.reflect.Constructor;
 
 public class EventRegister {
     public EventRegister(JDABuilder jdaBuilder) {
+        LibFlow eventRegisterFlow = new LibFlow("EventRegister");
+        eventRegisterFlow.header("Event Register");
         try {
             for (Class<?> eventClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.Event")) {
                 if (!eventClass.getSimpleName().startsWith("Event_")
                     || eventClass.getEnclosingClass() != null
                     || eventClass.getName().contains("$")) {
-                    new LibFlow().error("%sはEventクラスではありません。スキップします...", eventClass.getSimpleName()).run();
+                    eventRegisterFlow.error("%sはEventクラスではありません。スキップします...", eventClass.getSimpleName());
                     continue;
                 }
 
                 Object instance = ((Constructor<?>) eventClass.getConstructor()).newInstance();
                 if (instance instanceof ListenerAdapter) {
                     jdaBuilder.addEventListeners(instance);
-                    new LibFlow().success("%sを登録しました。", eventClass.getSimpleName()).run();
+                    eventRegisterFlow.success("%sを登録しました。", eventClass.getSimpleName());
                 }
             }
         } catch (Exception e) {

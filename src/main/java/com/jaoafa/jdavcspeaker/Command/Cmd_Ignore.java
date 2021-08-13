@@ -5,12 +5,14 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
@@ -35,6 +37,13 @@ public class Cmd_Ignore implements CmdSubstrate {
                                     .addOption(OptionType.STRING, "text", "内容", true),
                                 new SubcommandData("equal", "内容に一致するテキストの無視設定")
                                     .addOption(OptionType.STRING, "text", "内容", true)
+                            ),
+                        new SubcommandGroupData("list", "設定の閲覧")
+                            .addSubcommands(
+                                new SubcommandData("type", "無視設定の種別")
+                                    .addOptions(new OptionData(OptionType.STRING, "type", "無視設定の種別（contain、もしくはequal）を指定します", true)
+                                        .addChoice("含む (contain)", "contain")
+                                        .addChoice("一致 (equal)", "equal"))
                             )
                     )
             );
@@ -50,13 +59,15 @@ public class Cmd_Ignore implements CmdSubstrate {
             case "add:equal" -> addEquals(event);
             case "remove:contain" -> removeContains(event);
             case "remove:equal" -> removeEquals(event);
-
+            case "list:type" -> list(event);
         }
     }
 
     void addContains(SlashCommandEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
-        LibIgnore.addToIgnore("contain", text);
+
+        LibIgnore.addToContainIgnore(text);
+        cmdFlow.success("%s が含有除外設定しました: %s", event.getUser().getAsTag(), text);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: 無視項目を設定しました！")
@@ -68,7 +79,9 @@ public class Cmd_Ignore implements CmdSubstrate {
 
     void addEquals(SlashCommandEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
-        LibIgnore.addToIgnore("equal", text);
+
+        LibIgnore.addToEqualIgnore(text);
+        cmdFlow.success("%s が一致除外設定しました: %s", event.getUser().getAsTag(), text);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: 無視項目を設定しました！")
@@ -81,7 +94,8 @@ public class Cmd_Ignore implements CmdSubstrate {
     void removeContains(SlashCommandEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
 
-        LibIgnore.removeFromIgnore("contain", text);
+        LibIgnore.removeToContainIgnore(text);
+        cmdFlow.success("%s が含有除外設定を解除しました: %s", event.getUser().getAsTag(), text);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: 無視項目を削除しました！")
@@ -93,7 +107,9 @@ public class Cmd_Ignore implements CmdSubstrate {
 
     void removeEquals(SlashCommandEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
-        LibIgnore.removeFromIgnore("equal", text);
+
+        LibIgnore.removeToEqualIgnore(text);
+        cmdFlow.success("%s が一致除外設定を解除しました: %s", event.getUser().getAsTag(), text);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: 無視項目を削除しました！")
@@ -103,22 +119,23 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
-    //todo subcmdGroupと一緒にsubcmd置けないので 「/list alias/ignore」 的な感じで独立する
-    /*
-    void list(Guild guild, MessageChannel channel, Member member, Message message, CommandContext<JDACommandSender> context) {
-        if (!context.getSender().getEvent().isPresent()) {
-            channel.sendMessage(new EmbedBuilder()
-                .setTitle(":warning: 何かがうまくいきませんでした…")
-                .setDescription("メッセージデータを取得できませんでした。")
-                .setColor(LibEmbedColor.error)
+    void list(SlashCommandEvent event) {
+        String type = Main.getExistsOption(event, "type").getAsString();
+
+        String list;
+        if (type.equals("contain")) {
+            list = String.join("\n", StaticData.ignoreContains);
+        } else if (type.equals("equal")) {
+            list = String.join("\n", StaticData.ignoreEquals);
+        } else {
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":x: 指定された type が正しくありません")
+                .setDescription("type には `contain` と `equal` を指定できます。")
+                .setColor(LibEmbedColor.success)
                 .build()
             ).queue();
             return;
         }
-
-        String list = StaticData.ignoreMap.entrySet().stream()
-            .map(entry -> String.format("`%s` : `%s`", entry.getKey(), entry.getValue())) // keyとvalueを繋げる
-            .collect(Collectors.joining("\n")); // それぞれを改行で連結する
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":bookmark_tabs: 現在の無視項目")
@@ -126,5 +143,5 @@ public class Cmd_Ignore implements CmdSubstrate {
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
-    }*/
+    }
 }

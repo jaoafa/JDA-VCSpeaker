@@ -1,6 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -56,6 +57,8 @@ public class AutoMove extends ListenerAdapter {
         audioManager.openAudioConnection(event.getChannelJoined());
 
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
+
+        new LibFlow("AutoJoin").success("自動移動しました: %s -> %s", connectedChannel.getName(), newChannel.getName());
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":white_check_mark: AutoMoved")
             .setDescription(MessageFormat.format("<#{0}> から <#{1}> に移動しました。", connectedChannel.getId(), newChannel.getId()))

@@ -1,8 +1,10 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.GuildMusicManager;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -15,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VoiceText {
@@ -238,13 +240,15 @@ public class VoiceText {
     /**
      * Play speak message
      *
-     * @param message   Message object
-     * @param speakText Speak message
+     * @param speakFromType TrackInfo.SpeakFromType 読み上げ種別
+     * @param message       Message object
+     * @param speakText     Speak message
      */
-    public void play(Message message, String speakText) {
+    public void play(TrackInfo.SpeakFromType speakFromType, Message message, String speakText) {
         if (speakText.length() == 0) {
             return;
         }
+        System.out.printf("[VoiceText.play] %s by %s (%s)%n", message.getContentDisplay().length() >= 10 ? message.getContentDisplay().substring(0, 10) : message.getContentDisplay(), message.getAuthor().getAsTag(), speakFromType.name());
 
         VoiceText vt;
         try {
@@ -314,7 +318,8 @@ public class VoiceText {
             pitch));
 
         if (new File("./Temp/" + hash + ".mp3").exists()) {
-            TrackInfo info = new TrackInfo(message);
+            filteringQueue(speakFromType, message);
+            TrackInfo info = new TrackInfo(speakFromType, message);
             PlayerManager.getINSTANCE().loadAndPlay(info, "./Temp/" + hash + ".mp3");
             return;
         }
@@ -362,10 +367,45 @@ public class VoiceText {
             message
                 .removeReaction("\uD83D\uDCF2") // :calling:
                 .queue(null, Throwable::printStackTrace);
-            TrackInfo info = new TrackInfo(message);
+            filteringQueue(speakFromType, message);
+            TrackInfo info = new TrackInfo(speakFromType, message);
             PlayerManager.getINSTANCE().loadAndPlay(info, "./Temp/" + hash + ".mp3");
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void filteringQueue(TrackInfo.SpeakFromType speakFromType, Message message) {
+        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getGuildMusicManager(message.getGuild());
+        Map<TrackInfo.SpeakFromType, List<TrackInfo.SpeakFromType>> filterRules = new HashMap<>();
+        // VC退出時、参加・移動メッセージ読み上げを削除する
+        filterRules.put(TrackInfo.SpeakFromType.QUITED_VC,
+            Arrays.asList(TrackInfo.SpeakFromType.JOINED_VC, TrackInfo.SpeakFromType.MOVED_VC));
+        // GoLive終了時、GoLive開始読み上げを削除する
+        filterRules.put(TrackInfo.SpeakFromType.ENDED_GOLIVE,
+            Arrays.asList(TrackInfo.SpeakFromType.STARTED_GOLIVE, TrackInfo.SpeakFromType.ENDED_GOLIVE));
+        // タイトル変更時、タイトル変更通知読み上げを削除する（最新変更のみ通知）
+        filterRules.put(TrackInfo.SpeakFromType.CHANGED_TITLE,
+            Collections.singletonList(TrackInfo.SpeakFromType.CHANGED_TITLE));
+
+        if (!filterRules.containsKey(speakFromType)) {
+            return;
+        }
+        List<TrackInfo.SpeakFromType> filterRule = filterRules.get(speakFromType);
+
+        // キューにあるトラックがフィルタルールに合致するか
+        musicManager.scheduler.queue.removeIf(track -> {
+            if (!(track.getUserData() instanceof TrackInfo info)) {
+                return false;
+            }
+            return filterRule.contains(info.getSpeakFromType());
+        });
+        // 再生中のトラックがフィルタルールに合致するか
+        AudioTrack playingTrack = musicManager.scheduler.player.getPlayingTrack();
+        if (playingTrack != null &&
+            playingTrack.getUserData() instanceof TrackInfo info
+            && filterRule.contains(info.getSpeakFromType())) {
+            musicManager.scheduler.nextTrack();
         }
     }
 
