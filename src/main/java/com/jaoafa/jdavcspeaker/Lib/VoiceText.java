@@ -398,13 +398,14 @@ public class VoiceText {
             if (!(track.getUserData() instanceof TrackInfo info)) {
                 return false;
             }
-            return filterRule.contains(info.getSpeakFromType());
+            return filterRule.contains(info.getSpeakFromType()) && info.getUser().getIdLong() == message.getAuthor().getIdLong();
         });
         // 再生中のトラックがフィルタルールに合致するか
         AudioTrack playingTrack = musicManager.scheduler.player.getPlayingTrack();
         if (playingTrack != null &&
-            playingTrack.getUserData() instanceof TrackInfo info
-            && filterRule.contains(info.getSpeakFromType())) {
+            playingTrack.getUserData() instanceof TrackInfo info &&
+            filterRule.contains(info.getSpeakFromType()) &&
+            info.getUser().getIdLong() == message.getAuthor().getIdLong()) {
             musicManager.scheduler.nextTrack();
         }
     }
