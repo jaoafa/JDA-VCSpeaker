@@ -6,6 +6,7 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -71,7 +72,7 @@ public class Cmd_Title implements CmdSubstrate {
             ).queue();
             return;
         }
-
+        cmdFlow.success("%s がChannel ID: %s のVC名を変更しました: %s -> %s", event.getUser().getAsTag(), member.getVoiceState().getChannel().getId(), old_title, new_title);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":magic_wand: タイトルを変更しました！")
@@ -83,8 +84,11 @@ public class Cmd_Title implements CmdSubstrate {
             .build()
         ).queue(
             msg -> msg.retrieveOriginal().queue(
-                origin_msg -> new VoiceText()
-                    .play(origin_msg, String.format("タイトルを%sに変更しました", new_title))
+                origin_msg -> new VoiceText().play(
+                    TrackInfo.SpeakFromType.CHANGED_TITLE,
+                    origin_msg,
+                    String.format("タイトルを%sに変更しました", new_title)
+                )
             )
         );
     }

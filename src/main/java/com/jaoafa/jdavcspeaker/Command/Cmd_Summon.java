@@ -51,6 +51,7 @@ public class Cmd_Summon implements CmdSubstrate {
         }
 
         guild.getAudioManager().openAudioConnection(connectedChannel);
+        cmdFlow.success("%s が %s に接続するようリクエストしました。", event.getUser().getAsTag(), connectedChannel.getName());
 
         event.replyEmbeds(new EmbedBuilder()
             .setDescription(":satellite: <#%s> に接続しました。".formatted(connectedChannel.getId()))

@@ -30,6 +30,7 @@ public class Cmd_Restart implements CmdSubstrate {
 
 
     void restart(Guild guild, SlashCommandEvent event) {
+        cmdFlow.action("%s のリクエストにより、VCSpeakerを再起動します。", event.getUser().getAsTag());
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wave: 再起動します")
             .setColor(LibEmbedColor.success)

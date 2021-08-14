@@ -55,6 +55,7 @@ public class Cmd_Alias implements CmdSubstrate {
         String to = Main.getExistsOption(event, "to").getAsString();
 
         LibAlias.addToAlias(from, to);
+        cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: エイリアスを設定しました！")
@@ -81,6 +82,7 @@ public class Cmd_Alias implements CmdSubstrate {
         }
 
         LibAlias.removeFromAlias(from);
+        cmdFlow.success("%s がエイリアスを削除しました: %s -> %s", event.getUser().getAsTag(), from);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: エイリアスを削除しました！")
