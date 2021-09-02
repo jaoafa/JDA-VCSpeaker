@@ -13,8 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public class FunctionHooker extends ListenerAdapter {
     final String ROOT_PACKAGE = "com.jaoafa.jdavcspeaker";
-    final String CMD_PACKAGE = "Command";
-    final String ACT_PACKAGE = "Action";
 
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
@@ -28,10 +26,11 @@ public class FunctionHooker extends ListenerAdapter {
         if (isSubCmdOnly) subCmd = subCmdName;
         if (isSubCmdAndGroup) subCmd = "%s:%s".formatted(subCmdGroup, subCmdName);
 
-        execute(new FunctionContainer().setAll(
-            CMD_PACKAGE,
+        execute(new FunctionContainer(
+            FunctionType.Command,
             event.getName(),
             subCmd,
+            null,
             event.getJDA(),
             event.getGuild(),
             event.getChannel(),
@@ -39,7 +38,6 @@ public class FunctionHooker extends ListenerAdapter {
             event.getMember(),
             event.getUser(),
             event,
-            null,
             null,
             null
         ));
@@ -50,10 +48,11 @@ public class FunctionHooker extends ListenerAdapter {
         String[] buttonData = event.getId().split(":json");
         String buttonId = buttonData[0];
         JSONObject buttonJSON = new JSONObject(buttonData[1]);
-        execute(new FunctionContainer().setAll(
-            ACT_PACKAGE,
+        execute(new FunctionContainer(
+            FunctionType.Action,
             buttonId,
             null,
+            buttonJSON,
             event.getJDA(),
             event.getGuild(),
             event.getChannel(),
@@ -62,8 +61,7 @@ public class FunctionHooker extends ListenerAdapter {
             event.getUser(),
             event,
             event.getMessage(),
-            event.getButton(),
-            buttonJSON
+            event.getButton()
         ));
     }
 
@@ -71,37 +69,38 @@ public class FunctionHooker extends ListenerAdapter {
         Object substrate;
         try {
             substrate = Class
-                .forName("%s.%s.Cmd_%s".formatted(ROOT_PACKAGE, container.getFunctionType(), container.getFuncionName()))
+                .forName("%s.%s.Cmd_%s".formatted(ROOT_PACKAGE, container.functionType(), container.functionName()))
                 .getConstructor()
                 .newInstance();
         } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            new LibReporter(container.getChannel(), e);
+            new LibReporter(container.channel(), e);
             return;
         }
-        switch (container.getFunctionType()) {
-            case "Command" -> ((CmdSubstrate) substrate)
+
+        switch (container.functionType()) {
+            case Command -> ((CmdSubstrate) substrate)
                 .hooker(
-                    container.getJda(),
-                    container.getGuild(),
-                    container.getChannel(),
-                    container.getChannelType(),
-                    container.getMember(),
-                    container.getUser(),
-                    (SlashCommandEvent) container.getEvent(),
-                    container.getSubFunction()
+                    container.jda(),
+                    container.guild(),
+                    container.channel(),
+                    container.channelType(),
+                    container.member(),
+                    container.user(),
+                    (SlashCommandEvent) container.event(),
+                    container.subFunction()
                 );
-            case "Action" -> ((ActionSubstrate) substrate)
+            case Action -> ((ActionSubstrate) substrate)
                 .hooker(
-                    container.getJda(),
-                    container.getGuild(),
-                    container.getChannel(),
-                    container.getChannelType(),
-                    container.getMember(),
-                    container.getUser(),
-                    container.getMessage(),
-                    container.getButton(),
-                    (ButtonClickEvent) container.getEvent(),
-                    container.getData()
+                    container.jda(),
+                    container.guild(),
+                    container.channel(),
+                    container.channelType(),
+                    container.member(),
+                    container.user(),
+                    container.message(),
+                    container.button(),
+                    (ButtonClickEvent) container.event(),
+                    container.data()
                 );
         }
     }
