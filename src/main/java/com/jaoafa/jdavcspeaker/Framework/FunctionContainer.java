@@ -19,4 +19,7 @@ public record FunctionContainer(FunctionType functionType,
                                 Event event,
                                 Message message,
                                 Button button) {
+    public FunctionContainer {
+        functionName = functionName.substring(0, 1).toUpperCase() + functionName.substring(1).toLowerCase();
+    }
 }
