@@ -1,6 +1,6 @@
 package com.jaoafa.jdavcspeaker.Player;
 
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -58,7 +58,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 return;
             }
 
-            TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());
+            TextChannel channel = LibValue.jda.getTextChannelById(info.getChannel().getIdLong());
             if (channel == null) {
                 return; // channelはnullである可能性がある
             }
@@ -75,10 +75,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
         }
         TrackInfo info = (TrackInfo) track.getUserData();
-        TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());
+        TextChannel channel = LibValue.jda.getTextChannelById(info.getChannel().getIdLong());
         if (channel == null) return;
         channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.removeReaction("\uD83D\uDDE3", StaticData.jda.getSelfUser()) // :speaking_head:
+            .queue(msg -> msg.removeReaction("\uD83D\uDDE3", LibValue.jda.getSelfUser()) // :speaking_head:
                 .queue(null, Throwable::printStackTrace));
     }
 
@@ -86,7 +86,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (!(track.getUserData() instanceof TrackInfo info)) {
             return;
         }
-        TextChannel channel = StaticData.jda.getTextChannelById(info.getChannel().getIdLong());
+        TextChannel channel = LibValue.jda.getTextChannelById(info.getChannel().getIdLong());
         if (channel == null) {
             return; // channelはnullである可能性がある
         }

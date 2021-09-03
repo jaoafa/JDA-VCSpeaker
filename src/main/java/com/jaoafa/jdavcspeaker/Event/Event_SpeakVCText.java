@@ -3,7 +3,7 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -86,8 +86,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
 
         // ignore
-        boolean ignoreEquals = StaticData.ignoreEquals.contains(content);
-        boolean ignoreContain = StaticData.ignoreContains.stream().anyMatch(content::contains);
+        boolean ignoreEquals = LibValue.ignoreEquals.contains(content);
+        boolean ignoreContain = LibValue.ignoreContains.stream().anyMatch(content::contains);
 
         if (ignoreEquals || ignoreContain) return;
 

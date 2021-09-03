@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import com.jaoafa.jdavcspeaker.StaticData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -73,7 +72,7 @@ public class MultipleServer {
      * @see #isTargetServer(Guild)
      */
     public static TextChannel getVCChannel(Guild guild) {
-        return StaticData.jda.getTextChannelById(getVCChannelId(guild));
+        return LibValue.jda.getTextChannelById(getVCChannelId(guild));
     }
 
     /**
@@ -145,7 +144,7 @@ public class MultipleServer {
      * @return サーバの通知チャンネル
      */
     public static TextChannel getNotifyChannel(Guild guild) {
-        return StaticData.jda.getTextChannelById(getNotifyChannelId(guild));
+        return LibValue.jda.getTextChannelById(getNotifyChannelId(guild));
     }
 
     /**

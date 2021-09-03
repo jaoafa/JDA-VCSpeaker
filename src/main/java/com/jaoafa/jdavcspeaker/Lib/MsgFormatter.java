@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import com.jaoafa.jdavcspeaker.StaticData;
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
@@ -52,7 +51,7 @@ public class MsgFormatter {
         }
 
         // Alias
-        for (Map.Entry<String, String> entry : StaticData.aliasMap.entrySet()) {
+        for (Map.Entry<String, String> entry : LibValue.aliasMap.entrySet()) {
             text = text.replace(entry.getKey(), entry.getValue());
         }
         return text;

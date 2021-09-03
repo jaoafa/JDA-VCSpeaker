@@ -5,7 +5,7 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Main;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -43,23 +43,24 @@ public class Cmd_Alias implements CmdSubstrate {
                        Member member, User user,
                        SlashCommandEvent event, String subCmd) {
         switch (subCmd) {
-            case "add" -> addAlias(event);
+            case "add" -> addAlias(event, user);
             case "remove" -> removeAlias(event);
             case "list" -> listAlias(event);
             case "parse" -> parseAlias(event);
         }
     }
 
-    void addAlias(SlashCommandEvent event) {
+    void addAlias(SlashCommandEvent event, User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
         String to = Main.getExistsOption(event, "to").getAsString();
 
         LibAlias.addToAlias(from, to);
-        cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
 
+        cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: エイリアスを設定しました！")
-            .setDescription("`%s`を`%s`に置き換えて読み上げます。".formatted(from, to))
+            .setDescription("%s により追加".formatted(user.getAsMention()))
+            .addField(":repeat: 置き換え", "`%s` → `%s`".formatted(from, to), false)
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
@@ -68,7 +69,7 @@ public class Cmd_Alias implements CmdSubstrate {
     void removeAlias(SlashCommandEvent event) {
         String from = Main.getExistsOption(event, "from").getAsString();
 
-        if (!StaticData.aliasMap.containsKey(from)) {
+        if (!LibValue.aliasMap.containsKey(from)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":mag_right: エイリアスが見つかりませんでした！")
                 .setDescription("""
@@ -86,14 +87,14 @@ public class Cmd_Alias implements CmdSubstrate {
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: エイリアスを削除しました！")
-            .setDescription("`%s`の置き換えを削除しました。".formatted(from))
+            .setDescription("%s により削除".formatted(from))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
     }
 
     void listAlias(SlashCommandEvent event) {
-        String list = StaticData.aliasMap.entrySet().stream()
+        String list = LibValue.aliasMap.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .map(entry -> "`%s` -> `%s`".formatted(entry.getKey(), entry.getValue())) // keyとvalueを繋げる
             .collect(Collectors.joining("\n")); // それぞれを改行で連結する
@@ -110,7 +111,7 @@ public class Cmd_Alias implements CmdSubstrate {
         String orig_text = Main.getExistsOption(event, "text").getAsString();
         String text = orig_text;
 
-        for (Map.Entry<String, String> entry : StaticData.aliasMap.entrySet()) {
+        for (Map.Entry<String, String> entry : LibValue.aliasMap.entrySet()) {
             text = text.replace(entry.getKey(), entry.getValue());
         }
 

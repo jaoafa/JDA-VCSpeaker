@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import com.jaoafa.jdavcspeaker.StaticData;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -26,16 +25,16 @@ public class LibAlias {
             }
         }
 
-        StaticData.aliasMap.clear();
+        LibValue.aliasMap.clear();
         try {
             List<String> lines = Files.readAllLines(Paths.get("alias.json"));
             JSONObject obj = new JSONObject(String.join("\n", lines));
 
             for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
                 String key = it.next();
-                StaticData.aliasMap.put(key, obj.getString(key));
+                LibValue.aliasMap.put(key, obj.getString(key));
             }
-            aliasFlow.success("エイリアス設定を " + StaticData.aliasMap.size() + " 件ロードしました。");
+            aliasFlow.success("エイリアス設定を " + LibValue.aliasMap.size() + " 件ロードしました。");
         } catch (IOException e) {
             aliasFlow.error("除外設定のロード中にエラーが発生しました。");
             e.printStackTrace();
@@ -44,7 +43,7 @@ public class LibAlias {
 
     public static void fetchJson() {
         JSONObject obj = new JSONObject();
-        StaticData.aliasMap.forEach(obj::put);
+        LibValue.aliasMap.forEach(obj::put);
         try {
             Files.write(Paths.get("alias.json"), Collections.singleton(obj.toString()));
         } catch (IOException e) {
@@ -53,12 +52,12 @@ public class LibAlias {
     }
 
     public static void addToAlias(String value1, String value2) {
-        StaticData.aliasMap.put(value1, value2);
+        LibValue.aliasMap.put(value1, value2);
         fetchJson();
     }
 
     public static void removeFromAlias(String value) {
-        StaticData.aliasMap.remove(value);
+        LibValue.aliasMap.remove(value);
         fetchJson();
     }
 }

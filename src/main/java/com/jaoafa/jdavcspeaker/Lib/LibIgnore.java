@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import com.jaoafa.jdavcspeaker.StaticData;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -25,20 +24,20 @@ public class LibIgnore {
             }
         }
 
-        StaticData.ignoreContains.clear();
-        StaticData.ignoreEquals.clear();
+        LibValue.ignoreContains.clear();
+        LibValue.ignoreEquals.clear();
 
         try {
             List<String> lines = Files.readAllLines(Paths.get("ignore.json"));
             JSONObject obj = new JSONObject(String.join("\n", lines));
 
             for (int i = 0; i < obj.getJSONArray("contain").length(); i++) {
-                StaticData.ignoreContains.add(obj.getJSONArray("contain").getString(i));
+                LibValue.ignoreContains.add(obj.getJSONArray("contain").getString(i));
             }
             for (int i = 0; i < obj.getJSONArray("equal").length(); i++) {
-                StaticData.ignoreEquals.add(obj.getJSONArray("equal").getString(i));
+                LibValue.ignoreEquals.add(obj.getJSONArray("equal").getString(i));
             }
-            ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(StaticData.ignoreContains.size(), StaticData.ignoreEquals.size()));
+            ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(LibValue.ignoreContains.size(), LibValue.ignoreEquals.size()));
         } catch (IOException e) {
             ignoreFlow.error("除外設定のロード中にエラーが発生しました。");
             new LibReporter(null, e);
@@ -48,8 +47,8 @@ public class LibIgnore {
 
     public static void saveJson() {
         JSONObject obj = new JSONObject();
-        obj.put("contain", StaticData.ignoreContains);
-        obj.put("equal", StaticData.ignoreEquals);
+        obj.put("contain", LibValue.ignoreContains);
+        obj.put("equal", LibValue.ignoreEquals);
         try {
             Files.write(Paths.get("ignore.json"), Collections.singleton(obj.toString()));
         } catch (IOException e) {
@@ -58,22 +57,22 @@ public class LibIgnore {
     }
 
     public static void addToContainIgnore(String value) {
-        StaticData.ignoreContains.add(value);
+        LibValue.ignoreContains.add(value);
         saveJson();
     }
 
     public static void addToEqualIgnore(String value) {
-        StaticData.ignoreEquals.add(value);
+        LibValue.ignoreEquals.add(value);
         saveJson();
     }
 
     public static void removeToContainIgnore(String value) {
-        StaticData.ignoreContains.remove(value);
+        LibValue.ignoreContains.remove(value);
         saveJson();
     }
 
     public static void removeToEqualIgnore(String value) {
-        StaticData.ignoreEquals.remove(value);
+        LibValue.ignoreEquals.remove(value);
         saveJson();
     }
 }

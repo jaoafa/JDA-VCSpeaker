@@ -271,7 +271,7 @@ public class Main extends ListenerAdapter {
                 new LibFlow("RemoveTempDir").error("テンポラリディレクトリ(./Temp/)の削除に失敗しました。");
             }
         }
-        StaticData.jda = event.getJDA();
+        LibValue.jda = event.getJDA();
         LibAlias.fetchMap();
         LibIgnore.fetchMap();
         new LibFlow("Started").success("VCSPEAKER!!!!!!!!!!!!!!!!!!!!STARTED!!!!!!!!!!!!:tada::tada:");

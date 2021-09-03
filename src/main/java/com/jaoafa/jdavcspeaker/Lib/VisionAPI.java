@@ -101,12 +101,12 @@ public class VisionAPI {
             """.formatted(base64);
 
         RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=UTF-8"));
-        String apiurl = String.format("https://vision.googleapis.com/v1/images:annotate?key=%s", apikey);
+        String apiUrl = String.format("https://vision.googleapis.com/v1/images:annotate?key=%s", apikey);
         OkHttpClient client = new OkHttpClient().newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .build();
-        Request request = new Request.Builder().url(apiurl).post(requestBody).build();
+        Request request = new Request.Builder().url(apiUrl).post(requestBody).build();
         try (Response response = client.newCall(request).execute()) {
             requested();
             ResponseBody body = response.body();

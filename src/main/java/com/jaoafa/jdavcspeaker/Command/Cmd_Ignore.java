@@ -5,7 +5,7 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
 import com.jaoafa.jdavcspeaker.Main;
-import com.jaoafa.jdavcspeaker.StaticData;
+import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -124,9 +124,9 @@ public class Cmd_Ignore implements CmdSubstrate {
 
         String list;
         if (type.equals("contain")) {
-            list = String.join("\n", StaticData.ignoreContains);
+            list = String.join("\n", LibValue.ignoreContains);
         } else if (type.equals("equal")) {
-            list = String.join("\n", StaticData.ignoreEquals);
+            list = String.join("\n", LibValue.ignoreEquals);
         } else {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":x: 指定された type が正しくありません")

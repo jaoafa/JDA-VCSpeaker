@@ -412,13 +412,15 @@ public class VoiceText {
 
     @Override
     public String toString() {
-        return "VoiceText{" +
-            "speaker=" + speaker +
-            ", speed=" + speed +
-            ", emotion=" + emotion +
-            ", emotionLevel=" + emotionLevel +
-            ", pitch=" + pitch +
-            '}';
+        return """
+            VoiceText{
+            speaker=%s
+            , speed=%s
+            , emotion=%s
+            , emotionLevel=%s
+            , pitch=%s
+            }
+            """.formatted(speaker,speed,emotion,emotionLevel,pitch);
     }
 
     public enum Speaker {
