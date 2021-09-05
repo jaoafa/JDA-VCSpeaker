@@ -147,7 +147,7 @@ public class VisionAPI {
                 }
             }
 
-            saveCache(hash, ret);
+            saveCache(hash, ret, object);
             System.out.println("getImageLabel: Saved cache");
             return ret;
         }
@@ -189,12 +189,19 @@ public class VisionAPI {
         return results;
     }
 
-    public void saveCache(String hash, List<Result> results) throws IOException {
+    public void saveCache(String hash, List<Result> results, JSONObject raw_object) throws IOException {
         File file = new File("vision-api-caches", hash);
         if (!file.getParentFile().exists()) {
             boolean bool = file.getParentFile().mkdirs();
             System.out.println("Created vision-api-caches directory. (" + (bool ? "successful" : "failed") + ")");
         }
+
+        File file_result = new File("vision-api-results", hash);
+        if (!file_result.getParentFile().exists()) {
+            boolean bool = file_result.getParentFile().mkdirs();
+            System.out.println("Created vision-api-results directory. (" + (bool ? "successful" : "failed") + ")");
+        }
+
         JSONArray array = new JSONArray();
         for (Result result : results) {
             JSONObject object = new JSONObject();
@@ -204,6 +211,8 @@ public class VisionAPI {
             array.put(object);
         }
         Files.write(file.toPath(), Collections.singleton(array.toString()));
+
+        Files.write(file_result.toPath(), Collections.singleton(raw_object.toString()));
     }
 
     public boolean isCheckTarget(File file) {
