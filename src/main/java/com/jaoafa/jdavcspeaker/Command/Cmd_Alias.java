@@ -48,7 +48,7 @@ public class Cmd_Alias implements CmdSubstrate {
                        SlashCommandEvent event, String subCmd) {
         switch (subCmd) {
             case "add" -> addAlias(event, user);
-            case "remove" -> removeAlias(event);
+            case "remove" -> removeAlias(event, user);
             case "list" -> listAlias(event);
             case "parse" -> parseAlias(event);
         }
@@ -64,21 +64,21 @@ public class Cmd_Alias implements CmdSubstrate {
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: エイリアスを設定しました！")
             .setDescription("%s により追加".formatted(user.getAsMention()))
-            .addField(":repeat: 置き換え", "`%s` → `%s`".formatted(from, to), false)
+            .addField(":repeat: エイリアス", "`%s` → `%s`".formatted(from, to), false)
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
     }
 
-    void removeAlias(SlashCommandEvent event) {
+    void removeAlias(SlashCommandEvent event,User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
 
         if (!LibValue.aliasMap.containsKey(from)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":mag_right: エイリアスが見つかりませんでした！")
                 .setDescription("""
-                    `%s`に一致するエイリアスが見つかりませんでした。
-                    `/alias list`で現在のエイリアスを確認することが出来ます。
+                    `%s` に一致するエイリアスが見つかりませんでした。
+                    `/alias list` で現在のエイリアスを確認することが出来ます。
                     """.formatted(from))
                 .setColor(LibEmbedColor.error)
                 .build()
@@ -91,7 +91,7 @@ public class Cmd_Alias implements CmdSubstrate {
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: エイリアスを削除しました！")
-            .setDescription("%s により削除".formatted(from))
+            .setDescription("`%s` のエイリアスが %s により削除されました。".formatted(from, user.getAsMention()))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
