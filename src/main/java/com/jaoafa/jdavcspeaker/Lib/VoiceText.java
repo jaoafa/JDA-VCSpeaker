@@ -325,7 +325,7 @@ public class VoiceText {
         }
 
         message
-            .addReaction("\uD83D\uDCF2") // :calling:
+            .addReaction("\uD83D\uDC40") // :eyes:
             .queue(null, Throwable::printStackTrace);
 
         try {
