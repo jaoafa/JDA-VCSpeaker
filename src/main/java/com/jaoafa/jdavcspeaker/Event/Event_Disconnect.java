@@ -19,6 +19,9 @@ import java.text.MessageFormat;
 public class Event_Disconnect extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (Main.getArgs().isDisableUserActivityNotify) {
+            return;
+        }
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }

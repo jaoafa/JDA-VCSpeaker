@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -13,6 +14,9 @@ import java.text.MessageFormat;
 public class Event_GoLiveNotify extends ListenerAdapter {
     @Override
     public void onGuildVoiceStream(GuildVoiceStreamEvent event) {
+        if (Main.getArgs().isDisableGoLiveNotify) {
+            return;
+        }
         boolean isStream = event.isStream();
         Member member = event.getMember();
         VoiceChannel channel = event.getVoiceState().getChannel();

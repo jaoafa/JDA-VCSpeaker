@@ -16,6 +16,9 @@ import java.text.MessageFormat;
 public class Event_Move extends ListenerAdapter {
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        if (Main.getArgs().isDisableUserActivityNotify) {
+            return;
+        }
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }

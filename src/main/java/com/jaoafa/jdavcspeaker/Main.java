@@ -24,6 +24,8 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -41,8 +43,30 @@ public class Main extends ListenerAdapter {
     static LibTitle libTitle = null;
     static String speakToken = null;
     static final String prefix = "/";
+    static VCSpeakerArgs args;
 
-    public static void main(String[] args) {
+    public static void main(String[] _args) {
+        args = new VCSpeakerArgs();
+        CmdLineParser parser = new CmdLineParser(args);
+        try {
+            parser.parseArgument(_args);
+            if (args.isHelp) {
+                parser.printSingleLineUsage(System.out);
+                System.out.println();
+                System.out.println();
+                parser.printUsage(System.out);
+                return;
+            }
+        } catch (CmdLineException e) {
+            System.out.println(e.getMessage());
+            System.out.println();
+            parser.printSingleLineUsage(System.out);
+            System.out.println();
+            System.out.println();
+            parser.printUsage(System.out);
+            return;
+        }
+
         LibFlow setupFlow = new LibFlow("Setup");
         setupFlow.header("VCSpeaker Starting");
         setupFlow.action("設定を読み込み中...");
@@ -52,7 +76,7 @@ public class Main extends ListenerAdapter {
         JSONObject config;
         JSONObject tokenConfig;
         try {
-            config = LibJson.readObject("./VCSpeaker.json");
+            config = LibJson.readObject(args.configPath);
         } catch (Exception e) {
             setupFlow.error("基本設定の読み込みに失敗しました。");
             new LibReporter(null, e);
@@ -91,7 +115,7 @@ public class Main extends ListenerAdapter {
             return;
         }
 
-        if (args.length == 1 && args[0].equals("--only-remove-cmd")) {
+        if (args.isOnlyRemoveCmd) {
             removeCommands(tokenConfig);
             return;
         }
@@ -284,5 +308,9 @@ public class Main extends ListenerAdapter {
             throw new IllegalArgumentException();
         }
         return option;
+    }
+
+    public static VCSpeakerArgs getArgs() {
+        return args;
     }
 }
