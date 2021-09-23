@@ -3,6 +3,7 @@ package com.jaoafa.jdavcspeaker.Lib;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -15,7 +16,7 @@ public class LibJson {
     /**
      * JSONファイルをオブジェクトとして読み出します。
      *
-     * @param _path JSONファイルへのパス
+     * @param path JSONファイルへのパス
      *
      * @return JSONオブジェクト
      *
@@ -23,8 +24,37 @@ public class LibJson {
      * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
      * @throws InvalidPathException パス文字列をPathに変換できない場合
      */
-    public static JSONObject readObject(String _path) throws IOException, JSONException, InvalidPathException {
-        Path path = Paths.get(_path);
+    public static JSONObject readObject(String path) throws IOException, JSONException, InvalidPathException {
+        return readObject(Paths.get(path));
+    }
+
+    /**
+     * JSONファイルをオブジェクトとして読み出します。
+     *
+     * @param file JSONファイルへのFile
+     *
+     * @return JSONオブジェクト
+     *
+     * @throws IOException          入出力例外が発生した場合
+     * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
+     * @throws InvalidPathException パス文字列をPathに変換できない場合
+     */
+    public static JSONObject readObject(File file) throws IOException, JSONException, InvalidPathException {
+        return readObject(file.toPath());
+    }
+
+    /**
+     * JSONファイルをオブジェクトとして読み出します。
+     *
+     * @param path JSONファイルのPath
+     *
+     * @return JSONオブジェクト
+     *
+     * @throws IOException          入出力例外が発生した場合
+     * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
+     * @throws InvalidPathException パス文字列をPathに変換できない場合
+     */
+    public static JSONObject readObject(Path path) throws IOException, JSONException, InvalidPathException {
         JSONObject object = new JSONObject();
         if (!Files.exists(path)) {
             return object;

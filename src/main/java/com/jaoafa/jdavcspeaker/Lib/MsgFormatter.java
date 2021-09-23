@@ -13,11 +13,6 @@ public class MsgFormatter {
     static final Pattern parenthesesPattern = Pattern.compile("\\(.+\\)");
 
     public static String format(String text) {
-        // LengthCheck
-        if (text.length() >= 180) {
-            text = text.substring(0, 180);
-        }
-
         // ReplaceUnicodeEmoji
         text = EmojiParser.parseToAliases(text);
 
@@ -53,6 +48,11 @@ public class MsgFormatter {
         // Alias
         for (Map.Entry<String, String> entry : LibValue.aliasMap.entrySet()) {
             text = text.replace(entry.getKey(), entry.getValue());
+        }
+
+        // LengthCheck
+        if (text.length() >= 180) {
+            text = text.substring(0, 180);
         }
         return text;
     }
