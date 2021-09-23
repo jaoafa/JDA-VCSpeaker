@@ -309,6 +309,10 @@ public class VoiceText {
 
         System.out.println(this);
 
+        speakText = Main.getArgs().formatMessage
+            .replace("{username}", message.getAuthor().getName())
+            .replace("{nickname}", message.getMember() != null && message.getMember().getNickname() != null ? message.getMember().getNickname() : message.getAuthor().getName())
+            .replace("{message}", speakText);
         String formattedText = MsgFormatter.format(speakText);
         String hash = DigestUtils.md5Hex("%s_%s_%d_%s_%s_%d".formatted(formattedText,
             speaker.name(),

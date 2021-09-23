@@ -16,6 +16,21 @@ public class LibJson {
     /**
      * JSONファイルをオブジェクトとして読み出します。
      *
+     * @param path JSONファイルへのパス
+     *
+     * @return JSONオブジェクト
+     *
+     * @throws IOException          入出力例外が発生した場合
+     * @throws JSONException        JSONとして正しくないなど、パースできなかった場合
+     * @throws InvalidPathException パス文字列をPathに変換できない場合
+     */
+    public static JSONObject readObject(String path) throws IOException, JSONException, InvalidPathException {
+        return readObject(Paths.get(path));
+    }
+
+    /**
+     * JSONファイルをオブジェクトとして読み出します。
+     *
      * @param file JSONファイルへのFile
      *
      * @return JSONオブジェクト
