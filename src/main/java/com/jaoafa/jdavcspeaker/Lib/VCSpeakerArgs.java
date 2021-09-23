@@ -11,6 +11,7 @@ public class VCSpeakerArgs {
             help = true)
     public boolean isHelp;
 
+    @SuppressWarnings("CanBeFinal")
     @Option(name = "--config-file",
             aliases = "-f",
             metaVar = "FILEPATH",
@@ -37,6 +38,7 @@ public class VCSpeakerArgs {
             usage = "GoLive開始・終了時の通知を無効化")
     public boolean isDisableGoLiveNotify;
 
+    @SuppressWarnings("CanBeFinal")
     @Option(name = "--format-message",
             usage = """
                 テキストメッセージ読み上げのフォーマット

@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Player;
 
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -38,7 +39,11 @@ public class TrackScheduler extends AudioEventAdapter {
             reactionSpeaking(track);
         } else {
             // トラックが開始されず、キューに挿入するべき場合
-            queue.offer(track);
+            boolean offered = queue.offer(track);
+            if (!offered) {
+                new LibFlow("TrackScheduler.queue")
+                    .error("キューへの挿入に失敗しました。");
+            }
         }
     }
 

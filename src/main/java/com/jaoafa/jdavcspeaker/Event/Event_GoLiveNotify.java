@@ -8,12 +8,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceStreamEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
 
 public class Event_GoLiveNotify extends ListenerAdapter {
     @Override
-    public void onGuildVoiceStream(GuildVoiceStreamEvent event) {
+    public void onGuildVoiceStream(@NotNull GuildVoiceStreamEvent event) {
         if (Main.getArgs().isDisableGoLiveNotify) {
             return;
         }
