@@ -369,7 +369,7 @@ public class VoiceText {
                 return;
             }
             message
-                .removeReaction("\uD83D\uDCF2") // :calling:
+                .removeReaction("\uD83D\uDCF2") // :eyes:
                 .queue(null, Throwable::printStackTrace);
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
