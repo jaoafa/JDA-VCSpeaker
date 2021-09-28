@@ -4,7 +4,6 @@ import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -46,9 +45,7 @@ public class MsgFormatter {
         }
 
         // Alias
-        for (Map.Entry<String, String> entry : LibValue.aliasMap.entrySet()) {
-            text = text.replace(entry.getKey(), entry.getValue());
-        }
+        text = LibAlias.applyAlias(text);
 
         // LengthCheck
         if (text.length() >= 180) {

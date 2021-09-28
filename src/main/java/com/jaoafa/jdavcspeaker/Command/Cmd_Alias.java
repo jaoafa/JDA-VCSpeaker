@@ -4,7 +4,6 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.Lib.LibValue;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -73,7 +72,7 @@ public class Cmd_Alias implements CmdSubstrate {
     void removeAlias(SlashCommandEvent event) {
         String from = Main.getExistsOption(event, "from").getAsString();
 
-        if (!LibValue.aliasMap.containsKey(from)) {
+        if (!LibAlias.getAliases().containsKey(from)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":mag_right: エイリアスが見つかりませんでした！")
                 .setDescription("""
@@ -105,7 +104,7 @@ public class Cmd_Alias implements CmdSubstrate {
         }
         int indexPage = page - 1;
 
-        List<String> list = LibValue.aliasMap.entrySet().stream()
+        List<String> list = LibAlias.getAliases().entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .map(entry -> "`%s` -> `%s`".formatted(entry.getKey(), entry.getValue())) // keyとvalueを繋げる
             .collect(Collectors.toList());
@@ -133,9 +132,7 @@ public class Cmd_Alias implements CmdSubstrate {
         String orig_text = Main.getExistsOption(event, "text").getAsString();
         String text = orig_text;
 
-        for (Map.Entry<String, String> entry : LibValue.aliasMap.entrySet()) {
-            text = text.replace(entry.getKey(), entry.getValue());
-        }
+        text = LibAlias.applyAlias(text);
 
         event.replyEmbeds(new EmbedBuilder()
             .setDescription("`%s` -> `%s`".formatted(orig_text, text))
