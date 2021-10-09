@@ -22,5 +22,8 @@ public class LibReporter {
                 .build()
             ).queue();
         }
+        if (LibValue.rollbar != null) {
+            LibValue.rollbar.error(e);
+        }
     }
 }

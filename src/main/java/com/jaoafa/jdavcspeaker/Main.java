@@ -8,6 +8,8 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdRegister;
 import com.jaoafa.jdavcspeaker.Framework.Event.EventRegister;
 import com.jaoafa.jdavcspeaker.Framework.FunctionHooker;
 import com.jaoafa.jdavcspeaker.Lib.*;
+import com.rollbar.notifier.Rollbar;
+import com.rollbar.notifier.config.ConfigBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,12 +30,14 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -173,6 +177,15 @@ public class Main extends ListenerAdapter {
             }
         }
 
+        if (tokenConfig.has("rollbar")) {
+            LibValue.rollbar = Rollbar.init(ConfigBuilder
+                .withAccessToken(tokenConfig.getString("rollbar"))
+                .environment(getLocalHostName())
+                .codeVersion(getGitHash())
+                .build());
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> LibValue.rollbar.critical(e));
+        }
+
         try {
             libTitle = new LibTitle("./title.json");
         } catch (Exception e) {
@@ -219,6 +232,47 @@ public class Main extends ListenerAdapter {
             );
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null, e);
+        }
+    }
+
+    private static String getLocalHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "Unknown";
+        }
+    }
+
+    private static String getGitHash() {
+        try {
+            Process p;
+            try {
+                ProcessBuilder builder = new ProcessBuilder();
+                builder.command("git", "rev-parse", "--short", "HEAD");
+                builder.redirectErrorStream(true);
+                p = builder.start();
+                boolean bool = p.waitFor(10, TimeUnit.SECONDS);
+                if (!bool) {
+                    return null;
+                }
+            } catch (InterruptedException e) {
+                return null;
+            }
+            try (InputStream is = p.getInputStream()) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                    StringBuilder text = new StringBuilder();
+                    while (true) {
+                        String line = br.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        text.append(line).append("\n");
+                    }
+                    return text.toString().trim();
+                }
+            }
+        } catch (IOException e) {
+            return "Unknown";
         }
     }
 
