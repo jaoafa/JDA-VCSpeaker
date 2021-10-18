@@ -39,6 +39,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,6 +125,8 @@ public class Main extends ListenerAdapter {
             removeCommands(tokenConfig);
             return;
         }
+
+        copyExternalScripts();
 
         //Task: Token,JDA設定
         speakToken = tokenConfig.getString("Speaker");
@@ -319,6 +323,41 @@ public class Main extends ListenerAdapter {
         } catch (InterruptedException | LoginException e) {
             removeCmdFlow.error("Discordへのログインに失敗しました。");
             new LibReporter(null, e);
+        }
+    }
+
+    static void copyExternalScripts() {
+        String srcDirName = "external_scripts";
+        File destDir = new File("external_scripts/");
+
+        final File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+
+        if (!jarFile.isFile()) {
+            new LibFlow("Textimg").error("仕様によりexternal_scriptsディレクトリをコピーできません。ビルドしてから実行すると、external_scriptsを使用する機能を利用できます。");
+            return;
+        }
+        try (JarFile jar = new JarFile(jarFile)) {
+            for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().startsWith(srcDirName + "/") && !entry.isDirectory()) {
+                    File dest = new File(destDir, entry.getName().substring(srcDirName.length() + 1));
+                    File parent = dest.getParentFile();
+                    if (parent != null) {
+                        //noinspection ResultOfMethodCallIgnored
+                        parent.mkdirs();
+                    }
+                    new LibFlow("Textimg").success("[external_scripts] Copy " + entry.getName().substring(srcDirName.length() + 1));
+                    try (FileOutputStream out = new FileOutputStream(dest); InputStream in = jar.getInputStream(entry)) {
+                        byte[] buffer = new byte[8 * 1024];
+                        int s;
+                        while ((s = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, s);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

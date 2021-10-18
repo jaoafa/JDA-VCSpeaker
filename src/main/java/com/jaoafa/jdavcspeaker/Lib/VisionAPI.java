@@ -215,16 +215,19 @@ public class VisionAPI {
         Files.write(file_result.toPath(), Collections.singleton(raw_object.toString()));
     }
 
-    public boolean isCheckTarget(File file) {
-        List<String> targets = Arrays.asList(
+    public static List<String> getSupportedContentType() {
+        return List.of(
             "image/jpeg",
             "image/png",
             "image/gif",
             "image/bmp"
         );
+    }
+
+    public boolean isCheckTarget(File file) {
         try {
             String mime = getMimeType(file);
-            return targets.contains(mime);
+            return getSupportedContentType().contains(mime);
         } catch (IOException e) {
             return false;
         }
