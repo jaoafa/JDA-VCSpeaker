@@ -7,12 +7,15 @@ import com.jaoafa.jdavcspeaker.Lib.LibTitle;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+
+import java.util.List;
 
 public class Cmd_Title implements CmdSubstrate {
     @Override
@@ -57,8 +60,15 @@ public class Cmd_Title implements CmdSubstrate {
             return;
         }
 
-        boolean isInitialized = false;
         String old_title = targetVC.getName();
+        List<String> old_title_emojis = EmojiParser.extractEmojis(old_title);
+        if (!old_title_emojis.isEmpty() && !EmojiParser.removeAllEmojis(old_title).isEmpty() && !old_title.substring(0, 1).equals(EmojiParser.removeAllEmojis(old_title).substring(0, 1))) {
+            // 旧VC名に絵文字が含まれていない and 絵文字を除いたタイトルがゼロではない and 旧VC名1文字目と絵文字を除いた1文字目が同じではない
+            // -> 絵文字を継続して利用する
+            new_title = old_title_emojis.get(0) + new_title;
+        }
+
+        boolean isInitialized = false;
         if (!libTitle.existsTitle(targetVC)) {
             isInitialized = libTitle.saveAsOriginal(targetVC);
         }
@@ -74,6 +84,7 @@ public class Cmd_Title implements CmdSubstrate {
         }
         cmdFlow.success("%s がChannel ID: %s のVC名を変更しました: %s -> %s", event.getUser().getAsTag(), member.getVoiceState().getChannel().getId(), old_title, new_title);
 
+        String title = new_title;
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":magic_wand: タイトルを変更しました！")
             .setDescription(String.format("`%s` -> `%s`\n\n全員退出したらリセットされます。%s",
@@ -87,7 +98,7 @@ public class Cmd_Title implements CmdSubstrate {
                 origin_msg -> new VoiceText().play(
                     TrackInfo.SpeakFromType.CHANGED_TITLE,
                     origin_msg,
-                    String.format("タイトルを%sに変更しました", new_title)
+                    String.format("タイトルを%sに変更しました", title)
                 )
             )
         );

@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -59,8 +58,7 @@ public class LibJson {
         if (!Files.exists(path)) {
             return object;
         }
-        String json = String.join("\n", Files.readAllLines(path, Charset.defaultCharset()));
-        return new JSONObject(json);
+        return new JSONObject(Files.readString(path));
     }
 
     /**

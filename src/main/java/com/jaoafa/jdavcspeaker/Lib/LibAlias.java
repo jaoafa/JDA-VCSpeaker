@@ -30,8 +30,7 @@ public class LibAlias {
 
         aliases.clear();
         try {
-            List<String> lines = Files.readAllLines(Paths.get("alias.json"));
-            JSONObject obj = new JSONObject(String.join("\n", lines));
+            JSONObject obj = new JSONObject(Files.readString(Paths.get("alias.json")));
 
             for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
                 String key = it.next();

@@ -23,7 +23,7 @@ public class DefaultParamsManager {
             return new JSONObject();
         }
         try {
-            return new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+            return new JSONObject(Files.readString(file.toPath()));
         } catch (IOException e) {
             return new JSONObject();
         }
