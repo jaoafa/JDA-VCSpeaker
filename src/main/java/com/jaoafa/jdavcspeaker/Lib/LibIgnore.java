@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 
 public class LibIgnore {
     public static void fetchMap() {
@@ -28,8 +27,7 @@ public class LibIgnore {
         LibValue.ignoreEquals.clear();
 
         try {
-            List<String> lines = Files.readAllLines(Paths.get("ignore.json"));
-            JSONObject obj = new JSONObject(String.join("\n", lines));
+            JSONObject obj = new JSONObject(Files.readString(Paths.get("ignore.json")));
 
             for (int i = 0; i < obj.getJSONArray("contain").length(); i++) {
                 LibValue.ignoreContains.add(obj.getJSONArray("contain").getString(i));

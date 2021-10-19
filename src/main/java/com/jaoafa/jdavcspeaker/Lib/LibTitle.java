@@ -116,7 +116,12 @@ public class LibTitle {
             );
         }
         // 名前変えて、設定ファイルにも記述
-        channel.getManager().setName(name).queue();
+        try {
+            channel.getManager().setName(name).complete();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
         saveSetting(
             titleSetting.put(
                 channel.getId(),

@@ -36,7 +36,7 @@ public class VisionAPI {
             File file = new File("vision-api-translate.json");
             JSONObject obj = new JSONObject();
             if (file.exists()) {
-                obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+                obj = new JSONObject(Files.readString(file.toPath()));
             }
             if (!obj.has(englishDesc)) {
                 obj.put(englishDesc, "");
@@ -158,13 +158,13 @@ public class VisionAPI {
     }
 
     private int getRequestCount() throws IOException {
-        JSONObject obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+        JSONObject obj = new JSONObject(Files.readString(file.toPath()));
         return obj.optInt(new SimpleDateFormat("yyyy/MM").format(new Date()), 0);
     }
 
     private void requested() throws IOException {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
-        JSONObject obj = new JSONObject(String.join("\n", Files.readAllLines(file.toPath())));
+        JSONObject obj = new JSONObject(Files.readString(file.toPath()));
         int i = obj.optInt(date, 0) + 2;
         obj.put(date, i);
         Files.write(file.toPath(), Collections.singleton(obj.toString()));
@@ -176,7 +176,7 @@ public class VisionAPI {
         if (!file.exists()) {
             return null;
         }
-        JSONArray array = new JSONArray(String.join("\n", Files.readAllLines(file.toPath())));
+        JSONArray array = new JSONArray(Files.readString(file.toPath()));
         List<Result> results = new LinkedList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject result = array.getJSONObject(i);

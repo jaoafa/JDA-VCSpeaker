@@ -67,7 +67,7 @@ public class Event_GeneralNotify extends ListenerAdapter {
 
         if (Files.exists(notify_id_path)) {
             try {
-                String last_notify_id = String.join("\n", Files.readAllLines(notify_id_path));
+                String last_notify_id = Files.readString(notify_id_path);
                 //noinspection ResultOfMethodCallIgnored
                 MultipleServer.getNotifyChannel(event.getGuild()).retrieveMessageById(last_notify_id).queue(Message::delete);
             } catch (IOException e) {
