@@ -53,14 +53,18 @@ public class LibAlias {
         }
     }
 
-    public static void addToAlias(String value1, String value2) {
-        aliases.put(value1, value2);
+    public static void addToAlias(String key, String value) {
+        aliases.put(key, value);
         fetchJson();
     }
 
-    public static void removeFromAlias(String value) {
-        aliases.remove(value);
+    public static void removeFromAlias(String key) {
+        aliases.remove(key);
         fetchJson();
+    }
+
+    public static String getAliasValue(String key) {
+        return aliases.get(key);
     }
 
     public static Map<String, String> getAliases() {
