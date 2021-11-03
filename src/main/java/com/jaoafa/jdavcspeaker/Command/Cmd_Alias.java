@@ -14,9 +14,12 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Cmd_Alias implements CmdSubstrate {
@@ -47,9 +50,9 @@ public class Cmd_Alias implements CmdSubstrate {
                        SlashCommandEvent event, String subCmd) {
         switch (subCmd) {
             case "add" -> addAlias(event, user);
-            case "remove" -> removeAlias(event);
-            case "list" -> listAlias(event);
-            case "parse" -> parseAlias(event);
+            case "remove" -> removeAlias(event, user);
+            case "list" -> listAlias(event, user);
+            case "parse" -> parseAlias(event, user);
         }
     }
 
@@ -62,14 +65,14 @@ public class Cmd_Alias implements CmdSubstrate {
         cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: エイリアスを設定しました！")
-            .setDescription("%s により追加".formatted(user.getAsMention()))
             .addField(":repeat: 置き換え", "`%s` → `%s`".formatted(from, to), false)
+            .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
     }
 
-    void removeAlias(SlashCommandEvent event) {
+    void removeAlias(SlashCommandEvent event, User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
 
         if (!LibAlias.getAliases().containsKey(from)) {
@@ -85,18 +88,20 @@ public class Cmd_Alias implements CmdSubstrate {
             return;
         }
 
+        String to = LibAlias.getAliasValue(from);
         LibAlias.removeFromAlias(from);
         cmdFlow.success("%s がエイリアスを削除しました: %s", event.getUser().getAsTag(), from);
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: エイリアスを削除しました！")
-            .setDescription("%s により削除".formatted(from))
+            .setDescription("次のエイリアスを削除: `%s` -> `%s`".formatted(from, to))
+            .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
     }
 
-    void listAlias(SlashCommandEvent event) {
+    void listAlias(SlashCommandEvent event, User user) {
         OptionMapping page_opt = event.getOption("page");
         int page = 1;
         if (page_opt != null) {
@@ -123,23 +128,44 @@ public class Cmd_Alias implements CmdSubstrate {
             .setTitle(":bookmark_tabs: 現在のエイリアス")
             .setDescription(String.join("\n", paginated.get(indexPage)))
             .setFooter("Page: " + page + " / " + paginated.size())
+            .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
     }
 
-    void parseAlias(SlashCommandEvent event) {
+    void parseAlias(SlashCommandEvent event, User user) {
         String orig_text = Main.getExistsOption(event, "text").getAsString();
         String text = orig_text;
 
-        text = LibAlias.applyAlias(text);
+        List<String> replaceAliases = new LinkedList<>();
+        replaceAliases.add("`%s`".formatted(orig_text));
+        for (Map.Entry<String, String> entry : LibAlias.getAliases().entrySet().stream().sorted(Comparator.comparingInt(e -> e.getKey().length())).collect(Collectors.toList())) {
+            Pattern pattern = Pattern.compile(entry.getKey());
+            Matcher matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                if (matcher.replaceAll(entry.getValue()).equals(text)) {
+                    continue;
+                }
+                text = matcher.replaceAll(entry.getValue());
+                text = text.replace(entry.getKey(), entry.getValue());
+                replaceAliases.add("-> `%s`: `%s`".formatted(entry.getKey(), text));
+            }
+        }
 
-        event.replyEmbeds(new EmbedBuilder()
-            .setDescription("`%s` -> `%s`".formatted(orig_text, text))
-            .setColor(LibEmbedColor.success)
-            .build()
-        ).queue();
+        EmbedBuilder embed = new EmbedBuilder()
+            .setTitle(":eyes: エイリアスパース結果")
+            .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
+            .setColor(LibEmbedColor.success);
+        if (String.join("\n", replaceAliases).length() <= MessageEmbed.DESCRIPTION_MAX_LENGTH) {
+            embed.setDescription(String.join("\n", replaceAliases));
+        } else {
+            embed.setDescription("`%s` -> `%s`".formatted(orig_text, String.join("\n", replaceAliases)));
+        }
+
+        event.replyEmbeds(embed.build()).queue();
     }
+
 
     /**
      * 2000文字を超えないようにsplitする
