@@ -33,10 +33,6 @@ public class Event_Disconnect extends ListenerAdapter {
             libTitle.processLeftTitle(vc);
         }
 
-        if (event.getMember().getUser().isBot()) {
-            return;
-        }
-
         User user = event.getMember().getUser();
         VoiceChannel channel = event.getChannelLeft();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
@@ -46,14 +42,16 @@ public class Event_Disconnect extends ListenerAdapter {
                 user.getName(),
                 channel.getId()))
             .queue(
-                message ->
-                    new VoiceText().play(
-                        TrackInfo.SpeakFromType.QUITED_VC,
-                        message,
-                        MessageFormat.format("{0}が{1}から退出しました。",
-                            user.getName(),
-                            MsgFormatter.formatChannelName(channel))
-                    )
+                message -> {
+                    if (!event.getMember().getUser().isBot())
+                        new VoiceText().play(
+                            TrackInfo.SpeakFromType.QUITED_VC,
+                            message,
+                            MessageFormat.format("{0}が{1}から退出しました。",
+                                user.getName(),
+                                MsgFormatter.formatChannelName(channel))
+                        );
+                }
             );
     }
 }
