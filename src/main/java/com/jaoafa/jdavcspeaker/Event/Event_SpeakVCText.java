@@ -3,6 +3,7 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,11 +12,13 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.htmlparser.jericho.Source;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
     final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/([0-9]+)$", Pattern.CASE_INSENSITIVE);
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
     final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
 
@@ -184,9 +188,27 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 continue;
             }
 
+            Matcher tweetUrlMatcher = tweetUrlPattern.matcher(url);
+            if (tweetUrlMatcher.find()) {
+                String screenName = tweetUrlMatcher.group(1);
+                String tweetId = tweetUrlMatcher.group(2);
+
+                Tweet tweet = getTweet(screenName, tweetId);
+                if (tweet != null) {
+                    System.out.println(tweet);
+                    String replaceTo = "%sのツイート「%s」へのリンク".formatted(
+                        EmojiParser.removeAllEmojis(tweet.authorName()),
+                        tweet.plainText()
+                    );
+                    content = content.replace(url, replaceTo);
+                    continue;
+                }
+            }
+
             // GIFリンク
             if (url.endsWith(".gif")) {
                 content = content.replace(url, "GIF画像へのリンク");
+                continue;
             }
 
             // Webページのタイトル取得
@@ -249,6 +271,42 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 }
                 Matcher m = titlePattern.matcher(body.string());
                 return m.find() ? m.group(1) : null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    record Tweet(String authorName, String html, String plainText) {
+    }
+
+    @Nullable
+    Tweet getTweet(String screenName, String tweetId) {
+        String url = "https://publish.twitter.com/oembed?url=https://twitter.com/%s/status/%s".formatted(screenName, tweetId);
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
+            Request request = new Request.Builder().url(url).build();
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() != 200 && response.code() != 302) {
+                    return null;
+                }
+                ResponseBody body = response.body();
+                if (body == null) {
+                    return null;
+                }
+                JSONObject json = new JSONObject(body.string());
+                String html = json.getString("html");
+                String authorName = json.getString("author_name");
+                String plainText = new Source(html)
+                    .getFirstElement("p")
+                    .getRenderer()
+                    .setMaxLineLength(Integer.MAX_VALUE)
+                    .setNewLine(null)
+                    .toString();
+                return new Tweet(authorName, html, plainText);
             }
         } catch (IOException e) {
             return null;
