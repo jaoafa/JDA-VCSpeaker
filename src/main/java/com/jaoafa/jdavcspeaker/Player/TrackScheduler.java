@@ -6,7 +6,9 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,8 +54,12 @@ public class TrackScheduler extends AudioEventAdapter {
         if (track == null) {
             return;
         }
+        boolean result = reactionSpeaking(track);
+        if (!result) {
+            nextTrack();
+            return; // 投稿が削除されているかもしれない
+        }
         player.startTrack(track, false);
-        reactionSpeaking(track);
     }
 
     @Override
@@ -87,18 +93,25 @@ public class TrackScheduler extends AudioEventAdapter {
                 .queue(null, Throwable::printStackTrace));
     }
 
-    void reactionSpeaking(AudioTrack track) {
+    boolean reactionSpeaking(AudioTrack track) {
         if (!(track.getUserData() instanceof TrackInfo info)) {
-            return;
+            return false;
         }
         TextChannel channel = LibValue.jda.getTextChannelById(info.getChannel().getIdLong());
         if (channel == null) {
-            return; // channelはnullである可能性がある
+            return false; // channelはnullである可能性がある
         }
-        channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.addReaction("\uD83D\uDDE3") // :speaking_head:
-                    .queue(null, Throwable::printStackTrace),
-                Throwable::printStackTrace);
+        try {
+            Message message = channel.retrieveMessageById(info.getMessage().getIdLong()).complete();
+            if (message == null) {
+                return false;
+            }
+            message.addReaction("\uD83D\uDDE3") // :speaking_head:
+                .queue(null, Throwable::printStackTrace);
+        } catch (ErrorResponseException e) {
+            return false;
+        }
+        return true;
     }
 }
 
