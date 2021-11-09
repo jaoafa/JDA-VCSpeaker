@@ -140,7 +140,12 @@ public class Cmd_Alias implements CmdSubstrate {
 
         List<String> replaceAliases = new LinkedList<>();
         replaceAliases.add("`%s`".formatted(orig_text));
-        for (Map.Entry<String, String> entry : LibAlias.getAliases().entrySet().stream().sorted(Comparator.comparingInt(e -> e.getKey().length())).collect(Collectors.toList())) {
+        for (Map.Entry<String, String> entry : LibAlias
+            .getAliases()
+            .entrySet()
+            .stream()
+            .sorted(Comparator.<Map.Entry<String, String>>comparingInt(e -> e.getKey().length()).reversed())
+            .collect(Collectors.toList())) {
             Pattern pattern = Pattern.compile(entry.getKey());
             Matcher matcher = pattern.matcher(text);
             while (matcher.find()) {

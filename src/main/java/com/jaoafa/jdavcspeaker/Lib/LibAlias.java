@@ -72,7 +72,11 @@ public class LibAlias {
     }
 
     public static String applyAlias(String text) {
-        for (Map.Entry<String, String> entry : aliases.entrySet().stream().sorted(Comparator.comparingInt(e -> e.getKey().length())).collect(Collectors.toList())) {
+        for (Map.Entry<String, String> entry : aliases
+            .entrySet()
+            .stream()
+            .sorted(Comparator.<Map.Entry<String, String>>comparingInt(e -> e.getKey().length()).reversed())
+            .collect(Collectors.toList())) {
             Pattern pattern = Pattern.compile(entry.getKey());
             Matcher matcher = pattern.matcher(text);
             while (matcher.find()) {
