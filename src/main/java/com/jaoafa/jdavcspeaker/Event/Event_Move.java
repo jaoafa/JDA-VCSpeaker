@@ -32,10 +32,6 @@ public class Event_Move extends ListenerAdapter {
             libTitle.processLeftTitle(oldChannel);
         }
 
-        if (event.getMember().getUser().isBot()) {
-            return;
-        }
-
         User user = event.getMember().getUser();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
@@ -45,15 +41,17 @@ public class Event_Move extends ListenerAdapter {
                 oldChannel.getId(),
                 newChannel.getId()))
             .queue(
-                message ->
-                    new VoiceText().play(
-                        TrackInfo.SpeakFromType.MOVED_VC,
-                        message,
-                        MessageFormat.format("{0}が{1}から{2}に移動しました。",
-                            user.getName(),
-                            MsgFormatter.formatChannelName(oldChannel),
-                            MsgFormatter.formatChannelName(newChannel))
-                    )
+                message -> {
+                    if (!event.getMember().getUser().isBot())
+                        new VoiceText().play(
+                            TrackInfo.SpeakFromType.MOVED_VC,
+                            message,
+                            MessageFormat.format("{0}が{1}から{2}に移動しました。",
+                                user.getName(),
+                                MsgFormatter.formatChannelName(oldChannel),
+                                MsgFormatter.formatChannelName(newChannel))
+                        );
+                }
             );
     }
 }

@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.MessageFormat;
 
 public class Event_Join extends ListenerAdapter {
-
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
         if (Main.getArgs().isDisableUserActivityNotify) {
@@ -35,15 +34,17 @@ public class Event_Join extends ListenerAdapter {
                 user.getName(),
                 channel.getId()))
             .queue(
-                message ->
-                    new VoiceText()
-                        .play(
-                            TrackInfo.SpeakFromType.JOINED_VC,
-                            message,
-                            MessageFormat.format("{0}が{1}に参加しました。",
-                                user.getName(),
-                                MsgFormatter.formatChannelName(channel))
-                        )
+                message -> {
+                    if (!event.getMember().getUser().isBot())
+                        new VoiceText()
+                            .play(
+                                TrackInfo.SpeakFromType.JOINED_VC,
+                                message,
+                                MessageFormat.format("{0}が{1}に参加しました。",
+                                    user.getName(),
+                                    MsgFormatter.formatChannelName(channel))
+                            );
+                }
             );
     }
 }
