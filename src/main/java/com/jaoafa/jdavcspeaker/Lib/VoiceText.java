@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import com.jaoafa.jdavcspeaker.Lib.MsgFormatter.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.GuildMusicManager;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;

@@ -1,5 +1,6 @@
-package com.jaoafa.jdavcspeaker.Lib;
+package com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 
+import com.jaoafa.jdavcspeaker.Lib.LibAlias;
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 

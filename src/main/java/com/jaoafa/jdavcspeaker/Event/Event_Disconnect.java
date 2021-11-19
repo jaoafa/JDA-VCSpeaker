@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
-import com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
+import com.jaoafa.jdavcspeaker.Lib.MsgFormatter.MsgFormatter;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
