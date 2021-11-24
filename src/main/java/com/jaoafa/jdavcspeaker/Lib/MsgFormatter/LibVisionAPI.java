@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib.MsgFormatter;
 
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.VisionAPI;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
@@ -17,21 +18,34 @@ public class LibVisionAPI {
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
             message.getAttachments()
-                .forEach(attachment -> vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
+                .forEach(
+                    attachment -> vt.play(
+                        TrackInfo.SpeakFromType.RECEIVED_FILE,
+                        message,
+                        "ファイル「" + attachment.getFileName() + "」が送信されました。"
+                    ));
             return;
         }
+
         if (!new File("tmp").exists()) {
             boolean bool = new File("tmp").mkdirs();
-            if (!bool) System.out.println("temporary folder was created.");
+            if (!bool)
+                new LibFlow("VisionAPI").action("temporary folder was created.");
         }
+
         for (Message.Attachment attachment : message.getAttachments()) {
             attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
                 try {
                     List<VisionAPI.Result> results = visionAPI.getImageLabelOrText(file);
                     boolean bool = file.delete();
                     System.out.println("Temp attachment file have been delete " + (bool ? "successfully" : "failed"));
+
                     if (results == null) {
-                        vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
+                        vt.play(
+                            TrackInfo.SpeakFromType.RECEIVED_FILE,
+                            message,
+                            "ファイル「" + attachment.getFileName() + "」が送信されました。"
+                        );
                         return;
                     }
 
@@ -43,7 +57,11 @@ public class LibVisionAPI {
                         .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
                         .limit(3)
                         .collect(Collectors.joining("、"));
-                    vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
+                    vt.play(
+                        TrackInfo.SpeakFromType.RECEIVED_IMAGE,
+                        message,
+                        "画像ファイル「" + descriptions + "を含む画像」が送信されました。"
+                    );
 
                     String text = sortedResults.stream()
                         .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
@@ -56,6 +74,7 @@ public class LibVisionAPI {
                             r.getDescription(),
                             r.getDescription().equals(r.getRawDescription()) ? "" : " (`" + r.getRawDescription() + "`)"))
                         .collect(Collectors.joining("\n・"));
+
                     message.reply((text != null ? "```\n" + text.replaceAll("\n", " ") + "\n```" : "") + "・" + details).queue();
                 } catch (IOException e) {
                     e.printStackTrace();

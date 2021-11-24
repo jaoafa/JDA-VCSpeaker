@@ -20,9 +20,10 @@ public class MsgFormatter {
         String regex = "<a?:(.+?):([0-9]+)>";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
-        while (m.find()) {
+
+        while (m.find())
             text = text.replace(m.group(), ":" + m.group(1) + ":");
-        }
+
 
         // RemoveParams
         text = Arrays
@@ -37,21 +38,19 @@ public class MsgFormatter {
         String[] splitText = text.split(" ");
 
         // URLCheck
-        for (String s : splitText) {
+        for (String s : splitText)
             //noinspection HttpUrlsUsage
             if (s.startsWith("https://") || s.startsWith("http://")) {
                 String[] urlSplit = s.split("/");
                 text = text.replace(s, urlSplit[urlSplit.length - 1]);
             }
-        }
 
         // Alias
         text = LibAlias.applyAlias(text);
 
         // LengthCheck
-        if (text.length() >= 180) {
-            text = text.substring(0, 180);
-        }
+        if (text.length() >= 180) text = text.substring(0, 180);
+
         return text;
     }
 
