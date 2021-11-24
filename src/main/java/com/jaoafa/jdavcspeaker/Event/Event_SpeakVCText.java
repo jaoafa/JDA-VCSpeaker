@@ -126,6 +126,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
             if (!bool) System.out.println("temporary folder was created.");
         }
         for (Message.Attachment attachment : message.getAttachments()) {
+            if (attachment.isSpoiler()) {
+                vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "スポイラーファイルが送信されました。");
+                return;
+            }
             attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
                 try {
                     List<VisionAPI.Result> results = visionAPI.getImageLabelOrText(file);
