@@ -6,10 +6,7 @@ import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.htmlparser.jericho.Source;
@@ -113,6 +110,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
         VoiceText vt = isEmphasize ? changeEmphasizeSpeed(uvtr.getVoiceText()) : uvtr.getVoiceText();
         vt.play(TrackInfo.SpeakFromType.RECEIVED_MESSAGE, message, speakContent);
+
+        for (MessageSticker sticker : message.getStickers()) {
+            vt.play(TrackInfo.SpeakFromType.RECEIVED_MESSAGE, message, "スタンプ「" + sticker.getName() + "」が送信されました。");
+        }
 
         // 画像等
         VisionAPI visionAPI = Main.getVisionAPI();
