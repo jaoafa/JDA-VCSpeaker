@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
-    final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
-    final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
+    final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
     final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
 
