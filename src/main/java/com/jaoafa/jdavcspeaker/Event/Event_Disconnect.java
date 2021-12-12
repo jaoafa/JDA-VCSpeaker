@@ -12,8 +12,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
-
 /**
  * When someone leaves the VC, notify the VC text channel.
  */
@@ -38,7 +36,7 @@ public class Event_Disconnect extends ListenerAdapter {
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())
-            .sendMessage(MessageFormat.format(":outbox_tray: `{0}` が <#{1}> から退出しました。",
+            .sendMessage(":outbox_tray: `%s` が <#%s> から退出しました。".formatted(
                 user.getName(),
                 channel.getId()))
             .queue(
@@ -47,7 +45,7 @@ public class Event_Disconnect extends ListenerAdapter {
                         new VoiceText().play(
                             TrackInfo.SpeakFromType.QUITED_VC,
                             message,
-                            MessageFormat.format("{0}が{1}から退出しました。",
+                            "%sが%sから退出しました。".formatted(
                                 user.getName(),
                                 MsgFormatter.formatChannelName(channel))
                         );

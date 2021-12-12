@@ -91,7 +91,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.9.2</version>
+            <version>4.9.3</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.1</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -143,7 +143,7 @@
         </dependency>
         <dependency>
             <groupId>com.rollbar</groupId>
-            <version>1.7.9</version>
+            <version>1.7.10</version>
             <artifactId>rollbar-java</artifactId>
         </dependency>
         <dependency>

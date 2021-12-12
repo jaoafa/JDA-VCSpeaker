@@ -13,19 +13,29 @@ import java.nio.file.Path;
 public class LibFiles {
     public static void moveDirFiles() {
         for (VersionUpgradePaths path : VersionUpgradePaths.values()) {
-            if (!Files.exists(path.getPath())) {
+            if (!Files.exists(path.getOldPath())) {
                 continue;
             }
-
+            Path oldPath = path.getOldPath();
+            try {
+                new LibFlow("LibFiles.moveDirFiles")
+                    .action("Moving " + path.name());
+                Files.move(oldPath, path.getNewPath());
+                new LibFlow("LibFiles.moveDirFiles")
+                    .action("Moved " + path.name());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    enum VFile {
+    public enum VFile {
         CONFIG("config.json"),
         SERVERS("settings", "servers.json"),
         USER_DEFAULT_PARAMS("settings", "user-default-params.json"),
         ALIAS("settings", "alias.json"),
         IGNORE("settings", "ignore.json"),
+        TITLE("settings", "title.json"),
         VISION_API("settings", "vision-api.json"),
         VISION_API_TRANSLATE("settings", "vision-api-translate.json");
 
@@ -45,18 +55,27 @@ public class LibFiles {
         }
 
         /**
+         * このファイルが存在するかを返します
+         *
+         * @return このファイルが存在すれば true
+         */
+        public boolean exists() {
+            return Files.exists(path);
+        }
+
+        /**
          * このファイルにJSONObjectを書き込みます
          *
          * @param json 書き込むJSONObject
          *
          * @return 書き込めたかどうか
          */
-        @CheckReturnValue
         public boolean write(@Nonnull JSONObject json) {
             try {
                 Files.writeString(path, json.toString());
                 return true;
             } catch (IOException e) {
+                e.printStackTrace();
                 return false;
             }
         }
@@ -143,7 +162,7 @@ public class LibFiles {
         }
     }
 
-    enum VDirectory {
+    public enum VDirectory {
         EXTERNAL_SCRIPTS("external_scripts"),
         VOICETEXT_CACHES("voicetext-caches"),
         VISION_API_TEMP("vision-api", "temp"),
@@ -163,6 +182,49 @@ public class LibFiles {
          */
         public Path getPath() {
             return path;
+        }
+
+        /**
+         * 指定されたパスを使ってパスを解決し返します
+         *
+         * @param p 解決に使うパス
+         *
+         * @return 解決されたパス
+         */
+        public Path resolve(Path p) {
+            return path.resolve(p);
+        }
+
+        /**
+         * このディレクトリが存在するかを返します
+         *
+         * @return このディレクトリが存在すれば true
+         */
+        public boolean exists() {
+            return Files.exists(path);
+        }
+
+        /**
+         * このディレクトリに指定したファイルパスが存在するかを返します
+         *
+         * @return このディレクトリ指定したファイルパスが存在すれば true
+         */
+        public boolean exists(Path filePath) {
+            return Files.exists(path.resolve(filePath));
+        }
+
+        /**
+         * ディレクトリを作成します。(ディレクトリが存在する場合は作成せず true を返します)
+         */
+        public void mkdirs() {
+            if (Files.exists(path)) {
+                return;
+            }
+            try {
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         /**
@@ -284,6 +346,7 @@ public class LibFiles {
         FILE_USER_DEFAULT_PARAMS(Path.of("user-default-params.json"), VFile.USER_DEFAULT_PARAMS),
         FILE_ALIAS(Path.of("alias.json"), VFile.ALIAS),
         FILE_IGNORE(Path.of("ignore.json"), VFile.IGNORE),
+        FILE_TITLE(Path.of("title.json"), VFile.TITLE),
         FILE_VISION_API(Path.of("vision-api.json"), VFile.VISION_API),
         FILE_VISION_API_TRANSLATE(Path.of("vision-api-translate.json"), VFile.VISION_API_TRANSLATE),
         // external_scripts: 変更なし
@@ -292,39 +355,47 @@ public class LibFiles {
         VISION_API_CACHES(Path.of("vision-api-caches"), VDirectory.VISION_API_CACHES),
         DIR_VISION_API_RESULTS(Path.of("vision-api-results"), VDirectory.VISION_API_RESULTS);
 
-        private final Path path;
+        private final Path oldPath;
         private final boolean isFile;
-        private final VFile file;
-        private final VDirectory directory;
+        private final Path newPath;
 
-        VersionUpgradePaths(Path path, VFile file) {
-            this.path = path;
+        VersionUpgradePaths(Path oldPath, VFile file) {
+            this.oldPath = oldPath;
             this.isFile = true;
-            this.file = file;
-            this.directory = null;
+            this.newPath = file.getPath();
         }
 
-        VersionUpgradePaths(Path path, VDirectory directory) {
-            this.path = path;
+        VersionUpgradePaths(Path oldPath, VDirectory directory) {
+            this.oldPath = oldPath;
             this.isFile = false;
-            this.file = null;
-            this.directory = directory;
+            this.newPath = directory.getPath();
         }
 
-        public Path getPath() {
-            return path;
+        /**
+         * 古いパスを返します
+         *
+         * @return 古いパス
+         */
+        public Path getOldPath() {
+            return oldPath;
         }
 
+        /**
+         * ファイルかどうかを返します
+         *
+         * @return ファイルかどうか
+         */
         public boolean isFile() {
             return isFile;
         }
 
-        public VFile getFile() {
-            return file;
-        }
-
-        public VDirectory getDirectory() {
-            return directory;
+        /**
+         * 新しいパスを返します
+         *
+         * @return 新しいパス
+         */
+        public Path getNewPath() {
+            return newPath;
         }
     }
 }

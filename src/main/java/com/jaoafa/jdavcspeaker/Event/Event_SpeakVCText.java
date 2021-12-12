@@ -17,9 +17,7 @@ import okhttp3.ResponseBody;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -122,56 +120,59 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 .forEach(attachment -> vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。"));
             return;
         }
-        if (!new File("tmp").exists()) {
-            boolean bool = new File("tmp").mkdirs();
-            if (!bool) System.out.println("temporary folder was created.");
-        }
+        LibFiles.VDirectory.VISION_API_TEMP.mkdirs();
         for (Message.Attachment attachment : message.getAttachments()) {
             if (attachment.isSpoiler()) {
                 vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "スポイラーファイルが送信されました。");
                 return;
             }
-            attachment.downloadToFile("tmp/" + attachment.getFileName()).thenAcceptAsync(file -> {
-                try {
-                    List<VisionAPI.Result> results = visionAPI.getImageLabelOrText(file);
-                    boolean bool = file.delete();
-                    System.out.println("Temp attachment file have been delete " + (bool ? "successfully" : "failed"));
-                    if (results == null) {
-                        vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「" + attachment.getFileName() + "」が送信されました。");
-                        return;
+            attachment
+                .downloadToFile(LibFiles.VDirectory.VISION_API_TEMP.getPath().resolve(attachment.getFileName()).toString())
+                .thenAcceptAsync(file -> {
+                    try {
+                        List<VisionAPI.Result> results = visionAPI.getImageLabelOrText(file);
+                        boolean bool = file.delete();
+                        LibFlow flow = new LibFlow("SpeakVCText.VisionAPI");
+                        if (bool) {
+                            flow.success("Temp attachment file have been delete successfully");
+                        } else {
+                            flow.success("Temp attachment file have been delete failed");
+                        }
+                        if (results == null) {
+                            vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「%s」が送信されました。".formatted(attachment.getFileName()));
+                            return;
+                        }
+
+                        List<VisionAPI.Result> sortedResults = results.stream()
+                            .sorted(Comparator.comparing(VisionAPI.Result::getScore, Comparator.reverseOrder()))
+                            .toList();
+                        String descriptions = sortedResults.stream()
+                            .map(VisionAPI.Result::getDescription)
+                            .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
+                            .limit(3)
+                            .collect(Collectors.joining("、"));
+                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(descriptions));
+
+                        String text = sortedResults.stream()
+                            .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
+                            .map(VisionAPI.Result::getDescription)
+                            .findFirst()
+                            .orElse(null);
+                        String details = sortedResults.stream()
+                            .filter(r -> r.getType() == VisionAPI.ResultType.LABEL_DETECTION)
+                            .map(r -> String.format("`%s`%s",
+                                r.getDescription(),
+                                r.getDescription().equals(r.getRawDescription()) ? "" : " (`" + r.getRawDescription() + "`)"))
+                            .collect(Collectors.joining("\n・"));
+                        message.reply((text != null ? "```\n" + text.replaceAll("\n", " ") + "\n```" : "") + "・" + details).queue();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    List<VisionAPI.Result> sortedResults = results.stream()
-                        .sorted(Comparator.comparing(VisionAPI.Result::getScore, Comparator.reverseOrder()))
-                        .collect(Collectors.toList());
-                    String descriptions = sortedResults.stream()
-                        .map(VisionAPI.Result::getDescription)
-                        .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
-                        .limit(3)
-                        .collect(Collectors.joining("、"));
-                    vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「" + descriptions + "を含む画像」が送信されました。");
-
-                    String text = sortedResults.stream()
-                        .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
-                        .map(VisionAPI.Result::getDescription)
-                        .findFirst()
-                        .orElse(null);
-                    String details = sortedResults.stream()
-                        .filter(r -> r.getType() == VisionAPI.ResultType.LABEL_DETECTION)
-                        .map(r -> String.format("`%s`%s",
-                            r.getDescription(),
-                            r.getDescription().equals(r.getRawDescription()) ? "" : " (`" + r.getRawDescription() + "`)"))
-                        .collect(Collectors.joining("\n・"));
-                    message.reply((text != null ? "```\n" + text.replaceAll("\n", " ") + "\n```" : "") + "・" + details).queue();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+                });
         }
     }
 
     String replacerLink(JDA jda, String content) {
-        // messageUrlPattern.matcher(url);
         Matcher m = urlPattern.matcher(content);
         while (m.find()) {
             String url = m.group();
@@ -186,10 +187,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 Message message = channel.retrieveMessageById(messageId).complete();
                 if (message == null) continue;
 
-                String replaceTo = MessageFormat.format("{0}が{1}で送信したメッセージのリンク",
+                content = content.replace(url, "%sが%sで送信したメッセージのリンク".formatted(
                     message.getAuthor().getAsTag(),
-                    channel.getName());
-                content = content.replace(url, replaceTo);
+                    channel.getName()
+                ));
                 continue;
             }
 
@@ -201,11 +202,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 Tweet tweet = getTweet(screenName, tweetId);
                 if (tweet != null) {
                     System.out.println(tweet);
-                    String replaceTo = "%sのツイート「%s」へのリンク".formatted(
+                    content = content.replace(url, "%sのツイート「%s」へのリンク".formatted(
                         EmojiParser.removeAllEmojis(tweet.authorName()),
                         tweet.plainText()
-                    );
-                    content = content.replace(url, replaceTo);
+                    ));
                     continue;
                 }
             }
@@ -224,7 +224,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     title = title.substring(0, 30) + "以下略";
                 }
                 System.out.println("title 2: " + title);
-                content = content.replace(url, MessageFormat.format("Webページ「{0}」へのリンク", title));
+                content = content.replace(url, "Webページ「%s」へのリンク".formatted(title));
             } else {
                 content = content.replace(url, "Webページへのリンク");
             }

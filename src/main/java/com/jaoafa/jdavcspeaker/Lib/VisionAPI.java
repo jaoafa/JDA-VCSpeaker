@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -20,37 +21,30 @@ import java.util.concurrent.TimeUnit;
  */
 public class VisionAPI {
     final String apikey;
-    final File file = new File("vision-api.json");
+    LibFiles.VFile vApiFile = LibFiles.VFile.VISION_API;
+    static LibFiles.VFile vTranslateFile = LibFiles.VFile.VISION_API_TRANSLATE;
+    LibFiles.VDirectory vDir = LibFiles.VDirectory.VISION_API_CACHES;
 
-    public VisionAPI(String apikey) throws Exception {
+    public VisionAPI(String apikey) {
         this.apikey = apikey;
 
-        if (!file.exists()) {
-            Files.write(file.toPath(), Collections.singleton(new JSONObject().toString()));
+        if (!vApiFile.exists()) {
+            vApiFile.write(new JSONObject());
         }
     }
 
     @Nullable
     private static String getJapaneseDesc(String englishDesc) {
-        try {
-            File file = new File("vision-api-translate.json");
-            JSONObject obj = new JSONObject();
-            if (file.exists()) {
-                obj = new JSONObject(Files.readString(file.toPath()));
-            }
-            if (!obj.has(englishDesc)) {
-                obj.put(englishDesc, "");
-                Files.write(file.toPath(), Collections.singleton(obj.toString()));
-                return null;
-            }
-            if (obj.getString(englishDesc).isEmpty()) {
-                return null;
-            }
-            return obj.getString(englishDesc);
-        } catch (IOException e) {
-            e.printStackTrace();
+        JSONObject obj = vTranslateFile.readJSONObject(new JSONObject());
+        if (!obj.has(englishDesc)) {
+            obj.put(englishDesc, "");
+            vTranslateFile.write(obj);
             return null;
         }
+        if (obj.getString(englishDesc).isEmpty()) {
+            return null;
+        }
+        return obj.getString(englishDesc);
     }
 
     /**
@@ -153,30 +147,32 @@ public class VisionAPI {
         }
     }
 
-    private boolean isLimited() throws IOException {
+    private boolean isLimited() {
         return getRequestCount() >= 950; // 1000 units だけど余裕をもって
     }
 
-    private int getRequestCount() throws IOException {
-        JSONObject obj = new JSONObject(Files.readString(file.toPath()));
+    private int getRequestCount() {
+        JSONObject obj = vApiFile.readJSONObject(new JSONObject());
         return obj.optInt(new SimpleDateFormat("yyyy/MM").format(new Date()), 0);
     }
 
-    private void requested() throws IOException {
+    private void requested() {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
-        JSONObject obj = new JSONObject(Files.readString(file.toPath()));
+        JSONObject obj = vApiFile.readJSONObject(new JSONObject());
         int i = obj.optInt(date, 0) + 2;
         obj.put(date, i);
-        Files.write(file.toPath(), Collections.singleton(obj.toString()));
+        vApiFile.write(obj);
     }
 
     @Nullable
-    public List<Result> loadCache(String hash) throws IOException {
-        File file = new File("vision-api-caches", hash);
-        if (!file.exists()) {
+    public List<Result> loadCache(String hash) {
+        if (!vDir.exists()) {
             return null;
         }
-        JSONArray array = new JSONArray(Files.readString(file.toPath()));
+        JSONArray array = vDir.readJSONArray(Path.of(hash));
+        if (array == null) {
+            return null;
+        }
         List<Result> results = new LinkedList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject result = array.getJSONObject(i);
