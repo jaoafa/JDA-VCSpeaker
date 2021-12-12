@@ -218,24 +218,26 @@ public class Main extends ListenerAdapter {
 
         //Task: Devのコマンド削除
         try {
-            JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
-            devJda.getGuilds().forEach(
-                guild -> guild.retrieveCommands().queue(
-                    cmds -> cmds.forEach(cmd -> cmd.delete().queue(
-                        unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
-                    ))
-                )
-            );
+            if (tokenConfig.has("VCSDev")) {
+                JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
+                devJda.getGuilds().forEach(
+                    guild -> guild.retrieveCommands().queue(
+                        cmds -> cmds.forEach(cmd -> cmd.delete().queue(
+                            unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
+                        ))
+                    )
+                );
 
-            new Timer(false).schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        devJda.shutdown();
-                    }
-                },
-                180000
-            );
+                new Timer(false).schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            devJda.shutdown();
+                        }
+                    },
+                    180000
+                );
+            }
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null, e);
         }

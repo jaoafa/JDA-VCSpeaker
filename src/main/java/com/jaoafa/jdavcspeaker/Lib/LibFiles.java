@@ -20,6 +20,9 @@ public class LibFiles {
             try {
                 new LibFlow("LibFiles.moveDirFiles")
                     .action("Moving " + path.name());
+                if (!Files.exists(path.getNewPath().getParent())) {
+                    Files.createDirectories(path.getNewPath().getParent());
+                }
                 Files.move(oldPath, path.getNewPath());
                 new LibFlow("LibFiles.moveDirFiles")
                     .action("Moved " + path.name());
