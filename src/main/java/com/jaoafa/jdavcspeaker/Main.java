@@ -209,7 +209,7 @@ public class Main extends ListenerAdapter {
                     .filter(f -> !f.delete())
                     .toList();
                 if (missDeletes.size() != 0) {
-                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイル(./tmp/)の削除に失敗しました。");
+                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイルの削除に失敗しました。");
                 }
             } catch (IOException ie) {
                 ie.printStackTrace();
