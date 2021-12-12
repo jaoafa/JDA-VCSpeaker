@@ -143,7 +143,13 @@ public class VisionAPI {
 
                 if (textResults.length() > 0) {
                     JSONObject result = textResults.getJSONObject(0);
-                    ret.add(new Result(result.getString("description"), 1, ResultType.TEXT_DETECTION));
+                    // 左上、右上、右下、左下
+                    // width: 右上[1] - 左上[0]
+                    // height: 左下[3] - 左上[0]
+                    JSONArray vertices = result.getJSONObject("boundingPoly").getJSONArray("vertices");
+                    int width = vertices.getInt(1) - vertices.getInt(0);
+                    int height = vertices.getInt(3) - vertices.getInt(0);
+                    ret.add(new Result(result.getString("description"), width + height, ResultType.TEXT_DETECTION));
                 }
             }
 
