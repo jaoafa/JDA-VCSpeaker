@@ -13,9 +13,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import javax.annotation.CheckReturnValue;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -321,10 +321,13 @@ public class VoiceText {
             emotionLevel != null ? emotionLevel.name() : "null",
             pitch));
 
-        if (new File("./Temp/" + hash + ".mp3").exists()) {
+        if (LibFiles.VDirectory.VOICETEXT_CACHES.exists(Path.of("%s.mp3".formatted(hash)))) {
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
-            PlayerManager.getINSTANCE().loadAndPlay(info, "./Temp/" + hash + ".mp3");
+            PlayerManager.getINSTANCE().loadAndPlay(
+                info,
+                LibFiles.VDirectory.VOICETEXT_CACHES.resolve(Path.of("%s.mp3".formatted(hash))).toString()
+            );
             return;
         }
 

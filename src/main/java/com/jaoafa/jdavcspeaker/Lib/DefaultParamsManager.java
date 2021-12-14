@@ -4,13 +4,8 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collections;
-
 public class DefaultParamsManager {
-    private static final File file = new File("user-default-params.json");
+    private static final LibFiles.VFile file = LibFiles.VFile.USER_DEFAULT_PARAMS;
     final User user;
     final VoiceText defaultVoiceText = new VoiceText();
 
@@ -19,14 +14,7 @@ public class DefaultParamsManager {
     }
 
     JSONObject getData() {
-        if (!file.exists()) {
-            return new JSONObject();
-        }
-        try {
-            return new JSONObject(Files.readString(file.toPath()));
-        } catch (IOException e) {
-            return new JSONObject();
-        }
+        return file.readJSONObject(new JSONObject());
     }
 
     @Nullable
@@ -62,11 +50,6 @@ public class DefaultParamsManager {
 
         JSONObject data = getData();
         data.put(user.getId(), object);
-        try {
-            Files.write(file.toPath(), Collections.singleton(data.toString()));
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return file.write(data);
     }
 }

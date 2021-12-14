@@ -73,6 +73,8 @@ public class Main extends ListenerAdapter {
             return;
         }
 
+        LibFiles.moveDirFiles();
+
         LibFlow setupFlow = new LibFlow("Setup");
         setupFlow.header("VCSpeaker Starting");
         setupFlow.action("設定を読み込み中...");
@@ -191,7 +193,7 @@ public class Main extends ListenerAdapter {
         }
 
         try {
-            libTitle = new LibTitle("./title.json");
+            libTitle = new LibTitle();
         } catch (Exception e) {
             setupFlow.error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
             new LibReporter(null, e);
@@ -200,14 +202,14 @@ public class Main extends ListenerAdapter {
         }
 
         //Task: 一時ファイル消去
-        if (new File("tmp").exists()) {
-            try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
+        if (LibFiles.VDirectory.VISION_API_TEMP.exists()) {
+            try (Stream<Path> walk = Files.walk(LibFiles.VDirectory.VISION_API_TEMP.getPath(), FileVisitOption.FOLLOW_LINKS)) {
                 List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .filter(f -> !f.delete())
-                    .collect(Collectors.toList());
+                    .toList();
                 if (missDeletes.size() != 0) {
-                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイル(./tmp/)の削除に失敗しました。");
+                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイルの削除に失敗しました。");
                 }
             } catch (IOException ie) {
                 ie.printStackTrace();
@@ -216,24 +218,26 @@ public class Main extends ListenerAdapter {
 
         //Task: Devのコマンド削除
         try {
-            JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
-            devJda.getGuilds().forEach(
-                guild -> guild.retrieveCommands().queue(
-                    cmds -> cmds.forEach(cmd -> cmd.delete().queue(
-                        unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
-                    ))
-                )
-            );
+            if (tokenConfig.has("VCSDev")) {
+                JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
+                devJda.getGuilds().forEach(
+                    guild -> guild.retrieveCommands().queue(
+                        cmds -> cmds.forEach(cmd -> cmd.delete().queue(
+                            unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
+                        ))
+                    )
+                );
 
-            new Timer(false).schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        devJda.shutdown();
-                    }
-                },
-                180000
-            );
+                new Timer(false).schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            devJda.shutdown();
+                        }
+                    },
+                    180000
+                );
+            }
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null, e);
         }
@@ -327,8 +331,9 @@ public class Main extends ListenerAdapter {
     }
 
     static void copyExternalScripts() {
-        String srcDirName = "external_scripts";
-        File destDir = new File("external_scripts/");
+        LibFiles.VDirectory vDir = LibFiles.VDirectory.EXTERNAL_SCRIPTS;
+        String srcDirName = vDir.getPath().toString();
+        File destDir = vDir.getPath().toFile();
 
         final File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
@@ -381,13 +386,6 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        File newdir = new File("./Temp");
-        if (!newdir.exists()) {
-            boolean bool = newdir.mkdir();
-            if (!bool) {
-                new LibFlow("RemoveTempDir").error("テンポラリディレクトリ(./Temp/)の削除に失敗しました。");
-            }
-        }
         LibValue.jda = event.getJDA();
         LibAlias.fetchMap();
         LibIgnore.fetchMap();

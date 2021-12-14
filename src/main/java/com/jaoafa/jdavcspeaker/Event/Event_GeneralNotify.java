@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.Collections;
 
 /**
@@ -77,7 +76,7 @@ public class Event_GeneralNotify extends ListenerAdapter {
 
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":inbox_tray: 会話が始まりました！")
-            .setDescription(MessageFormat.format("{0} が <#{1}> に参加しました。", event.getMember().getAsMention(), event.getChannelJoined().getId()))
+            .setDescription("%s が <#%s> に参加しました。".formatted(event.getMember().getAsMention(), event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.normal);
         MultipleServer.getNotifyChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue(
             message -> {

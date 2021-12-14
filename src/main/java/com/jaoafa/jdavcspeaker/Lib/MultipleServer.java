@@ -5,13 +5,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collections;
-
 public class MultipleServer {
-    private static final File file = new File("servers.json");
+    private static final LibFiles.VFile vFile = LibFiles.VFile.SERVERS;
 
     /**
      * VCSpeakerの対象サーバに追加します。
@@ -159,14 +154,7 @@ public class MultipleServer {
     }
 
     private static JSONObject getData() {
-        if (!file.exists()) {
-            return new JSONObject();
-        }
-        try {
-            return new JSONObject(Files.readString(file.toPath()));
-        } catch (IOException e) {
-            return new JSONObject();
-        }
+        return vFile.readJSONObject(new JSONObject());
     }
 
     private static JSONObject getServers() {
@@ -184,13 +172,7 @@ public class MultipleServer {
     }
 
     private static boolean saveData(JSONObject object) {
-        try {
-            Files.write(file.toPath(), Collections.singleton(object.toString()));
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return vFile.write(object);
     }
 
 }
