@@ -170,7 +170,8 @@ public class LibFiles {
         VOICETEXT_CACHES("voicetext-caches"),
         VISION_API_TEMP("vision-api", "temp"),
         VISION_API_CACHES("vision-api", "caches"),
-        VISION_API_RESULTS("vision-api", "results");
+        VISION_API_RESULTS("vision-api", "results"),
+        START_NOTIFY_IDS("start-notify-ids");
 
         private final Path path;
 
