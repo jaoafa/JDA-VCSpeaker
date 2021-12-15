@@ -18,7 +18,7 @@ import java.util.Collections;
  * <p>
  * If it has been less than one hour since the last notification, no notification will be given.
  */
-public class Event_GeneralNotify extends ListenerAdapter {
+public class Event_StartNotify extends ListenerAdapter {
     long lastNotificationTime = 0L;
 
     @Override
