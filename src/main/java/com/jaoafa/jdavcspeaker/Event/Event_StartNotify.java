@@ -19,8 +19,6 @@ import java.nio.file.Path;
  * If it has been less than one hour since the last notification, no notification will be given.
  */
 public class Event_StartNotify extends ListenerAdapter {
-    long lastNotificationTime = 0L;
-
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         Guild guild = event.getGuild();
@@ -60,15 +58,16 @@ public class Event_StartNotify extends ListenerAdapter {
             return;
         }
 
-        if (lastNotificationTime >= System.currentTimeMillis() - 3600 * 1000) {
-            // 最後の通知が1時間以内
-            return;
-        }
-        lastNotificationTime = System.currentTimeMillis();
-
         LibFiles.VDirectory.START_NOTIFY_IDS.mkdirs();
         if (LibFiles.VDirectory.START_NOTIFY_IDS.exists(Path.of(guild.getId()))) {
             JSONObject object = LibFiles.VDirectory.START_NOTIFY_IDS.readJSONObject(Path.of(guild.getId()), new JSONObject());
+
+            long lastNotificationTime = object.optLong("lastNotificationTime");
+            if (lastNotificationTime >= System.currentTimeMillis() - 3600 * 1000) {
+                // 最後の通知が1時間以内
+                return;
+            }
+
             String last_notify_id = object.optString("messageId");
             if (last_notify_id != null) {
                 //noinspection ResultOfMethodCallIgnored
@@ -82,7 +81,9 @@ public class Event_StartNotify extends ListenerAdapter {
             .setColor(LibEmbedColor.normal);
         MultipleServer.getNotifyChannel(guild).sendMessageEmbeds(embed.build()).queue(
             message -> {
-                boolean bool = LibFiles.VDirectory.START_NOTIFY_IDS.writeFile(Path.of(guild.getId()), new JSONObject().put("messageId", message.getId()));
+                boolean bool = LibFiles.VDirectory.START_NOTIFY_IDS.writeFile(Path.of(guild.getId()), new JSONObject()
+                    .put("messageId", message.getId())
+                    .put("lastNotificationTime", System.currentTimeMillis()));
                 if (!bool) {
                     new LibFlow("startNotify")
                         .error("START_NOTIFY_IDS.writeFile: Failed");
