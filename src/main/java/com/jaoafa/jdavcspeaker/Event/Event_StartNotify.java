@@ -1,17 +1,17 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.LibFiles;
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.json.JSONObject;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
 
 /**
  * In Guild's all VCs except for the AFK channel, if there is no user except Bot, and someone joins the VC (except for move)
@@ -23,20 +23,24 @@ public class Event_StartNotify extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (!MultipleServer.isTargetServer(event.getGuild())) {
+        Guild guild = event.getGuild();
+        if (!MultipleServer.isTargetServer(guild)) {
             return;
         }
         if (event.getMember().getUser().isBot()) {
             return;
         }
-        if (MultipleServer.getVCChannel(event.getGuild()) == null) {
+        if (MultipleServer.getVCChannel(guild) == null) {
             return;
         }
-        if (event.getGuild().getIdLong() != MultipleServer.getVCChannel(event.getGuild()).getGuild().getIdLong()) {
+        if (guild.getIdLong() != MultipleServer.getVCChannel(guild).getGuild().getIdLong()) {
             return; // テキストチャンネルとGuildが違ったらreturn
         }
+        if (MultipleServer.getNotifyChannel(guild) == null) {
+            return; // 通知チャンネル(#generalとか)が未定義だったらreturn
+        }
 
-        boolean isExistsJoinedChannel = event.getGuild().getVoiceChannels().stream()
+        boolean isExistsJoinedChannel = guild.getVoiceChannels().stream()
             .filter(vc -> vc.getGuild().getAfkChannel() != null && // AFKチャンネルが定義されているうえで
                 vc.getIdLong() != vc.getGuild().getAfkChannel().getIdLong()) // AFKチャンネル以外であり
             .filter(vc -> vc.getIdLong() != event.getChannelJoined().getIdLong()) // 今回参加されたチャンネル以外であり
@@ -62,15 +66,13 @@ public class Event_StartNotify extends ListenerAdapter {
         }
         lastNotificationTime = System.currentTimeMillis();
 
-        Path notify_id_path = Paths.get("last-notify-id");
-
-        if (Files.exists(notify_id_path)) {
-            try {
-                String last_notify_id = Files.readString(notify_id_path);
+        LibFiles.VDirectory.START_NOTIFY_IDS.mkdirs();
+        if (LibFiles.VDirectory.START_NOTIFY_IDS.exists(Path.of(guild.getId()))) {
+            JSONObject object = LibFiles.VDirectory.START_NOTIFY_IDS.readJSONObject(Path.of(guild.getId()), new JSONObject());
+            String last_notify_id = object.optString("messageId");
+            if (last_notify_id != null) {
                 //noinspection ResultOfMethodCallIgnored
-                MultipleServer.getNotifyChannel(event.getGuild()).retrieveMessageById(last_notify_id).queue(Message::delete);
-            } catch (IOException e) {
-                e.printStackTrace();
+                MultipleServer.getNotifyChannel(guild).retrieveMessageById(last_notify_id).queue(Message::delete);
             }
         }
 
@@ -78,12 +80,12 @@ public class Event_StartNotify extends ListenerAdapter {
             .setTitle(":inbox_tray: 会話が始まりました！")
             .setDescription("%s が <#%s> に参加しました。".formatted(event.getMember().getAsMention(), event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.normal);
-        MultipleServer.getNotifyChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue(
+        MultipleServer.getNotifyChannel(guild).sendMessageEmbeds(embed.build()).queue(
             message -> {
-                try {
-                    Files.write(notify_id_path, Collections.singleton(message.getId()));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                boolean bool = LibFiles.VDirectory.START_NOTIFY_IDS.writeFile(Path.of(guild.getId()), new JSONObject().put("messageId", message.getId()));
+                if (!bool) {
+                    new LibFlow("startNotify")
+                        .error("START_NOTIFY_IDS.writeFile: Failed");
                 }
             }
         );
