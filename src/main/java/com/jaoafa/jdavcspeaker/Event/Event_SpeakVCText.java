@@ -7,13 +7,14 @@ import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.htmlparser.jericho.Source;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -34,12 +35,12 @@ public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
         final JDA jda = event.getJDA();
-        final TextChannel channel = event.getTextChannel();
+        final TextChannel channel = event.getChannel();
         final Message message = event.getMessage();
         if (channel.getIdLong() != MultipleServer.getVCChannelId(event.getGuild())) {
             return; // VCテキストチャンネル以外からのメッセージ
