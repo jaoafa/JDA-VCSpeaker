@@ -149,7 +149,6 @@ public class Main extends ListenerAdapter {
 
                 TextChannel channel = LibValue.jda.getTextChannelById(921841152355864586L);
                 if (channel != null) {
-                    System.out.println("if(LibValue.errorReportChannel != null){");
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
