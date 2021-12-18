@@ -51,7 +51,7 @@ public class Main extends ListenerAdapter {
     static final String prefix = "/";
     static VCSpeakerArgs args;
 
-    public static void main(String[] _args) {
+    public static void main(String[] _args) throws IOException {
         args = new VCSpeakerArgs();
         CmdLineParser parser = new CmdLineParser(args);
         try {
@@ -128,6 +128,25 @@ public class Main extends ListenerAdapter {
             return;
         }
 
+        if (tokenConfig.has("rollbar")) {
+            LibValue.rollbar = Rollbar.init(ConfigBuilder
+                .withAccessToken(tokenConfig.getString("rollbar"))
+                .environment(getLocalHostName())
+                .codeVersion(getGitHash())
+                .handleUncaughtErrors(false)
+                .build());
+
+            final Thread.UncaughtExceptionHandler prevHandler =
+                Thread.getDefaultUncaughtExceptionHandler();
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+                e.printStackTrace();
+                LibValue.rollbar.critical(e);
+
+                if (prevHandler != null)
+                    prevHandler.uncaughtException(t, e);
+            });
+        }
+
         copyExternalScripts();
 
         //Task: Token,JDA設定
@@ -181,15 +200,6 @@ public class Main extends ListenerAdapter {
                 new LibReporter(null, e);
                 visionAPI = null;
             }
-        }
-
-        if (tokenConfig.has("rollbar")) {
-            LibValue.rollbar = Rollbar.init(ConfigBuilder
-                .withAccessToken(tokenConfig.getString("rollbar"))
-                .environment(getLocalHostName())
-                .codeVersion(getGitHash())
-                .build());
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> LibValue.rollbar.critical(e));
         }
 
         try {
