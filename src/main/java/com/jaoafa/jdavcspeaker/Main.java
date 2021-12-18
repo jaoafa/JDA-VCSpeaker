@@ -56,7 +56,7 @@ public class Main extends ListenerAdapter {
     static final String prefix = "/";
     static VCSpeakerArgs args;
 
-    public static void main(String[] _args) throws IOException {
+    public static void main(String[] _args) {
         args = new VCSpeakerArgs();
         CmdLineParser parser = new CmdLineParser(args);
         try {
