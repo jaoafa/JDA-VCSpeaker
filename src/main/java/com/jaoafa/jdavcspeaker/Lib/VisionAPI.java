@@ -141,8 +141,8 @@ public class VisionAPI {
                     // width: 右上[1] - 左上[0]
                     // height: 左下[3] - 左上[0]
                     JSONArray vertices = result.getJSONObject("boundingPoly").getJSONArray("vertices");
-                    int width = vertices.getInt(1) - vertices.getInt(0);
-                    int height = vertices.getInt(3) - vertices.getInt(0);
+                    int width = vertices.getJSONObject(1).getInt("x") - vertices.getJSONObject(0).getInt("x");
+                    int height = vertices.getJSONObject(3).getInt("y") - vertices.getJSONObject(0).getInt("y");
                     ret.add(new Result(result.getString("description"), width + height, ResultType.TEXT_DETECTION));
                 }
             }
