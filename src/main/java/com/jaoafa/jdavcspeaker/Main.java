@@ -10,9 +10,11 @@ import com.jaoafa.jdavcspeaker.Framework.FunctionHooker;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.rollbar.notifier.Rollbar;
 import com.rollbar.notifier.config.ConfigBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -30,12 +32,15 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -128,6 +133,44 @@ public class Main extends ListenerAdapter {
             return;
         }
 
+        if (tokenConfig.has("rollbar")) {
+            LibValue.rollbar = Rollbar.init(ConfigBuilder
+                .withAccessToken(tokenConfig.getString("rollbar"))
+                .environment(getLocalHostName())
+                .codeVersion(getGitHash())
+                .handleUncaughtErrors(false)
+                .build());
+
+            final Thread.UncaughtExceptionHandler prevHandler =
+                Thread.getDefaultUncaughtExceptionHandler();
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+                e.printStackTrace();
+                LibValue.rollbar.critical(e);
+
+                TextChannel channel = LibValue.jda.getTextChannelById(921841152355864586L);
+                if (channel != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    pw.flush();
+                    String details = sw.toString();
+                    InputStream is = new ByteArrayInputStream(details.getBytes(StandardCharsets.UTF_8));
+                    channel.sendMessageEmbeds(new EmbedBuilder()
+                            .setTitle("JDA-VCSpeaker Error Reporter")
+                            .addField("Summary", String.format("%s (%s)", e.getMessage(), e.getClass().getName()), false)
+                            .addField("Details", details.substring(0, 1000), false)
+                            .addField("Thread Name", t.getName(), false)
+                            .setColor(Color.RED)
+                            .build())
+                        .addFile(is, "stacktrace.txt")
+                        .queue();
+                }
+
+                if (prevHandler != null)
+                    prevHandler.uncaughtException(t, e);
+            });
+        }
+
         copyExternalScripts();
 
         //Task: Token,JDA設定
@@ -181,15 +224,6 @@ public class Main extends ListenerAdapter {
                 new LibReporter(null, e);
                 visionAPI = null;
             }
-        }
-
-        if (tokenConfig.has("rollbar")) {
-            LibValue.rollbar = Rollbar.init(ConfigBuilder
-                .withAccessToken(tokenConfig.getString("rollbar"))
-                .environment(getLocalHostName())
-                .codeVersion(getGitHash())
-                .build());
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> LibValue.rollbar.critical(e));
         }
 
         try {
