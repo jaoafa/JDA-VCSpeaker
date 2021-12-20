@@ -10,8 +10,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
-
 public class AutoJoin extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
@@ -37,7 +35,7 @@ public class AutoJoin extends ListenerAdapter {
         new LibFlow("AutoJoin").success("自動接続しました: %s", event.getChannelJoined().getName());
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle(":white_check_mark: AutoJoin")
-            .setDescription(MessageFormat.format("<#{0}> に接続しました。", event.getChannelJoined().getId()))
+            .setDescription("<#%s> に接続しました。".formatted(event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.success);
         MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
     }

@@ -11,12 +11,11 @@ public class VCSpeakerArgs {
             help = true)
     public boolean isHelp;
 
-    @SuppressWarnings("CanBeFinal")
     @Option(name = "--config-file",
             aliases = "-f",
             metaVar = "FILEPATH",
             usage = "設定ファイルのパス")
-    public File configPath = new File("VCSpeaker.json");
+    public File configPath = LibFiles.VFile.CONFIG.getPath().toFile();
 
     @Option(name = "--only-remove-cmd",
             usage = "すべてのスラッシュコマンドの登録を解除")

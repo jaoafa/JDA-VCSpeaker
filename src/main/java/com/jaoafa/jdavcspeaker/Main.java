@@ -10,9 +10,11 @@ import com.jaoafa.jdavcspeaker.Framework.FunctionHooker;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.rollbar.notifier.Rollbar;
 import com.rollbar.notifier.config.ConfigBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -30,12 +32,15 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import javax.security.auth.login.LoginException;
+import java.awt.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -72,6 +77,8 @@ public class Main extends ListenerAdapter {
             parser.printUsage(System.out);
             return;
         }
+
+        LibFiles.moveDirFiles();
 
         LibFlow setupFlow = new LibFlow("Setup");
         setupFlow.header("VCSpeaker Starting");
@@ -124,6 +131,44 @@ public class Main extends ListenerAdapter {
         if (args.isOnlyRemoveCmd) {
             removeCommands(tokenConfig);
             return;
+        }
+
+        if (tokenConfig.has("rollbar")) {
+            LibValue.rollbar = Rollbar.init(ConfigBuilder
+                .withAccessToken(tokenConfig.getString("rollbar"))
+                .environment(getLocalHostName())
+                .codeVersion(getGitHash())
+                .handleUncaughtErrors(false)
+                .build());
+
+            final Thread.UncaughtExceptionHandler prevHandler =
+                Thread.getDefaultUncaughtExceptionHandler();
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+                e.printStackTrace();
+                LibValue.rollbar.critical(e);
+
+                TextChannel channel = LibValue.jda.getTextChannelById(921841152355864586L);
+                if (channel != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    pw.flush();
+                    String details = sw.toString();
+                    InputStream is = new ByteArrayInputStream(details.getBytes(StandardCharsets.UTF_8));
+                    channel.sendMessageEmbeds(new EmbedBuilder()
+                            .setTitle("JDA-VCSpeaker Error Reporter")
+                            .addField("Summary", String.format("%s (%s)", e.getMessage(), e.getClass().getName()), false)
+                            .addField("Details", details.substring(0, 1000), false)
+                            .addField("Thread Name", t.getName(), false)
+                            .setColor(Color.RED)
+                            .build())
+                        .addFile(is, "stacktrace.txt")
+                        .queue();
+                }
+
+                if (prevHandler != null)
+                    prevHandler.uncaughtException(t, e);
+            });
         }
 
         copyExternalScripts();
@@ -181,17 +226,8 @@ public class Main extends ListenerAdapter {
             }
         }
 
-        if (tokenConfig.has("rollbar")) {
-            LibValue.rollbar = Rollbar.init(ConfigBuilder
-                .withAccessToken(tokenConfig.getString("rollbar"))
-                .environment(getLocalHostName())
-                .codeVersion(getGitHash())
-                .build());
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> LibValue.rollbar.critical(e));
-        }
-
         try {
-            libTitle = new LibTitle("./title.json");
+            libTitle = new LibTitle();
         } catch (Exception e) {
             setupFlow.error("タイトル設定の読み込みに失敗しました。関連機能は動作しません。");
             new LibReporter(null, e);
@@ -200,14 +236,14 @@ public class Main extends ListenerAdapter {
         }
 
         //Task: 一時ファイル消去
-        if (new File("tmp").exists()) {
-            try (Stream<Path> walk = Files.walk(new File("tmp").toPath(), FileVisitOption.FOLLOW_LINKS)) {
+        if (LibFiles.VDirectory.VISION_API_TEMP.exists()) {
+            try (Stream<Path> walk = Files.walk(LibFiles.VDirectory.VISION_API_TEMP.getPath(), FileVisitOption.FOLLOW_LINKS)) {
                 List<File> missDeletes = walk.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .filter(f -> !f.delete())
-                    .collect(Collectors.toList());
+                    .toList();
                 if (missDeletes.size() != 0) {
-                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイル(./tmp/)の削除に失敗しました。");
+                    new LibFlow("RemoveTempFiles").error(missDeletes.size() + "個のテンポラリファイルの削除に失敗しました。");
                 }
             } catch (IOException ie) {
                 ie.printStackTrace();
@@ -216,24 +252,26 @@ public class Main extends ListenerAdapter {
 
         //Task: Devのコマンド削除
         try {
-            JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
-            devJda.getGuilds().forEach(
-                guild -> guild.retrieveCommands().queue(
-                    cmds -> cmds.forEach(cmd -> cmd.delete().queue(
-                        unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
-                    ))
-                )
-            );
+            if (tokenConfig.has("VCSDev")) {
+                JDA devJda = JDABuilder.createDefault(tokenConfig.getString("VCSDev")).build().awaitReady();
+                devJda.getGuilds().forEach(
+                    guild -> guild.retrieveCommands().queue(
+                        cmds -> cmds.forEach(cmd -> cmd.delete().queue(
+                            unused -> new LibFlow("RemoveDevCmd").success("%s から %s コマンドを登録解除しました。", guild.getName(), cmd.getName())
+                        ))
+                    )
+                );
 
-            new Timer(false).schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        devJda.shutdown();
-                    }
-                },
-                180000
-            );
+                new Timer(false).schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            devJda.shutdown();
+                        }
+                    },
+                    180000
+                );
+            }
         } catch (InterruptedException | LoginException e) {
             new LibReporter(null, e);
         }
@@ -327,8 +365,9 @@ public class Main extends ListenerAdapter {
     }
 
     static void copyExternalScripts() {
-        String srcDirName = "external_scripts";
-        File destDir = new File("external_scripts/");
+        LibFiles.VDirectory vDir = LibFiles.VDirectory.EXTERNAL_SCRIPTS;
+        String srcDirName = vDir.getPath().toString();
+        File destDir = vDir.getPath().toFile();
 
         final File jarFile = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
@@ -381,13 +420,6 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        File newdir = new File("./Temp");
-        if (!newdir.exists()) {
-            boolean bool = newdir.mkdir();
-            if (!bool) {
-                new LibFlow("RemoveTempDir").error("テンポラリディレクトリ(./Temp/)の削除に失敗しました。");
-            }
-        }
         LibValue.jda = event.getJDA();
         LibAlias.fetchMap();
         LibIgnore.fetchMap();

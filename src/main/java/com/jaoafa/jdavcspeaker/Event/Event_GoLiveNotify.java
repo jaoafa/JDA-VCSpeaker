@@ -10,8 +10,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceStreamEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
-
 public class Event_GoLiveNotify extends ListenerAdapter {
     @Override
     public void onGuildVoiceStream(@NotNull GuildVoiceStreamEvent event) {
@@ -35,17 +33,17 @@ public class Event_GoLiveNotify extends ListenerAdapter {
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
 
         String text = isStream ?
-            MessageFormat.format(":satellite: `{0}` が <#{1}> でGoLiveを開始しました。",
+            ":satellite: `%s` が <#%s> でGoLiveを開始しました。".formatted(
                 member.getUser().getName(),
                 channel.getId()) :
-            MessageFormat.format(":satellite: `{0}` が <#{1}> でGoLiveを終了しました。",
+            ":satellite: `%s` が <#%s> でGoLiveを終了しました。".formatted(
                 member.getUser().getName(),
                 channel.getId());
 
         String speakText = isStream ?
-            MessageFormat.format("{0}がGoLiveを開始しました。",
+            "%sがGoLiveを開始しました。".formatted(
                 member.getUser().getName()) :
-            MessageFormat.format("{0}がGoLiveを終了しました。",
+            "%sがGoLiveを終了しました。".formatted(
                 member.getUser().getName());
 
         MultipleServer

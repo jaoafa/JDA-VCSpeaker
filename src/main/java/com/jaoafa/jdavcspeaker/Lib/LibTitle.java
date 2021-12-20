@@ -5,18 +5,13 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-
 public class LibTitle {
     @Nullable
-    public JSONObject titleSetting = new JSONObject();
+    public JSONObject titleSetting;
+    private final LibFiles.VFile vFile = LibFiles.VFile.TITLE;
 
-    public LibTitle(String path) throws Exception {
-        if (!new File(path).exists()) {
-            return;
-        }
-        titleSetting = LibJson.readObject(path);
+    public LibTitle() {
+        titleSetting = vFile.readJSONObject(new JSONObject());
     }
 
     /**
@@ -233,10 +228,11 @@ public class LibTitle {
 
     void saveSetting(JSONObject object) {
         titleSetting = object;
-        try {
-            LibJson.writeObject("./title.json", object);
-        } catch (IOException e) {
-            e.printStackTrace();
+        boolean bool = vFile.write(object);
+        if (!bool) {
+            new LibFlow("Title")
+                .error("Failed to save title setting.");
         }
+
     }
 }

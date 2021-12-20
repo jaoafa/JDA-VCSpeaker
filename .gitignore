@@ -5,6 +5,7 @@
 *.iml
 
 VCSpeaker.json
+config.json
 target/*
 speak.wav
 
@@ -20,3 +21,6 @@ servers.json
 vision-api.json
 
 ignore.json
+
+settings/*
+!settings/.gitkeep

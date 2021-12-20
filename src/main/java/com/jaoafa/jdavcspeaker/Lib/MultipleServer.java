@@ -3,15 +3,13 @@ package com.jaoafa.jdavcspeaker.Lib;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collections;
+import javax.annotation.Nullable;
 
 public class MultipleServer {
-    private static final File file = new File("servers.json");
+    private static final LibFiles.VFile vFile = LibFiles.VFile.SERVERS;
 
     /**
      * VCSpeakerの対象サーバに追加します。
@@ -143,8 +141,15 @@ public class MultipleServer {
      *
      * @return サーバの通知チャンネル
      */
+    @Nullable
     public static TextChannel getNotifyChannel(Guild guild) {
-        return LibValue.jda.getTextChannelById(getNotifyChannelId(guild));
+        long guild_id;
+        try {
+            guild_id = getNotifyChannelId(guild);
+        } catch (JSONException e) {
+            return null;
+        }
+        return LibValue.jda.getTextChannelById(guild_id);
     }
 
     /**
@@ -159,14 +164,7 @@ public class MultipleServer {
     }
 
     private static JSONObject getData() {
-        if (!file.exists()) {
-            return new JSONObject();
-        }
-        try {
-            return new JSONObject(Files.readString(file.toPath()));
-        } catch (IOException e) {
-            return new JSONObject();
-        }
+        return vFile.readJSONObject(new JSONObject());
     }
 
     private static JSONObject getServers() {
@@ -184,13 +182,7 @@ public class MultipleServer {
     }
 
     private static boolean saveData(JSONObject object) {
-        try {
-            Files.write(file.toPath(), Collections.singleton(object.toString()));
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return vFile.write(object);
     }
 
 }

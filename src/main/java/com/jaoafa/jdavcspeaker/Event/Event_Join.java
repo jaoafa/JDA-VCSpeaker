@@ -11,8 +11,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
-
 public class Event_Join extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
@@ -30,7 +28,7 @@ public class Event_Join extends ListenerAdapter {
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())
-            .sendMessage(MessageFormat.format(":inbox_tray: `{0}` が <#{1}> に参加しました。",
+            .sendMessage(":inbox_tray: `%s` が <#%s> に参加しました。".formatted(
                 user.getName(),
                 channel.getId()))
             .queue(
@@ -40,7 +38,7 @@ public class Event_Join extends ListenerAdapter {
                             .play(
                                 TrackInfo.SpeakFromType.JOINED_VC,
                                 message,
-                                MessageFormat.format("{0}が{1}に参加しました。",
+                                "%sが%sに参加しました。".formatted(
                                     user.getName(),
                                     MsgFormatter.formatChannelName(channel))
                             );

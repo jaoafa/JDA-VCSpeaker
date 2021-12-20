@@ -2,56 +2,44 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
-
 public class LibIgnore {
+    private static final LibFiles.VFile vFile = LibFiles.VFile.IGNORE;
+
     public static void fetchMap() {
         LibFlow ignoreFlow = new LibFlow("LibIgnore");
-        File ignoreConfig = new File("./ignore.json");
         //存在しない場合に作成
-        if (!ignoreConfig.exists()) {
-            try {
-                Files.write(Paths.get("ignore.json"), Collections.singleton(new JSONObject().toString()));
-                ignoreFlow.success("ignore.json ファイルの作成に成功しました。");
-            } catch (IOException e) {
-                ignoreFlow.error("ignore.json ファイルの作成に失敗しました。");
-                e.printStackTrace();
+        if (!vFile.exists()) {
+            boolean bool = vFile.write(new JSONObject());
+            if (bool) {
+                ignoreFlow.success("除外ファイルの作成に成功しました。");
+            } else {
+                ignoreFlow.error("除外ファイルの作成に失敗しました。");
             }
         }
 
         LibValue.ignoreContains.clear();
         LibValue.ignoreEquals.clear();
 
-        try {
-            JSONObject obj = new JSONObject(Files.readString(Paths.get("ignore.json")));
-
-            for (int i = 0; i < obj.getJSONArray("contain").length(); i++) {
-                LibValue.ignoreContains.add(obj.getJSONArray("contain").getString(i));
-            }
-            for (int i = 0; i < obj.getJSONArray("equal").length(); i++) {
-                LibValue.ignoreEquals.add(obj.getJSONArray("equal").getString(i));
-            }
-            ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(LibValue.ignoreContains.size(), LibValue.ignoreEquals.size()));
-        } catch (IOException e) {
-            ignoreFlow.error("除外設定のロード中にエラーが発生しました。");
-            new LibReporter(null, e);
-            e.printStackTrace();
+        JSONObject obj = vFile.readJSONObject();
+        if (obj == null) {
+            ignoreFlow.error("除外ファイルの読み込みに失敗しました。");
+            return;
         }
+
+        for (int i = 0; i < obj.getJSONArray("contain").length(); i++) {
+            LibValue.ignoreContains.add(obj.getJSONArray("contain").getString(i));
+        }
+        for (int i = 0; i < obj.getJSONArray("equal").length(); i++) {
+            LibValue.ignoreEquals.add(obj.getJSONArray("equal").getString(i));
+        }
+        ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(LibValue.ignoreContains.size(), LibValue.ignoreEquals.size()));
     }
 
     public static void saveJson() {
         JSONObject obj = new JSONObject();
         obj.put("contain", LibValue.ignoreContains);
         obj.put("equal", LibValue.ignoreEquals);
-        try {
-            Files.write(Paths.get("ignore.json"), Collections.singleton(obj.toString()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        vFile.write(obj);
     }
 
     public static void addToContainIgnore(String value) {

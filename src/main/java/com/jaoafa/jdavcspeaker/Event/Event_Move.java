@@ -12,8 +12,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
-
 public class Event_Move extends ListenerAdapter {
     @Override
     public void onGuildVoiceMove(@NotNull GuildVoiceMoveEvent event) {
@@ -36,7 +34,7 @@ public class Event_Move extends ListenerAdapter {
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())
-            .sendMessage(MessageFormat.format(":twisted_rightwards_arrows: `{0}` が <#{1}> から <#{2}> に移動しました。",
+            .sendMessage(":twisted_rightwards_arrows: `%s` が <#%s> から <#%s> に移動しました。".formatted(
                 user.getName(),
                 oldChannel.getId(),
                 newChannel.getId()))
@@ -46,7 +44,7 @@ public class Event_Move extends ListenerAdapter {
                         new VoiceText().play(
                             TrackInfo.SpeakFromType.MOVED_VC,
                             message,
-                            MessageFormat.format("{0}が{1}から{2}に移動しました。",
+                            "%sが%sから%sに移動しました。".formatted(
                                 user.getName(),
                                 MsgFormatter.formatChannelName(oldChannel),
                                 MsgFormatter.formatChannelName(newChannel))
