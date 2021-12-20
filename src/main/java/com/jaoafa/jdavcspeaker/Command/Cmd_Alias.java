@@ -67,7 +67,7 @@ public class Cmd_Alias implements CmdSubstrate {
                 .setTitle(":no_entry_sign: 不正な正規表現です！")
                 .setDescription("```\n" + e.getMessage() + "\n```")
                 .setColor(LibEmbedColor.error)
-                .build()).complete();
+                .build()).queue();
             return;
         }
         LibAlias.addToAlias(from, to);
