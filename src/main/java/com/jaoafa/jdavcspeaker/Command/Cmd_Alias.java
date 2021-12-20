@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class Cmd_Alias implements CmdSubstrate {
@@ -59,7 +60,16 @@ public class Cmd_Alias implements CmdSubstrate {
     void addAlias(SlashCommandEvent event, User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
         String to = Main.getExistsOption(event, "to").getAsString();
-
+        try {
+            Pattern.compile(from);
+        } catch (PatternSyntaxException e) {
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":no_entry_sign: 不正な正規表現です！")
+                .setDescription("```\n" + e.getMessage() + "\n```")
+                .setColor(LibEmbedColor.error)
+                .build()).queue();
+            return;
+        }
         LibAlias.addToAlias(from, to);
 
         cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
