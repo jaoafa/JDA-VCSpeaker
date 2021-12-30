@@ -33,9 +33,13 @@ public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
     final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
+    final Pattern channelReplyPattern = Pattern.compile("<#([0-9]+)>");
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.TEXT)) {
+            return;
+        }
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
@@ -97,6 +101,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
         speakContent = replacerLink(jda, speakContent);
         // Spoiler
         speakContent = replacerSpoiler(speakContent);
+        // Thread reply
+        speakContent = replacerChannelThreadLink(jda, speakContent);
         // Emphasize
         boolean isEmphasize = isEmphasizeMessage(speakContent);
         if (isEmphasize) {
@@ -173,6 +179,23 @@ public class Event_SpeakVCText extends ListenerAdapter {
         }
     }
 
+    /**
+     * チャンネルIDをもとに、チャンネルまたはスレッドを取得します<br>
+     * VCSpeakerが参加しているテキストチャンネルとスレッドに対応しますが、アーカイブされているスレッドには対応していません。
+     *
+     * @param jda       JDA
+     * @param channelId チャンネルID (or スレッドID)
+     *
+     * @return メッセージ、見つからなければnull
+     */
+    MessageChannel getChannelOrThread(JDA jda, String channelId) {
+        TextChannel channel = jda.getTextChannelById(channelId);
+        if (channel != null) {
+            return channel;
+        }
+        return jda.getThreadChannelById(channelId);
+    }
+
     String replacerLink(JDA jda, String content) {
         Matcher m = urlPattern.matcher(content);
         while (m.find()) {
@@ -183,14 +206,21 @@ public class Event_SpeakVCText extends ListenerAdapter {
             if (msgUrlMatcher.find()) {
                 String channelId = msgUrlMatcher.group(2);
                 String messageId = msgUrlMatcher.group(3);
-                TextChannel channel = jda.getTextChannelById(channelId);
+
+                MessageChannel channel = getChannelOrThread(jda, channelId);
                 if (channel == null) continue;
                 Message message = channel.retrieveMessageById(messageId).complete();
                 if (message == null) continue;
 
+                channel = message.getChannel();
+                String channelName = "チャンネル「" + channel.getName() + "」";
+                if (channel instanceof ThreadChannel) {
+                    channelName = "チャンネル「" + ((ThreadChannel) channel).getParentChannel().getName() + "」のスレッド「" + channel.getName() + "」";
+                }
+
                 content = content.replace(url, "%sが%sで送信したメッセージのリンク".formatted(
                     message.getAuthor().getAsTag(),
-                    channel.getName()
+                    channelName
                 ));
                 continue;
             }
@@ -231,6 +261,19 @@ public class Event_SpeakVCText extends ListenerAdapter {
             }
         }
         return content;
+    }
+
+    String replacerChannelThreadLink(JDA jda, String content) {
+        return channelReplyPattern.matcher(content).replaceAll(result -> {
+            String channelId = result.group(1);
+            MessageChannel channel = getChannelOrThread(jda, channelId);
+            if (channel == null) return "どこかのチャンネルへのリンク";
+            String channelName = "チャンネル「" + channel.getName() + "」へのリンク";
+            if (channel instanceof ThreadChannel) {
+                channelName = "チャンネル「" + ((ThreadChannel) channel).getParentChannel().getName() + "」のスレッド「" + channel.getName() + "」へのリンク";
+            }
+            return channelName;
+        });
     }
 
     String replacerSpoiler(String content) {
