@@ -82,8 +82,8 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
         <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com</url>
+            <id>tomacheese</id>
+            <url>https://repo.tomacheese.com</url>
         </repository>
     </repositories>
 
@@ -96,14 +96,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_345</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jagrosh</groupId>
-            <artifactId>jda-utilities</artifactId>
-            <version>3.0.5</version>
-            <scope>compile</scope>
-            <type>pom</type>
+            <version>5.0.0-alpha.3</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -128,7 +121,7 @@
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-jda</artifactId>
-            <version>1.5.0</version>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -143,7 +136,7 @@
         </dependency>
         <dependency>
             <groupId>com.rollbar</groupId>
-            <version>1.8.0</version>
+            <version>1.8.1</version>
             <artifactId>rollbar-java</artifactId>
         </dependency>
         <dependency>
