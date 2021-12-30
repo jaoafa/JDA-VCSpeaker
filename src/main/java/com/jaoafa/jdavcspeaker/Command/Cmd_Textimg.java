@@ -41,10 +41,10 @@ public class Cmd_Textimg implements CmdSubstrate {
                        MessageChannel channel, ChannelType type,
                        Member member, User user,
                        SlashCommandEvent event, String subCmd) {
-        generateTextImg(event, user);
+        generateTextImg(event);
     }
 
-    void generateTextImg(SlashCommandEvent event, User user) {
+    void generateTextImg(SlashCommandEvent event) {
         if (event.getGuild() == null) {
             event.reply(":x:").queue();
             return;

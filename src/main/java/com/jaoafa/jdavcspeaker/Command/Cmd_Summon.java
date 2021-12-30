@@ -39,7 +39,7 @@ public class Cmd_Summon implements CmdSubstrate {
             return;
         }
 
-        VoiceChannel connectedChannel = member.getVoiceState().getChannel();
+        AudioChannel connectedChannel = member.getVoiceState().getChannel();
         if (connectedChannel == null) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":warning: 接続に失敗しました")

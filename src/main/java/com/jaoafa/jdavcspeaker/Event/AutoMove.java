@@ -4,7 +4,7 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -18,8 +18,8 @@ public class AutoMove extends ListenerAdapter {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
-        VoiceChannel oldChannel = event.getOldValue();
-        VoiceChannel newChannel = event.getNewValue();
+        AudioChannel oldChannel = event.getOldValue();
+        AudioChannel newChannel = event.getNewValue();
         long newUsers = newChannel.getMembers().stream()
             .filter(member -> !member.getUser().isBot())
             .count();
@@ -35,7 +35,7 @@ public class AutoMove extends ListenerAdapter {
             event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
             return; // 自身がどのVCにも参加していない
         }
-        VoiceChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
+        AudioChannel connectedChannel = event.getGuild().getSelfMember().getVoiceState().getChannel();
         long connectedUsers = newChannel.getMembers().stream()
             .filter(member -> !member.getUser().isBot())
             .count();

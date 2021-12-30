@@ -155,7 +155,7 @@ public class Cmd_Alias implements CmdSubstrate {
             .entrySet()
             .stream()
             .sorted(Comparator.<Map.Entry<String, String>>comparingInt(e -> e.getKey().length()).reversed())
-            .collect(Collectors.toList())) {
+            .toList()) {
             Pattern pattern = Pattern.compile(entry.getKey());
             Matcher matcher = pattern.matcher(text);
             while (matcher.find()) {

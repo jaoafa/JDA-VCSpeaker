@@ -7,6 +7,7 @@ import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.json.JSONObject;
@@ -69,9 +70,10 @@ public class Event_StartNotify extends ListenerAdapter {
             }
 
             String last_notify_id = object.optString("messageId");
-            if (last_notify_id != null) {
+            TextChannel channel = MultipleServer.getNotifyChannel(guild);
+            if (last_notify_id != null && channel != null) {
                 //noinspection ResultOfMethodCallIgnored
-                MultipleServer.getNotifyChannel(guild).retrieveMessageById(last_notify_id).queue(Message::delete);
+                channel.retrieveMessageById(last_notify_id).queue(Message::delete);
             }
         }
 
@@ -79,7 +81,11 @@ public class Event_StartNotify extends ListenerAdapter {
             .setTitle(":inbox_tray: 会話が始まりました！")
             .setDescription("%s が <#%s> に参加しました。".formatted(event.getMember().getAsMention(), event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.normal);
-        MultipleServer.getNotifyChannel(guild).sendMessageEmbeds(embed.build()).queue(
+        TextChannel channel = MultipleServer.getNotifyChannel(guild);
+        if (channel == null) {
+            return;
+        }
+        channel.sendMessageEmbeds(embed.build()).queue(
             message -> {
                 boolean bool = LibFiles.VDirectory.START_NOTIFY_IDS.writeFile(Path.of(guild.getId()), new JSONObject()
                     .put("messageId", message.getId())

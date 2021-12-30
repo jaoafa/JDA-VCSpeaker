@@ -1,6 +1,5 @@
 package com.jaoafa.jdavcspeaker;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jaoafa.jdavcspeaker.Event.AutoDisconnect;
 import com.jaoafa.jdavcspeaker.Event.AutoJoin;
 import com.jaoafa.jdavcspeaker.Event.AutoMove;
@@ -175,7 +174,6 @@ public class Main extends ListenerAdapter {
 
         //Task: Token,JDA設定
         speakToken = tokenConfig.getString("Speaker");
-        EventWaiter eventWaiter = new EventWaiter();
 
         JDABuilder builder = JDABuilder.createDefault(tokenConfig.getString("Discord"))
             //JDASettings
@@ -194,14 +192,10 @@ public class Main extends ListenerAdapter {
             //AutoFunction
             .addEventListeners(new AutoJoin())
             .addEventListeners(new AutoMove())
-            .addEventListeners(new AutoDisconnect())
-            //EventFunction
-            .addEventListeners(eventWaiter);
+            .addEventListeners(new AutoDisconnect());
 
         //自動登録
         new EventRegister(builder);
-        //EventWaiterを記録
-        LibValue.eventWaiter = eventWaiter;
 
         //Task: ログイン
         JDA jda;
