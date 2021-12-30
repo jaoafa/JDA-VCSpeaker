@@ -81,10 +81,6 @@
             <id>sonatype-public</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>tomacheese</id>
-            <url>https://repo.tomacheese.com</url>
-        </repository>
     </repositories>
 
     <dependencies>
