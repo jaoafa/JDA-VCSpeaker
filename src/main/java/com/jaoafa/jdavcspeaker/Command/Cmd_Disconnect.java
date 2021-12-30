@@ -39,7 +39,7 @@ public class Cmd_Disconnect implements CmdSubstrate {
             return;
         }
 
-        VoiceChannel connectedChannel = guild.getSelfMember().getVoiceState().getChannel();
+        AudioChannel connectedChannel = guild.getSelfMember().getVoiceState().getChannel();
         if (connectedChannel == null) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":x: なにかがおかしいかも？")

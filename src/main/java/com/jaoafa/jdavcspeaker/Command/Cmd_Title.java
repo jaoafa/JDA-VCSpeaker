@@ -47,7 +47,7 @@ public class Cmd_Title implements CmdSubstrate {
         }
 
         String new_title = Main.getExistsOption(event, "title").getAsString();
-        VoiceChannel targetVC = member.getVoiceState().getChannel();
+        AudioChannel targetVC = member.getVoiceState().getChannel();
 
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle == null) {

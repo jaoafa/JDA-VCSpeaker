@@ -6,8 +6,8 @@ import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class Event_Disconnect extends ListenerAdapter {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
-        VoiceChannel vc = event.getChannelLeft();
+        AudioChannel vc = event.getChannelLeft();
 
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle != null) {
@@ -32,7 +32,7 @@ public class Event_Disconnect extends ListenerAdapter {
         }
 
         User user = event.getMember().getUser();
-        VoiceChannel channel = event.getChannelLeft();
+        AudioChannel channel = event.getChannelLeft();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())

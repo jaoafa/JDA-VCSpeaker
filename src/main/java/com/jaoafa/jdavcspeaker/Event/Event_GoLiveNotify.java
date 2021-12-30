@@ -4,8 +4,8 @@ import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceStreamEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ public class Event_GoLiveNotify extends ListenerAdapter {
         }
         boolean isStream = event.isStream();
         Member member = event.getMember();
-        VoiceChannel channel = event.getVoiceState().getChannel();
+        AudioChannel channel = event.getVoiceState().getChannel();
         if (channel == null) {
             return;
         }

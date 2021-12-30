@@ -6,8 +6,8 @@ import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +22,8 @@ public class Event_Move extends ListenerAdapter {
             return;
         }
 
-        VoiceChannel oldChannel = event.getOldValue();
-        VoiceChannel newChannel = event.getNewValue();
+        AudioChannel oldChannel = event.getOldValue();
+        AudioChannel newChannel = event.getNewValue();
 
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle != null) {

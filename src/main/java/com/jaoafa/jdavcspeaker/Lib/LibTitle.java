@@ -1,5 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +22,7 @@ public class LibTitle {
      *
      * @return 存在するか
      */
-    public boolean existsTitle(VoiceChannel channel) {
+    public boolean existsTitle(AudioChannel channel) {
         if (titleSetting == null) return false;
         return titleSetting.has(channel.getId());
     }
@@ -33,7 +34,7 @@ public class LibTitle {
      *
      * @return 存在するか
      */
-    public boolean isModifiedTitle(VoiceChannel channel) {
+    public boolean isModifiedTitle(AudioChannel channel) {
         if (titleSetting == null) return false;
         if (!titleSetting.has(channel.getId())) return false;
         return titleSetting.getJSONObject(channel.getId()).getBoolean("modified");
@@ -46,7 +47,7 @@ public class LibTitle {
      *
      * @return 同じかどうか
      */
-    public Boolean checkTitleIsSame(VoiceChannel channel) {
+    public Boolean checkTitleIsSame(AudioChannel channel) {
         if (titleSetting == null) return false;
         if (!titleSetting.has(channel.getId())) return false;
         String original_title = getOriginalTitle(channel);
@@ -79,7 +80,7 @@ public class LibTitle {
      * @return 設定中のオリジナルVCタイトル
      */
     @Nullable
-    public String getOriginalTitle(VoiceChannel channel) {
+    public String getOriginalTitle(AudioChannel channel) {
         if (titleSetting == null) return null;
         if (!titleSetting.has(channel.getId())) return null;
         return titleSetting.getJSONObject(channel.getId()).getString("original");
@@ -93,7 +94,7 @@ public class LibTitle {
      *
      * @return 成功したか
      */
-    public boolean setTitle(VoiceChannel channel, String name) {
+    public boolean setTitle(AudioChannel channel, String name) {
         if (titleSetting == null) return false;
         // もし登録されてなかったら弾く
         if (!titleSetting.has(channel.getId())) {
@@ -134,7 +135,7 @@ public class LibTitle {
      *
      * @param channel 対象チャンネル
      */
-    public void restoreTitle(VoiceChannel channel) {
+    public void restoreTitle(AudioChannel channel) {
         if (titleSetting == null) return;
         //もし登録されてなかったら弾く
         if (!titleSetting.has(channel.getId())) {
@@ -190,7 +191,7 @@ public class LibTitle {
      *
      * @return 成功したか
      */
-    public boolean saveAsOriginal(VoiceChannel channel) {
+    public boolean saveAsOriginal(AudioChannel channel) {
         if (titleSetting == null) return false;
         if (titleSetting.has(channel.getId())) {
             saveSetting(
@@ -211,7 +212,7 @@ public class LibTitle {
      *
      * @param vc 対象のチャンネル
      */
-    public void processLeftTitle(VoiceChannel vc) {
+    public void processLeftTitle(AudioChannel vc) {
         long nonBotUsers = vc
             .getMembers()
             .stream()
