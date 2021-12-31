@@ -192,17 +192,11 @@ public class VisionAPI {
     }
 
     public void saveCache(String hash, List<Result> results, JSONObject raw_object) throws IOException {
-        File file = new File("vision-api-caches", hash);
-        if (!file.getParentFile().exists()) {
-            boolean bool = file.getParentFile().mkdirs();
-            System.out.println("Created vision-api-caches directory. (" + (bool ? "successful" : "failed") + ")");
-        }
+        Path file = LibFiles.VDirectory.VISION_API_CACHES.resolve(Path.of(hash));
+        LibFiles.VDirectory.VISION_API_CACHES.mkdirs();
 
-        File file_result = new File("vision-api-results", hash);
-        if (!file_result.getParentFile().exists()) {
-            boolean bool = file_result.getParentFile().mkdirs();
-            System.out.println("Created vision-api-results directory. (" + (bool ? "successful" : "failed") + ")");
-        }
+        Path file_result = LibFiles.VDirectory.VISION_API_RESULTS.resolve(Path.of(hash));
+        LibFiles.VDirectory.VISION_API_RESULTS.mkdirs();
 
         JSONArray array = new JSONArray();
         for (Result result : results) {
@@ -212,9 +206,9 @@ public class VisionAPI {
             object.put("type", result.getType());
             array.put(object);
         }
-        Files.write(file.toPath(), Collections.singleton(array.toString()));
+        Files.write(file, Collections.singleton(array.toString()));
 
-        Files.write(file_result.toPath(), Collections.singleton(raw_object.toString()));
+        Files.write(file_result, Collections.singleton(raw_object.toString()));
     }
 
     public static List<String> getSupportedContentType() {
