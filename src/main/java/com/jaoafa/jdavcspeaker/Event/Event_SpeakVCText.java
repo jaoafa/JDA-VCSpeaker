@@ -349,13 +349,13 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 JSONObject json = new JSONObject(body.string());
                 String html = json.getString("html");
                 String authorName = json.getString("author_name");
-                String plainText = new Source(html)
+                String plainText = new Source(html.replaceAll("<a.*>(.*)</a>", ""))
                     .getFirstElement("p")
                     .getRenderer()
                     .setMaxLineLength(Integer.MAX_VALUE)
                     .setNewLine(null)
-                    .toString()
-                    .replaceAll("pic\\.twitter\\.com/(\\S+)", "添付画像");
+                    .toString();
+                System.out.println(plainText);
                 return new Tweet(authorName, html, plainText);
             }
         } catch (IOException e) {
