@@ -1,10 +1,15 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class LibTitle {
     @Nullable
@@ -86,19 +91,24 @@ public class LibTitle {
         return titleSetting.getJSONObject(channel.getId()).getString("original");
     }
 
+    public record ChannelTitleChangeResponse(boolean result, String message) {
+    }
+
     /**
      * 現在のVCタイトルを変更します
      *
      * @param channel 対象チャンネル
      * @param name    変更後のタイトル
      *
-     * @return 成功したか
+     * @return レスポンス
      */
-    public boolean setTitle(AudioChannel channel, String name) {
-        if (titleSetting == null) return false;
+    public ChannelTitleChangeResponse setTitle(AudioChannel channel, String name) {
+        if (titleSetting == null) {
+            return new ChannelTitleChangeResponse(false, "タイトル処理の初期化に失敗");
+        }
         // もし登録されてなかったら弾く
         if (!titleSetting.has(channel.getId())) {
-            return false;
+            return new ChannelTitleChangeResponse(false, "デフォルトタイトルが未登録 (/vcname saveall)");
         }
         //もし手動で変更されていたら(設定ファイルと違ったら)
         //変更する前にオリジナルとして保存
@@ -112,11 +122,9 @@ public class LibTitle {
             );
         }
         // 名前変えて、設定ファイルにも記述
-        try {
-            channel.getManager().setName(name).complete();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        ChannelTitleChangeResponse result = setTitleByApi(channel, name);
+        if (!result.result()) {
+            return result;
         }
         saveSetting(
             titleSetting.put(
@@ -127,7 +135,36 @@ public class LibTitle {
                     .put("modified", true)
             )
         );
-        return true;
+        return result;
+    }
+
+    public ChannelTitleChangeResponse setTitleByApi(AudioChannel channel, String name) {
+        try {
+            String url = "https://discord.com/api/channels/%s".formatted(channel.getId());
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
+            JSONObject json = new JSONObject();
+            json.put("name", name);
+            RequestBody requestBody = RequestBody.create(json.toString(), MediaType.parse("application/json; charset=UTF-8"));
+            Request request = new Request
+                .Builder()
+                .url(url)
+                .patch(requestBody)
+                .header("Authorization", "Bot " + Main.getDiscordToken())
+                .header("X-Audit-Log-Reason", "Changed by title command")
+                .build();
+            try (Response response = client.newCall(request).execute()) {
+                ResponseBody body = response.body();
+                if (response.code() != 200) {
+                    return new ChannelTitleChangeResponse(false, body != null ? body.string() : null);
+                }
+                return new ChannelTitleChangeResponse(true, null);
+            }
+        } catch (IOException e) {
+            return new ChannelTitleChangeResponse(true, e.getMessage());
+        }
     }
 
     /**

@@ -72,11 +72,11 @@ public class Cmd_Title implements CmdSubstrate {
         if (!libTitle.existsTitle(targetVC)) {
             isInitialized = libTitle.saveAsOriginal(targetVC);
         }
-        boolean bool = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
-        if (!bool) {
+        LibTitle.ChannelTitleChangeResponse result = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
+        if (!result.result()) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":x: 保存に失敗しました。")
-                .setDescription("何らかのエラーが発生したため、VC名の変更に失敗しました。")
+                .setDescription("エラーが発生: `%s`".formatted(result.message()))
                 .setColor(LibEmbedColor.error)
                 .build()
             ).queue();
