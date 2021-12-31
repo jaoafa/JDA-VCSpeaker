@@ -354,7 +354,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     .getRenderer()
                     .setMaxLineLength(Integer.MAX_VALUE)
                     .setNewLine(null)
-                    .toString();
+                    .toString()
+                    .replaceAll("pic\\.twitter\\.com/(\\S+)", "添付画像");
                 return new Tweet(authorName, html, plainText);
             }
         } catch (IOException e) {
