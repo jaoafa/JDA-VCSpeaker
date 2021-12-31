@@ -7,7 +7,7 @@ if (!isset($argv[1]) || !isset($argv[2])) {
 $image_url = $argv[1];
 $output_path = $argv[2];
 
-$vision_api_results_dir = "vision-api-results/";
+$vision_api_results_dir = "vision-api/results/";
 
 if (!file_exists($vision_api_results_dir)) {
     echo "vision-api-results directory does not exist.\n";
