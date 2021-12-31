@@ -52,6 +52,7 @@ public class Main extends ListenerAdapter {
     static VisionAPI visionAPI = null;
     static LibTitle libTitle = null;
     static String speakToken = null;
+    static String discordToken = null;
     static final String prefix = "/";
     static VCSpeakerArgs args;
 
@@ -175,7 +176,8 @@ public class Main extends ListenerAdapter {
         //Task: Token,JDA設定
         speakToken = tokenConfig.getString("Speaker");
 
-        JDABuilder builder = JDABuilder.createDefault(tokenConfig.getString("Discord"))
+        discordToken = tokenConfig.getString("Discord");
+        JDABuilder builder = JDABuilder.createDefault(discordToken)
             //JDASettings
             .setChunkingFilter(ChunkingFilter.ALL)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -397,6 +399,11 @@ public class Main extends ListenerAdapter {
     @Nullable
     public static VisionAPI getVisionAPI() {
         return visionAPI;
+    }
+
+    @Nullable
+    public static String getDiscordToken() {
+        return discordToken;
     }
 
     public static String getPrefix() {
