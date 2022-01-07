@@ -20,9 +20,6 @@ public class Event_Join extends ListenerAdapter {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
-        if (event.getMember().getUser().isBot()) {
-            return;
-        }
         User user = event.getMember().getUser();
         AudioChannel channel = event.getChannelJoined();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
