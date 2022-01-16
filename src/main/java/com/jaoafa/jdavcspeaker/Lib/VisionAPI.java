@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class VisionAPI {
     final String apikey;
     LibFiles.VFile vApiFile = LibFiles.VFile.VISION_API;
+    LibFiles.VFile vWhenFile = LibFiles.VFile.VISION_API_WHEN;
     static LibFiles.VFile vTranslateFile = LibFiles.VFile.VISION_API_TRANSLATE;
     LibFiles.VDirectory vDir = LibFiles.VDirectory.VISION_API_CACHES;
 
@@ -83,9 +84,6 @@ public class VisionAPI {
                         "content": "%s"
                      },
                      "features": [{
-                        "type": "LABEL_DETECTION",
-                        "maxResults": 3
-                     }, {
                         "type": "TEXT_DETECTION",
                         "maxResults": 1
                      }]
@@ -153,11 +151,11 @@ public class VisionAPI {
         }
     }
 
-    private boolean isLimited() {
+    public boolean isLimited() {
         return getRequestCount() >= 950; // 1000 units だけど余裕をもって
     }
 
-    private int getRequestCount() {
+    public int getRequestCount() {
         JSONObject obj = vApiFile.readJSONObject(new JSONObject());
         return obj.optInt(new SimpleDateFormat("yyyy/MM").format(new Date()), 0);
     }
@@ -165,9 +163,16 @@ public class VisionAPI {
     private void requested() {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
         JSONObject obj = vApiFile.readJSONObject(new JSONObject());
-        int i = obj.optInt(date, 0) + 2;
+        int i = obj.optInt(date, 0);
         obj.put(date, i);
         vApiFile.write(obj);
+
+        JSONObject notified = vWhenFile.readJSONObject(new JSONObject());
+        if (isLimited() && !notified.has(date)) {
+            // リミットに超えたらその日を記録する
+            obj.put(date, new Date().getTime());
+            vWhenFile.write(obj);
+        }
     }
 
     @Nullable
