@@ -40,6 +40,7 @@ public class LibFiles {
         IGNORE("settings", "ignore.json"),
         TITLE("settings", "title.json"),
         VISION_API("settings", "vision-api.json"),
+        VISION_API_WHEN("settings", "vision-api-when.json"),
         VISION_API_TRANSLATE("settings", "vision-api-translate.json");
 
         private final Path path;
