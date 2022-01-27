@@ -4,6 +4,7 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
+import com.jaoafa.jdavcspeaker.Player.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -29,7 +30,12 @@ public class Cmd_Skip implements CmdSubstrate {
     }
 
     void skip(Guild guild, SlashCommandEvent event) {
-        PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.nextTrack();
+        TrackScheduler scheduler = PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler;
+        if (scheduler.queue.isEmpty()) {
+            scheduler.player.destroy();
+        } else {
+            scheduler.nextTrack();
+        }
         cmdFlow.success("%s がスキップしました。", event.getUser().getAsTag());
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":track_next: 読み上げをスキップします")
