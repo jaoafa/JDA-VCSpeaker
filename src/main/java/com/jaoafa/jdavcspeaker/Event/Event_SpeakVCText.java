@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
@@ -159,25 +158,19 @@ public class Event_SpeakVCText extends ListenerAdapter {
                         List<VisionAPI.Result> sortedResults = results.stream()
                             .sorted(Comparator.comparing(VisionAPI.Result::getScore, Comparator.reverseOrder()))
                             .toList();
-                        String descriptions = sortedResults.stream()
-                            .map(VisionAPI.Result::getDescription)
-                            .map(s -> s.length() > 15 ? s.substring(0, 15) : s)
-                            .limit(3)
-                            .collect(Collectors.joining("、"));
-                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(descriptions));
-
                         String text = sortedResults.stream()
                             .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
                             .map(VisionAPI.Result::getDescription)
                             .findFirst()
                             .orElse(null);
-                        String details = sortedResults.stream()
-                            .filter(r -> r.getType() == VisionAPI.ResultType.LABEL_DETECTION)
-                            .map(r -> String.format("`%s`%s",
-                                r.getDescription(),
-                                r.getDescription().equals(r.getRawDescription()) ? "" : " (`" + r.getRawDescription() + "`)"))
-                            .collect(Collectors.joining("\n・"));
-                        message.reply((text != null ? "```\n" + text.replaceAll("\n", " ") + "\n```" : "") + "・" + details).queue();
+
+                        if (text != null) {
+                            vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(text));
+
+                            message.reply("```\n" + text.replaceAll("\n", " ") + "\n```").queue();
+                        } else {
+                            vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%s」が送信されました。".formatted(attachment.getFileName()));
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
