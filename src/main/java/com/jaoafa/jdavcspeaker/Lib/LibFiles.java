@@ -41,7 +41,8 @@ public class LibFiles {
         TITLE("settings", "title.json"),
         VISION_API("settings", "vision-api.json"),
         VISION_API_WHEN("settings", "vision-api-when.json"),
-        VISION_API_TRANSLATE("settings", "vision-api-translate.json");
+        VISION_API_TRANSLATE("settings", "vision-api-translate.json"),
+        EXTERNAL_SCRIPT_DESTINATION_CHANNEL("external_scripts", "destination-channel.js");
 
         private final Path path;
 

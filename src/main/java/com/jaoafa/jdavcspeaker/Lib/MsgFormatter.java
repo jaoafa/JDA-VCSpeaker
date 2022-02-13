@@ -1,7 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import com.vdurmont.emoji.EmojiParser;
-import net.dv8tion.jda.api.entities.AudioChannel;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -54,8 +53,7 @@ public class MsgFormatter {
         return text;
     }
 
-    public static String formatChannelName(AudioChannel channel) {
-        String channelName = channel.getName();
+    public static String formatChannelName(String channelName) {
         channelName = EmojiParser.removeAllEmojis(channelName); // 絵文字の削除
         channelName = parenthesesPattern.matcher(channelName).replaceAll(""); // かっこの削除
         return channelName;

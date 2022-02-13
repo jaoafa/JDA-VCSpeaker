@@ -113,20 +113,6 @@ public class VisionAPI {
             LinkedList<Result> ret = new LinkedList<>();
             if (object
                 .getJSONArray("responses")
-                .getJSONObject(0).has("labelAnnotations")) {
-                JSONArray labelResults = object
-                    .getJSONArray("responses")
-                    .getJSONObject(0)
-                    .getJSONArray("labelAnnotations");
-
-                for (int i = 0; i < labelResults.length(); i++) {
-                    JSONObject result = labelResults.getJSONObject(i);
-                    ret.add(new Result(result.getString("description"), result.getDouble("score"), ResultType.LABEL_DETECTION));
-                }
-            }
-
-            if (object
-                .getJSONArray("responses")
                 .getJSONObject(0).has("textAnnotations")) {
                 JSONArray textResults = object
                     .getJSONArray("responses")
@@ -187,10 +173,14 @@ public class VisionAPI {
         List<Result> results = new LinkedList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject result = array.getJSONObject(i);
+            ResultType type = result.optEnum(ResultType.class, "type");
+            if (type == null) {
+                continue;
+            }
             results.add(new Result(
                 result.getString("description"),
                 result.getDouble("score"),
-                result.optEnum(ResultType.class, "type", ResultType.LABEL_DETECTION)
+                type
             ));
         }
         return results;
@@ -240,7 +230,6 @@ public class VisionAPI {
     }
 
     public enum ResultType {
-        LABEL_DETECTION,
         TEXT_DETECTION
     }
 
@@ -249,14 +238,6 @@ public class VisionAPI {
         final String jpDesc;
         final double score;
         final ResultType type;
-
-        @Deprecated
-        public Result(String description, double score) {
-            this.description = description;
-            this.score = score;
-            this.jpDesc = getJapaneseDesc(description);
-            this.type = ResultType.LABEL_DETECTION;
-        }
 
         public Result(String description, double score, ResultType type) {
             this.description = description;
