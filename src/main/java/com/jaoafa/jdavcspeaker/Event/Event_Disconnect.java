@@ -62,33 +62,37 @@ public class Event_Disconnect extends ListenerAdapter {
             );
         }
 
-        try {
-            JSONArray destinationChannels = getDestinationChannels(user.getId());
-            System.out.println(destinationChannels);
-            if (destinationChannels != null && destinationChannels.length() > 0) {
-                JSONObject destinationChannel = destinationChannels.getJSONObject(0);
-                message.editMessage(":outbox_tray: `%s` が <#%s> から退出し、%s の %s に移動しました。".formatted(
-                    user.getName(),
-                    channel.getId(),
-                    destinationChannel.getString("guildName"),
-                    destinationChannel.getString("channelName"))).queue();
+        new Thread(() -> {
+            try {
+                JSONArray destinationChannels = getDestinationChannels(user.getId());
+                System.out.println(destinationChannels);
+                if (destinationChannels != null &&
+                    destinationChannels.length() > 0 &&
+                    !destinationChannels.getJSONObject(0).getString("guildId").equals(event.getGuild().getId())) {
+                    JSONObject destinationChannel = destinationChannels.getJSONObject(0);
+                    message.editMessage(":outbox_tray: `%s` が <#%s> から退出し、%s の %s に移動しました。".formatted(
+                        user.getName(),
+                        channel.getId(),
+                        destinationChannel.getString("guildName"),
+                        destinationChannel.getString("channelName"))).queue();
 
-                if (!event.getMember().getUser().isBot()) {
-                    new VoiceText().play(
-                        TrackInfo.SpeakFromType.QUITED_VC,
-                        message,
-                        "%sは%sの%sへ移動しました。".formatted(
-                            user.getName(),
-                            destinationChannel.getString("guildName"),
-                            MsgFormatter.formatChannelName(destinationChannel.getString("channelName")))
-                    );
+                    if (!event.getMember().getUser().isBot()) {
+                        new VoiceText().play(
+                            TrackInfo.SpeakFromType.QUITED_VC,
+                            message,
+                            "%sは%sの%sへ移動しました。".formatted(
+                                user.getName(),
+                                destinationChannel.getString("guildName"),
+                                MsgFormatter.formatChannelName(destinationChannel.getString("channelName")))
+                        );
+                    }
+                } else {
+                    message.editMessage(defaultContent).queue();
                 }
-            } else {
-                message.editMessage(defaultContent).queue();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     private JSONArray getDestinationChannels(String userId) throws IOException {
