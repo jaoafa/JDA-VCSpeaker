@@ -37,7 +37,7 @@ public class Event_Join extends ListenerAdapter {
                                 message,
                                 "%sが%sに参加しました。".formatted(
                                     user.getName(),
-                                    MsgFormatter.formatChannelName(channel))
+                                    MsgFormatter.formatChannelName(channel.getName()))
                             );
                 }
             );

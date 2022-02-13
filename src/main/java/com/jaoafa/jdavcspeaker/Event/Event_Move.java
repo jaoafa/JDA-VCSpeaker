@@ -46,8 +46,8 @@ public class Event_Move extends ListenerAdapter {
                             message,
                             "%sが%sから%sに移動しました。".formatted(
                                 user.getName(),
-                                MsgFormatter.formatChannelName(oldChannel),
-                                MsgFormatter.formatChannelName(newChannel))
+                                MsgFormatter.formatChannelName(oldChannel.getName()),
+                                MsgFormatter.formatChannelName(newChannel.getName()))
                         );
                 }
             );
