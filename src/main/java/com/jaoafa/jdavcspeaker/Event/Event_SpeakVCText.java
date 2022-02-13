@@ -28,7 +28,10 @@ import java.util.regex.Pattern;
 
 public class Event_SpeakVCText extends ListenerAdapter {
     final Pattern urlPattern = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
-    final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
+    final Pattern messageUrlPattern = Pattern.compile("^https://.*?discord(?:app)?\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
+    final Pattern eventDirectLinkUrlPattern = Pattern.compile("^(?:https?://)?(?:www\\.)?discord(?:app)?\\.com/events/([0-9]+)/([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    final Pattern eventInviteLinkUrlPattern = Pattern.compile("^(?:https?://)?(?:www\\.)?(?:discord(?:app)?\\.com/invite|discord\\.gg)/(\\w+)\\?event=([0-9]+)$", Pattern.CASE_INSENSITIVE);
+    final Pattern inviteLinkUrlPattern = Pattern.compile("^(?:https?://)?(?:www\\.)?(?:discord(?:app)?\\.com/invite|discord\\.gg)/(\\w+)$", Pattern.CASE_INSENSITIVE);
     final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/([0-9]+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
     final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
@@ -39,13 +42,14 @@ public class Event_SpeakVCText extends ListenerAdapter {
         if (!event.isFromType(ChannelType.TEXT)) {
             return;
         }
-        if (!MultipleServer.isTargetServer(event.getGuild())) {
+        Guild guild = event.getGuild();
+        if (!MultipleServer.isTargetServer(guild)) {
             return;
         }
         final JDA jda = event.getJDA();
         final TextChannel channel = event.getTextChannel();
         final Message message = event.getMessage();
-        if (channel.getIdLong() != MultipleServer.getVCChannelId(event.getGuild())) {
+        if (channel.getIdLong() != MultipleServer.getVCChannelId(guild)) {
             return; // VCテキストチャンネル以外からのメッセージ
         }
         final Member member = event.getMember();
@@ -66,21 +70,21 @@ public class Event_SpeakVCText extends ListenerAdapter {
             return; // !から始まるコマンドと思われる文字列を除外
         }
 
-        if (event.getGuild().getSelfMember().getVoiceState() == null ||
-            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+        if (guild.getSelfMember().getVoiceState() == null ||
+            guild.getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
 
             if (member.getVoiceState() != null &&
                 member.getVoiceState().getChannel() != null) {
                 // メッセージ送信者がどこかのVCに入っている場合
 
-                event.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
-                if (MultipleServer.getVCChannel(event.getGuild()) != null) {
+                guild.getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
+                if (MultipleServer.getVCChannel(guild) != null) {
                     EmbedBuilder embed = new EmbedBuilder()
                         .setTitle(":white_check_mark: AutoJoined")
                         .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
                         .setColor(LibEmbedColor.success);
-                    MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
+                    MultipleServer.getVCChannel(guild).sendMessageEmbeds(embed.build()).queue();
                 }
             } else {
                 return; // 自身がどこにも入っておらず、送信者もどこにも入っていない場合
@@ -96,6 +100,8 @@ public class Event_SpeakVCText extends ListenerAdapter {
         // 読み上げるメッセージの構築
         String speakContent = content;
 
+        // Replace discord invite(include event) url
+        speakContent = replacerDiscordInviteLink(jda, guild, speakContent);
         // Replace url
         speakContent = replacerLink(jda, speakContent);
         // Spoiler
@@ -269,6 +275,53 @@ public class Event_SpeakVCText extends ListenerAdapter {
         });
     }
 
+    String replacerDiscordInviteLink(JDA jda, Guild sendFromGuild, String content) {
+        content = eventDirectLinkUrlPattern.matcher(content).replaceAll(result -> {
+            String guildId = result.group(1);
+            String eventId = result.group(2);
+
+            Guild guild = jda.getGuildById(guildId);
+            if (guild == null) return "どこかのサーバのイベントへのリンク";
+
+            String eventName = getScheduledEventName(guildId, eventId);
+            if (eventName == null) return "サーバ「" + guild.getName() + "」のイベントへのリンク";
+
+            if (guild.getIdLong() == sendFromGuild.getIdLong()) {
+                return "イベント「" + eventName + "」へのリンク";
+            }
+            return "サーバ「" + guild.getName() + "」のイベント「" + eventName + "」へのリンク";
+        });
+
+        content = eventInviteLinkUrlPattern.matcher(content).replaceAll(result -> {
+            String inviteCode = result.group(1);
+            String eventId = result.group(2);
+
+            DiscordInvite invite = getInvite(inviteCode, eventId);
+            if (invite == null) return "どこかのサーバのイベントへのリンク";
+            if (invite.eventName() == null) return "サーバ「" + invite.guildName() + "」のイベントへのリンク";
+
+            if (invite.guildId().equals(sendFromGuild.getId())) {
+                return "イベント「" + invite.eventName() + "」へのリンク";
+            }
+            return "サーバ「" + invite.guildName() + "」のイベント「" + invite.eventName() + "」へのリンク";
+        });
+
+        content = inviteLinkUrlPattern.matcher(content).replaceAll(result -> {
+            String inviteCode = result.group(1);
+
+            DiscordInvite invite = getInvite(inviteCode, null);
+            if (invite == null) return "どこかのサーバへの招待リンク";
+            if (invite.channelName() == null) return "サーバ「" + invite.guildName() + "」への招待リンク";
+
+            if (invite.guildId().equals(sendFromGuild.getId())) {
+                return "チャンネル「" + invite.channelName() + "」への招待リンク";
+            }
+            return "サーバ「" + invite.guildName() + "」のチャンネル「" + invite.channelName() + "」への招待リンク";
+        });
+
+        return content;
+    }
+
     String replacerSpoiler(String content) {
         return spoilerPattern.matcher(content).replaceAll(" ピー ");
     }
@@ -350,6 +403,89 @@ public class Event_SpeakVCText extends ListenerAdapter {
                     .toString();
                 System.out.println(plainText);
                 return new Tweet(authorName, html, plainText);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    String getScheduledEventName(String guildId, String eventId) {
+        String url = "https://discord.com/api/guilds/%s/scheduled-events/%s".formatted(guildId, eventId);
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
+            Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bot " + Main.getDiscordToken())
+                .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() != 200 && response.code() != 302) {
+                    return null;
+                }
+                ResponseBody body = response.body();
+                if (body == null) {
+                    return null;
+                }
+                JSONObject json = new JSONObject(body.string());
+                return json.getString("name");
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    record DiscordInvite(
+        String code,
+        String guildId,
+        String guildName,
+        String channelId,
+        String channelName,
+        @Nullable String inviterId,
+        @Nullable String inviterName,
+        @Nullable String inviterDiscriminator,
+        @Nullable String eventName,
+        @Nullable String eventId
+    ) {
+    }
+
+    @Nullable
+    DiscordInvite getInvite(String inviteCode, String eventId) {
+        String url = "https://discord.com/api/invites/%s".formatted(inviteCode);
+        if (eventId != null) {
+            url += "?guild_scheduled_event_id=%s".formatted(eventId);
+        }
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
+            Request request = new Request.Builder()
+                .url(url)
+                .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() != 200 && response.code() != 302) {
+                    return null;
+                }
+                ResponseBody body = response.body();
+                if (body == null) {
+                    return null;
+                }
+                JSONObject json = new JSONObject(body.string());
+                return new DiscordInvite(
+                    json.getString("code"),
+                    json.getJSONObject("guild").getString("id"),
+                    json.getJSONObject("guild").getString("name"),
+                    json.getJSONObject("channel").getString("id"),
+                    json.getJSONObject("channel").getString("name"),
+                    json.has("inviter") ? json.getJSONObject("inviter").getString("id") : null,
+                    json.has("inviter") ? json.getJSONObject("inviter").getString("username") : null,
+                    json.has("inviter") ? json.getJSONObject("inviter").getString("discriminator") : null,
+                    json.has("guild_scheduled_event") ? json.getJSONObject("guild_scheduled_event").getString("name") : null,
+                    json.has("guild_scheduled_event") ? json.getJSONObject("guild_scheduled_event").getString("id") : null
+                );
             }
         } catch (IOException e) {
             return null;
