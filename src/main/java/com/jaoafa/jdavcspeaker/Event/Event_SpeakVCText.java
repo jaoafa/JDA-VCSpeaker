@@ -161,6 +161,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                         String text = sortedResults.stream()
                             .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
                             .map(VisionAPI.Result::getDescription)
+                            .map(s -> s.length() > 30 ? s.substring(0, 30) : s)
                             .findFirst()
                             .orElse(null);
 
