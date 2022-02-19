@@ -161,12 +161,11 @@ public class Event_SpeakVCText extends ListenerAdapter {
                         String text = sortedResults.stream()
                             .filter(r -> r.getType() == VisionAPI.ResultType.TEXT_DETECTION)
                             .map(VisionAPI.Result::getDescription)
-                            .map(s -> s.length() > 30 ? s.substring(0, 30) : s)
                             .findFirst()
                             .orElse(null);
 
                         if (text != null) {
-                            vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(text));
+                            vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(text.length() > 30 ? text.substring(0, 30) : text));
 
                             message.reply("```\n" + text.replaceAll("\n", " ") + "\n```").queue();
                         } else {
