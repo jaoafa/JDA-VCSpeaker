@@ -14,8 +14,11 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Random;
 
 public class Cmd_Title implements CmdSubstrate {
     @Override
@@ -78,12 +81,18 @@ public class Cmd_Title implements CmdSubstrate {
         }
         LibTitle.ChannelTitleChangeResponse result = libTitle.setTitle(member.getVoiceState().getChannel(), new_title);
         if (!result.result()) {
-            event.replyEmbeds(new EmbedBuilder()
+            EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(":x: 保存に失敗しました。")
-                .setDescription("エラーが発生: `%s`".formatted(result.message()))
-                .setColor(LibEmbedColor.error)
-                .build()
-            ).queue();
+                .setColor(LibEmbedColor.error);
+            if (result.message() != null) {
+                try {
+                    JSONObject json = new JSONObject(result.message());
+                    embed.setDescription(getErrorMessage(member, json));
+                } catch (JSONException e) {
+                    embed.setDescription(result.message());
+                }
+            }
+            event.replyEmbeds(embed.build()).queue();
             return;
         }
         cmdFlow.success("%s がChannel ID: %s のVC名を変更しました: %s -> %s", event.getUser().getAsTag(), member.getVoiceState().getChannel().getId(), old_title, new_title);
@@ -106,5 +115,48 @@ public class Cmd_Title implements CmdSubstrate {
                 )
             )
         );
+    }
+
+    String getErrorMessage(Member member, JSONObject json) {
+        if (!json.has("message")) {
+            return json.toString();
+        }
+        List<Long> targetUserIds = List.of(
+            206692134991036416L, // Zakuro
+            221991565567066112L, // Tomachi
+            189372008147058688L, // Zokasu
+            189377054955798528L, // Ekusas
+            216206763102437376L, // Kaepi
+            239608383261507584L, // Ohamu
+            372701608053833730L // Eno
+        );
+        List<String> rateLimitTemplates = List.of(
+            "レートリミットつってさー、ディスコにキレられたんよー。\n{} 後にさー、もっかいやってくんね？",
+            "Failed to change title due to rate limit limitation; can only change twice in 10 minutes; please try again after {}.",
+            "Impossibile cambiare il titolo a causa delle restrizioni del limite di velocità; può essere cambiato solo due volte in 10 minuti; riprova dopo {}.",
+            "Tiitli muutmine ebaõnnestus kiiruse piirangute tõttu; 10 minuti jooksul saab muuta ainult kaks korda; proovige uuesti {} pärast.",
+            "Titel kon niet worden gewijzigd wegens beperkingen van de tarieflimiet; kan slechts tweemaal in 10 minuten worden gewijzigd; probeer het opnieuw na {}.",
+            "Απέτυχε η αλλαγή τίτλου λόγω περιορισμών στο όριο ρυθμού- μπορεί να αλλάξει μόνο δύο φορές μέσα σε 10 λεπτά- προσπαθήστε ξανά μετά από {}.",
+            "Det gick inte att ändra titeln på grund av begränsningar i hastighetsgränsen; kan endast ändras två gånger på 10 minuter; försök igen efter {}.",
+            "No se ha podido cambiar el título debido a las restricciones del límite de velocidad; sólo se puede cambiar dos veces en 10 minutos; inténtelo de nuevo después de {}.",
+            "Nepodarilo sa zmeniť názov z dôvodu obmedzenia rýchlosti; je možné ho zmeniť len dvakrát za 10 minút; skúste to znova po {}.",
+            "Otsikon vaihtaminen epäonnistui nopeusrajoitusten vuoksi; otsikkoa voi vaihtaa vain kahdesti 10 minuutin aikana; yritä uudelleen {} kuluttua.",
+            "Не успяхте да промените заглавието поради ограничения на тарифата; може да се промени само два пъти в рамките на 10 минути; опитайте отново след {}.",
+            "Не удалось изменить название из-за ограничений лимита тарифов; можно изменить только дважды за 10 минут; повторите попытку через {}.",
+            "由于速率限制，更改标题失败；10分钟内只能更改两次；{}钟后再试。"
+        );
+
+        String message = json.getString("message");
+        if (message.equals("The resource is being rate limited.")) {
+            String retryAfter = (json.getInt("retry_after") / 1000 / 60) + "分" + (json.getInt("retry_after") / 1000 % 60) + "秒 (" + json.getInt("retry_after") + "ms)";
+            if (targetUserIds.contains(member.getIdLong())) {
+                return rateLimitTemplates.get(new Random().nextInt(rateLimitTemplates.size())).replace("{}", retryAfter);
+            }
+            return "レートリミットエラーです。\n\nDiscordの内部レート制限により、ボイスチャンネルのチャンネル名変更は **10分に2回まで** に制限されています。\n" + retryAfter + " 後に再度実行してください。";
+        }
+        if (message.equals("Missing Permissions")) {
+            return "権限エラーです。\n\nボイスチャンネルのチャンネル名変更には **チャンネルの管理** の権限が必要です。運営にお問い合わせください。";
+        }
+        return message;
     }
 }
