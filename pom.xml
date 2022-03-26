@@ -81,6 +81,10 @@
             <id>sonatype-public</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -110,9 +114,9 @@
             <version>3.12.0</version>
         </dependency>
         <dependency>
-            <groupId>com.vdurmont</groupId>
+            <groupId>com.github.minndevelopment</groupId>
             <artifactId>emoji-java</artifactId>
-            <version>5.1.1</version>
+            <version>v6.1.0</version>
         </dependency>
         <dependency>
             <groupId>cloud.commandframework</groupId>
