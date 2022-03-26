@@ -150,7 +150,7 @@ public class VisionAPI {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
         JSONObject obj = vApiFile.readJSONObject(new JSONObject());
         int i = obj.optInt(date, 0);
-        obj.put(date, i);
+        obj.put(date, i + 1);
         vApiFile.write(obj);
 
         JSONObject notified = vWhenFile.readJSONObject(new JSONObject());
