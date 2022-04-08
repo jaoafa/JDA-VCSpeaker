@@ -2,6 +2,7 @@ package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
+import com.jaoafa.jdavcspeaker.Lib.EmojiWrapper;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibTitle;
 import com.jaoafa.jdavcspeaker.Lib.VoiceText;
@@ -65,9 +66,9 @@ public class Cmd_Title implements CmdSubstrate {
 
         String old_title = targetVC.getName();
         /* 旧VC名の一文字目が絵文字であるかどうか (旧VC名から絵文字を消したときに0文字だったら false) */
-        boolean old_title_is_first_emoji = EmojiParser.removeAllEmojis(old_title).length() > 0 && !old_title.substring(0, 1).equals(EmojiParser.removeAllEmojis(old_title).substring(0, 1));
+        boolean old_title_is_first_emoji = EmojiWrapper.removeAllEmojis(old_title).length() > 0 && !old_title.substring(0, 1).equals(EmojiWrapper.removeAllEmojis(old_title).substring(0, 1));
         /* 新VC名の一文字目が絵文字であるかどうか (旧VC名から絵文字を消したときに0文字だったら false) */
-        boolean new_title_is_first_emoji = EmojiParser.removeAllEmojis(new_title).length() > 0 && !new_title.substring(0, 1).equals(EmojiParser.removeAllEmojis(new_title).substring(0, 1));
+        boolean new_title_is_first_emoji = EmojiWrapper.removeAllEmojis(new_title).length() > 0 && !new_title.substring(0, 1).equals(EmojiWrapper.removeAllEmojis(new_title).substring(0, 1));
 
         List<String> old_title_emojis = EmojiParser.extractEmojis(old_title);
         if (old_title_is_first_emoji && !new_title_is_first_emoji && old_title_emojis.size() > 0) {

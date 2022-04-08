@@ -3,7 +3,6 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
-import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -233,7 +232,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 if (tweet != null) {
                     System.out.println(tweet);
                     content = content.replace(url, "%sのツイート「%s」へのリンク".formatted(
-                        EmojiParser.removeAllEmojis(tweet.authorName()),
+                        EmojiWrapper.removeAllEmojis(tweet.authorName()),
                         tweet.plainText()
                     ));
                     continue;
