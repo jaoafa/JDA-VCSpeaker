@@ -1,7 +1,5 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import com.vdurmont.emoji.EmojiParser;
-
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +10,7 @@ public class MsgFormatter {
 
     public static String format(String text) {
         // ReplaceUnicodeEmoji
-        text = EmojiParser.parseToAliases(text);
+        text = EmojiWrapper.parseToAliases(text);
 
         // ReplaceCustomEmoji
         String regex = "<a?:(.+?):([0-9]+)>";
@@ -54,7 +52,7 @@ public class MsgFormatter {
     }
 
     public static String formatChannelName(String channelName) {
-        channelName = EmojiParser.removeAllEmojis(channelName); // 絵文字の削除
+        channelName = EmojiWrapper.removeAllEmojis(channelName); // 絵文字の削除
         channelName = parenthesesPattern.matcher(channelName).replaceAll(""); // かっこの削除
         return channelName;
     }
