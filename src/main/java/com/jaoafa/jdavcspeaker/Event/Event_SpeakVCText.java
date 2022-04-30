@@ -184,12 +184,33 @@ public class Event_SpeakVCText extends ListenerAdapter {
      * @param jda       JDA
      * @param channelId チャンネルID (or スレッドID)
      *
-     * @return メッセージ、見つからなければnull
+     * @return チャンネル、見つからなければnull
      */
     MessageChannel getChannelOrThread(JDA jda, String channelId) {
-        TextChannel channel = jda.getTextChannelById(channelId);
-        if (channel != null) {
-            return channel;
+        TextChannel textChannel = jda.getTextChannelById(channelId);
+        if (textChannel != null) {
+            return textChannel;
+        }
+        return jda.getThreadChannelById(channelId);
+    }
+
+    /**
+     * チャンネルIDをもとに、テキスト/ボイスチャンネルまたはスレッドを取得します<br>
+     * VCSpeakerが参加しているテキスト/ボイスチャンネルとスレッドに対応しますが、アーカイブされているスレッドには対応していません。
+     *
+     * @param jda       JDA
+     * @param channelId チャンネルID (or スレッドID)
+     *
+     * @return チャンネル、見つからなければnull
+     */
+    Channel getTextVoiceChannelOrThread(JDA jda, String channelId) {
+        TextChannel textChannel = jda.getTextChannelById(channelId);
+        if (textChannel != null) {
+            return textChannel;
+        }
+        VoiceChannel voiceChannel = jda.getVoiceChannelById(channelId);
+        if (voiceChannel != null) {
+            return voiceChannel;
         }
         return jda.getThreadChannelById(channelId);
     }
@@ -264,7 +285,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
     String replacerChannelThreadLink(JDA jda, String content) {
         return channelReplyPattern.matcher(content).replaceAll(result -> {
             String channelId = result.group(1);
-            MessageChannel channel = getChannelOrThread(jda, channelId);
+            Channel channel = getTextVoiceChannelOrThread(jda, channelId);
             if (channel == null) return "どこかのチャンネルへのリンク";
             String channelName = "チャンネル「" + channel.getName() + "」へのリンク";
             if (channel instanceof ThreadChannel) {
