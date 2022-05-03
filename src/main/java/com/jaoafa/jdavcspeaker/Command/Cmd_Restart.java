@@ -6,8 +6,8 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 
 public class Cmd_Restart implements CmdSubstrate {
@@ -16,20 +16,20 @@ public class Cmd_Restart implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":expressionless:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを再起動します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを再起動します")
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         restart(guild, event);
     }
 
 
-    void restart(Guild guild, SlashCommandEvent event) {
+    void restart(Guild guild, SlashCommandInteractionEvent event) {
         cmdFlow.action("%s のリクエストにより、VCSpeakerを再起動します。", event.getUser().getAsTag());
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wave: 再起動します")

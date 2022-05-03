@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 public class Cmd_Vcname implements CmdSubstrate {
@@ -20,7 +20,7 @@ public class Cmd_Vcname implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":satellite_orbital:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VC名を保存します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VC名を保存します")
                     .addSubcommands(
                         new SubcommandData("save", "現在のVC名を保存します"),
                         new SubcommandData("saveall", "全てのVC名を保存します")
@@ -30,9 +30,9 @@ public class Cmd_Vcname implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "save" -> save(member, event);
             case "saveall" -> saveall(guild, member, event);
@@ -40,7 +40,7 @@ public class Cmd_Vcname implements CmdSubstrate {
     }
 
 
-    void save(Member member, SlashCommandEvent event) {
+    void save(Member member, SlashCommandInteractionEvent event) {
         if (!member.getId().equals("492088741167366144") && !member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":no_pedestrians: 実行する権限がありません！")
@@ -85,7 +85,7 @@ public class Cmd_Vcname implements CmdSubstrate {
         ).queue();
     }
 
-    void saveall(Guild guild, Member member, SlashCommandEvent event) {
+    void saveall(Guild guild, Member member, SlashCommandInteractionEvent event) {
         if (!member.getId().equals("492088741167366144") && !member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":no_pedestrians: 実行する権限がありません！")

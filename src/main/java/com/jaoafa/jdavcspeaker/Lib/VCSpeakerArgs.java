@@ -15,7 +15,7 @@ public class VCSpeakerArgs {
             aliases = "-f",
             metaVar = "FILEPATH",
             usage = "設定ファイルのパス")
-    public File configPath = LibFiles.VFile.CONFIG.getPath().toFile();
+    public final File configPath = LibFiles.VFile.CONFIG.getPath().toFile();
 
     @Option(name = "--only-remove-cmd",
             usage = "すべてのスラッシュコマンドの登録を解除")

@@ -186,7 +186,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
      *
      * @return チャンネル、見つからなければnull
      */
-    MessageChannel getChannelOrThread(JDA jda, String channelId) {
+    GuildMessageChannel getChannelOrThread(JDA jda, String channelId) {
         TextChannel textChannel = jda.getTextChannelById(channelId);
         if (textChannel != null) {
             return textChannel;
@@ -226,12 +226,12 @@ public class Event_SpeakVCText extends ListenerAdapter {
                 String channelId = msgUrlMatcher.group(2);
                 String messageId = msgUrlMatcher.group(3);
 
-                MessageChannel channel = getChannelOrThread(jda, channelId);
+                GuildMessageChannel channel = getChannelOrThread(jda, channelId);
                 if (channel == null) continue;
                 Message message = channel.retrieveMessageById(messageId).complete();
                 if (message == null) continue;
 
-                channel = message.getChannel();
+                channel = message.getGuildChannel();
                 String channelName = "チャンネル「" + channel.getName() + "」";
                 if (channel instanceof ThreadChannel) {
                     channelName = "チャンネル「" + ((ThreadChannel) channel).getParentChannel().getName() + "」のスレッド「" + channel.getName() + "」";

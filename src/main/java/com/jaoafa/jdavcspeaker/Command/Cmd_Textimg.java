@@ -10,9 +10,9 @@ import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,20 +31,20 @@ public class Cmd_Textimg implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":a:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "画像からテキストを抽出し、テキスト入り画像を生成します。")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "画像からテキストを抽出し、テキスト入り画像を生成します。")
                     .addOption(OptionType.STRING, "messagelink", "画像のメッセージリンク、または画像リンク")
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         generateTextImg(event);
     }
 
-    void generateTextImg(SlashCommandEvent event) {
+    void generateTextImg(SlashCommandInteractionEvent event) {
         if (event.getGuild() == null) {
             event.reply(":x:").queue();
             return;

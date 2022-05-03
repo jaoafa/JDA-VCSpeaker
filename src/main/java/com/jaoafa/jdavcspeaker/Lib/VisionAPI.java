@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class VisionAPI {
     final String apikey;
-    LibFiles.VFile vApiFile = LibFiles.VFile.VISION_API;
-    LibFiles.VFile vWhenFile = LibFiles.VFile.VISION_API_WHEN;
-    static LibFiles.VFile vTranslateFile = LibFiles.VFile.VISION_API_TRANSLATE;
-    LibFiles.VDirectory vDir = LibFiles.VDirectory.VISION_API_CACHES;
+    final LibFiles.VFile vApiFile = LibFiles.VFile.VISION_API;
+    final LibFiles.VFile vWhenFile = LibFiles.VFile.VISION_API_WHEN;
+    static final LibFiles.VFile vTranslateFile = LibFiles.VFile.VISION_API_TRANSLATE;
+    final LibFiles.VDirectory vDir = LibFiles.VDirectory.VISION_API_CACHES;
 
     public VisionAPI(String apikey) {
         this.apikey = apikey;

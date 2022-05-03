@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -428,7 +428,7 @@ public class Main extends ListenerAdapter {
     }
 
     @NotNull
-    public static OptionMapping getExistsOption(SlashCommandEvent event, String name) {
+    public static OptionMapping getExistsOption(SlashCommandInteractionEvent event, String name) {
         OptionMapping option = event.getOption(name);
         if (option == null) {
             throw new IllegalArgumentException();

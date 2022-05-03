@@ -7,8 +7,8 @@ import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Cmd_Clear implements CmdSubstrate {
     @Override
@@ -16,19 +16,19 @@ public class Cmd_Clear implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":boom:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "今までのメッセージの読み上げをすべてキャンセルします")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "今までのメッセージの読み上げをすべてキャンセルします")
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         clear(guild, event);
     }
 
-    void clear(Guild guild, SlashCommandEvent event) {
+    void clear(Guild guild, SlashCommandInteractionEvent event) {
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.queue.clear();
         PlayerManager.getINSTANCE().getGuildMusicManager(guild).player.destroy();
 

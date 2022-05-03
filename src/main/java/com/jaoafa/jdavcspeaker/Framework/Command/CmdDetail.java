@@ -4,12 +4,12 @@ package com.jaoafa.jdavcspeaker.Framework.Command;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 public class CmdDetail {
     private String emoji = null;
     private String detail = null;
-    private CommandData data = null;
+    private SlashCommandData data = null;
     private Permission[] limitPerm = null;
     private Role[] limitRole = null;
     private User[] limitUser = null;
@@ -34,11 +34,11 @@ public class CmdDetail {
         return this;
     }
 
-    public CommandData getData() {
+    public SlashCommandData getData() {
         return this.data;
     }
 
-    public CmdDetail setData(CommandData data) {
+    public CmdDetail setData(SlashCommandData data) {
         this.data = data;
         return this;
     }
