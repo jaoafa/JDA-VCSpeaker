@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +19,7 @@ public class MultipleServer {
      *
      * @return 追加できたかどうか
      */
-    public static boolean addServer(Guild guild, MessageChannel channel) {
+    public static boolean addServer(Guild guild, GuildMessageChannel channel) {
         JSONObject data = getData();
         JSONObject servers = data.optJSONObject("servers");
         if (servers == null) servers = new JSONObject();
@@ -53,7 +53,7 @@ public class MultipleServer {
      *
      * @return 対象であるかどうか
      *
-     * @see #addServer(Guild, MessageChannel)
+     * @see #addServer(Guild, GuildMessageChannel)
      * @see #removeServer(Guild)
      */
     public static boolean isTargetServer(Guild guild) {
@@ -94,7 +94,7 @@ public class MultipleServer {
      *
      * @return 設定できたかどうか
      */
-    public static boolean setNotifyChannel(Guild guild, MessageChannel channel) {
+    public static boolean setNotifyChannel(Guild guild, GuildMessageChannel channel) {
         JSONObject data = getData();
         JSONObject notifies = data.optJSONObject("notifies");
         if (notifies == null) notifies = new JSONObject();
@@ -128,7 +128,7 @@ public class MultipleServer {
      *
      * @return 通知チャンネル設定がされているかどうか
      *
-     * @see #setNotifyChannel(Guild, MessageChannel)
+     * @see #setNotifyChannel(Guild, GuildMessageChannel)
      */
     public static boolean isNotifiable(Guild guild) {
         return getNotifies().has(guild.getId());

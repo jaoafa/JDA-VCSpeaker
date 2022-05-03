@@ -4,14 +4,14 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
-import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Lib.LibValue;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
@@ -22,7 +22,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":expressionless:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "テキストを無視するように設定します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "テキストを無視するように設定します")
                     .addSubcommandGroups(
                         new SubcommandGroupData("add", "設定を追加")
                             .addSubcommands(
@@ -51,9 +51,9 @@ public class Cmd_Ignore implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "add:contain" -> addContains(event);
             case "add:equal" -> addEquals(event);
@@ -63,7 +63,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         }
     }
 
-    void addContains(SlashCommandEvent event) {
+    void addContains(SlashCommandInteractionEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
 
         LibIgnore.addToContainIgnore(text);
@@ -77,7 +77,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
-    void addEquals(SlashCommandEvent event) {
+    void addEquals(SlashCommandInteractionEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
 
         LibIgnore.addToEqualIgnore(text);
@@ -91,7 +91,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
-    void removeContains(SlashCommandEvent event) {
+    void removeContains(SlashCommandInteractionEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
 
         LibIgnore.removeToContainIgnore(text);
@@ -105,7 +105,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
-    void removeEquals(SlashCommandEvent event) {
+    void removeEquals(SlashCommandInteractionEvent event) {
         String text = Main.getExistsOption(event, "text").getAsString();
 
         LibIgnore.removeToEqualIgnore(text);
@@ -119,7 +119,7 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
-    void list(SlashCommandEvent event) {
+    void list(SlashCommandInteractionEvent event) {
         String type = Main.getExistsOption(event, "type").getAsString();
 
         String list;

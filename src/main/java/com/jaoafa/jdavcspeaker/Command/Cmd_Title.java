@@ -12,9 +12,9 @@ import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,20 +27,20 @@ public class Cmd_Title implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":regional_indicator_t:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "参加中VCにタイトルを設定します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "参加中VCにタイトルを設定します")
                     .addOption(OptionType.STRING, "title", "設定するタイトル", true)
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         title(member, event);
     }
 
-    void title(Member member, SlashCommandEvent event) {
+    void title(Member member, SlashCommandInteractionEvent event) {
         if (member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":no_entry_sign: VCに入ってから実行してください")

@@ -3,7 +3,7 @@ package com.jaoafa.jdavcspeaker.Framework;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONObject;
 
 public record FunctionContainer(FunctionType functionType,
@@ -12,7 +12,7 @@ public record FunctionContainer(FunctionType functionType,
                                 JSONObject data,
                                 JDA jda,
                                 Guild guild,
-                                MessageChannel channel,
+                                GuildMessageChannel channel,
                                 ChannelType channelType,
                                 Member member,
                                 User user,

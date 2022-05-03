@@ -3,8 +3,9 @@ package com.jaoafa.jdavcspeaker.Framework;
 import com.jaoafa.jdavcspeaker.Framework.Action.ActionSubstrate;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibReporter;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -15,7 +16,7 @@ public class FunctionHooker extends ListenerAdapter {
     final String ROOT_PACKAGE = "com.jaoafa.jdavcspeaker";
 
     @Override
-    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         String subCmdGroup = event.getSubcommandGroup();
         String subCmdName = event.getSubcommandName();
 
@@ -33,7 +34,7 @@ public class FunctionHooker extends ListenerAdapter {
             null,
             event.getJDA(),
             event.getGuild(),
-            event.getChannel(),
+            event.getGuildChannel(),
             event.getChannelType(),
             event.getMember(),
             event.getUser(),
@@ -44,10 +45,13 @@ public class FunctionHooker extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonClick(@NotNull ButtonClickEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         String[] buttonData = event.getId().split(":json");
         String buttonId = buttonData[0];
         JSONObject buttonJSON = new JSONObject(buttonData[1]);
+        if (!(event.getMessageChannel() instanceof GuildMessageChannel)) {
+            throw new IllegalStateException("ButtonClickEvent.getMessageChannel() is not GuildMessageChannel.");
+        }
         execute(new FunctionContainer(
             FunctionType.Action,
             buttonId,
@@ -55,7 +59,7 @@ public class FunctionHooker extends ListenerAdapter {
             buttonJSON,
             event.getJDA(),
             event.getGuild(),
-            event.getChannel(),
+            (GuildMessageChannel) event.getMessageChannel(),
             event.getChannelType(),
             event.getMember(),
             event.getUser(),
@@ -86,7 +90,7 @@ public class FunctionHooker extends ListenerAdapter {
                     container.channelType(),
                     container.member(),
                     container.user(),
-                    (SlashCommandEvent) container.event(),
+                    (SlashCommandInteractionEvent) container.event(),
                     container.subFunction()
                 );
             case Action -> ((ActionSubstrate) substrate)
@@ -99,7 +103,7 @@ public class FunctionHooker extends ListenerAdapter {
                     container.user(),
                     container.message(),
                     container.button(),
-                    (ButtonClickEvent) container.event(),
+                    (ButtonInteractionEvent) container.event(),
                     container.data()
                 );
         }

@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
@@ -33,7 +33,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":expressionless:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerをサーバーに設定します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerをサーバーに設定します")
                     .addSubcommandGroups(
                         new SubcommandGroupData("server", "サーバー設定")
                             .addSubcommands(
@@ -49,9 +49,9 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "server:add" -> addServer(guild, channel, member, event);
             case "server:notify" -> removeServer(guild, member, event);
@@ -59,7 +59,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         }
     }
 
-    void addServer(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
+    void addServer(Guild guild, GuildMessageChannel channel, Member member, SlashCommandInteractionEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
@@ -97,7 +97,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         ).queue();
     }
 
-    void removeServer(Guild guild, Member member, SlashCommandEvent event) {
+    void removeServer(Guild guild, Member member, SlashCommandInteractionEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
@@ -120,7 +120,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         ).queue();
     }
 
-    void setNotifyChannel(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
+    void setNotifyChannel(Guild guild, GuildMessageChannel channel, Member member, SlashCommandInteractionEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;

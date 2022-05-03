@@ -5,7 +5,7 @@ import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.LibReporter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ public class CmdRegister {
     public CmdRegister(JDA jda) {
         LibFlow cmdRegisterFlow = new LibFlow("CmdRegister");
         cmdRegisterFlow.header("Command Register");
-        ArrayList<CommandData> commandList = new ArrayList<>();
+        ArrayList<SlashCommandData> commandList = new ArrayList<>();
         try {
             for (Class<?> cmdClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.Command")) {
                 if (!cmdClass.getSimpleName().startsWith("Cmd_")

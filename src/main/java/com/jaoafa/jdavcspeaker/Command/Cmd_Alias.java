@@ -8,10 +8,10 @@ import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.Comparator;
@@ -29,7 +29,7 @@ public class Cmd_Alias implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":repeat:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "読みのエイリアスを設定します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "読みのエイリアスを設定します")
                     .addSubcommands(
                         new SubcommandData("add", "エイリアスを作成します")
                             .addOption(OptionType.STRING, "from", "変換元テキスト", true)
@@ -46,9 +46,9 @@ public class Cmd_Alias implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "add" -> addAlias(event, user);
             case "remove" -> removeAlias(event, user);
@@ -57,7 +57,7 @@ public class Cmd_Alias implements CmdSubstrate {
         }
     }
 
-    void addAlias(SlashCommandEvent event, User user) {
+    void addAlias(SlashCommandInteractionEvent event, User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
         String to = Main.getExistsOption(event, "to").getAsString();
         try {
@@ -82,7 +82,7 @@ public class Cmd_Alias implements CmdSubstrate {
         ).queue();
     }
 
-    void removeAlias(SlashCommandEvent event, User user) {
+    void removeAlias(SlashCommandInteractionEvent event, User user) {
         String from = Main.getExistsOption(event, "from").getAsString();
 
         if (!LibAlias.getAliases().containsKey(from)) {
@@ -111,7 +111,7 @@ public class Cmd_Alias implements CmdSubstrate {
         ).queue();
     }
 
-    void listAlias(SlashCommandEvent event, User user) {
+    void listAlias(SlashCommandInteractionEvent event, User user) {
         OptionMapping page_opt = event.getOption("page");
         int page = 1;
         if (page_opt != null) {
@@ -144,7 +144,7 @@ public class Cmd_Alias implements CmdSubstrate {
         ).queue();
     }
 
-    void parseAlias(SlashCommandEvent event, User user) {
+    void parseAlias(SlashCommandInteractionEvent event, User user) {
         String orig_text = Main.getExistsOption(event, "text").getAsString();
         String text = orig_text;
 

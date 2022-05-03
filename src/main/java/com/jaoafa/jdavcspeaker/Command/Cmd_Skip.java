@@ -8,8 +8,8 @@ import com.jaoafa.jdavcspeaker.Player.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Cmd_Skip implements CmdSubstrate {
     @Override
@@ -17,19 +17,19 @@ public class Cmd_Skip implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":broom:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "現在の読み上げをキャンセル（スキップ）します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "現在の読み上げをキャンセル（スキップ）します")
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         skip(guild, event);
     }
 
-    void skip(Guild guild, SlashCommandEvent event) {
+    void skip(Guild guild, SlashCommandInteractionEvent event) {
         TrackScheduler scheduler = PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler;
         if (scheduler.queue.isEmpty()) {
             scheduler.player.destroy();

@@ -11,6 +11,7 @@ public class VCSpeakerArgs {
             help = true)
     public boolean isHelp;
 
+    @SuppressWarnings("CanBeFinal")
     @Option(name = "--config-file",
             aliases = "-f",
             metaVar = "FILEPATH",

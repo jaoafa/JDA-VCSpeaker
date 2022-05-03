@@ -6,8 +6,8 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class Cmd_Summon implements CmdSubstrate {
     @Override
@@ -15,20 +15,20 @@ public class Cmd_Summon implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":star2:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを召喚します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを召喚します")
             );
     }
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         summon(guild, member, event);
     }
 
 
-    void summon(Guild guild, Member member, SlashCommandEvent event) {
+    void summon(Guild guild, Member member, SlashCommandInteractionEvent event) {
         if (member == null || member.getVoiceState() == null) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":warning: 何かがうまくいきませんでした…")

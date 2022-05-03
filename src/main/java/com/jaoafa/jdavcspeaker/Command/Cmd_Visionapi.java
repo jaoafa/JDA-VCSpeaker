@@ -9,8 +9,8 @@ import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.json.JSONObject;
 
@@ -23,7 +23,7 @@ public class Cmd_Visionapi implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":frame_photo:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "VisionAPIに関する処理を行います")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VisionAPIに関する処理を行います")
                     .addSubcommands(
                         new SubcommandData("getlimit", "現在のVisionAPI利用数を取得します。")
                     )
@@ -32,15 +32,15 @@ public class Cmd_Visionapi implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         if (subCmd.equals("getlimit")) {
             addServer(guild, channel, member, event);
         }
     }
 
-    void addServer(Guild guild, MessageChannel channel, Member member, SlashCommandEvent event) {
+    void addServer(Guild guild, GuildMessageChannel channel, Member member, SlashCommandInteractionEvent event) {
         VisionAPI visionAPI = Main.getVisionAPI();
         if (visionAPI == null) {
             event.replyEmbeds(new EmbedBuilder()

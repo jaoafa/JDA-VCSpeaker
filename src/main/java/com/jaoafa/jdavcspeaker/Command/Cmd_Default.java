@@ -9,11 +9,11 @@ import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
@@ -50,7 +50,7 @@ public class Cmd_Default implements CmdSubstrate {
         return new CmdDetail()
             .setEmoji(":expressionless:")
             .setData(
-                new CommandData(this.getClass().getSimpleName().substring(4).toLowerCase(), "ユーザーのデフォルト音声を設定します")
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "ユーザーのデフォルト音声を設定します")
                     .addSubcommands(
                         new SubcommandData("get", "現在の音声パラメーターを取得"),
                         new SubcommandData("set", "デフォルトパラメーターを設定")
@@ -62,9 +62,9 @@ public class Cmd_Default implements CmdSubstrate {
 
     @Override
     public void hooker(JDA jda, Guild guild,
-                       MessageChannel channel, ChannelType type,
+                       GuildMessageChannel channel, ChannelType type,
                        Member member, User user,
-                       SlashCommandEvent event, String subCmd) {
+                       SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "get" -> getUser(user, event);
             case "set" -> setUser(user, event);
@@ -72,7 +72,7 @@ public class Cmd_Default implements CmdSubstrate {
         }
     }
 
-    void setUser(User user, SlashCommandEvent event) {
+    void setUser(User user, SlashCommandInteractionEvent event) {
         VoiceText vt = new VoiceText();
         try {
             OptionMapping speaker = event.getOption("speaker");
@@ -160,7 +160,7 @@ public class Cmd_Default implements CmdSubstrate {
         ).queue();
     }
 
-    void getUser(User user, SlashCommandEvent event) {
+    void getUser(User user, SlashCommandInteractionEvent event) {
         try {
             VoiceText vt = new DefaultParamsManager(user).getDefaultVoiceText();
             if (vt == null) {
@@ -193,7 +193,7 @@ public class Cmd_Default implements CmdSubstrate {
         }
     }
 
-    void resetUser(User user, SlashCommandEvent event) {
+    void resetUser(User user, SlashCommandInteractionEvent event) {
         boolean isSuccessful = new DefaultParamsManager(user).setDefaultVoiceText(null);
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":joystick: ユーザーデフォルトパラメータ")

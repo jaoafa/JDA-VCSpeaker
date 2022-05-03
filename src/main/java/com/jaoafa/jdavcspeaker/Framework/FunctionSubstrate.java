@@ -3,11 +3,11 @@ package com.jaoafa.jdavcspeaker.Framework;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONObject;
 
 public interface FunctionSubstrate {
-    String funcionName();
+    String functionName();
 
     String subFunction();
 
@@ -15,7 +15,7 @@ public interface FunctionSubstrate {
 
     Guild guild();
 
-    MessageChannel channel();
+    GuildMessageChannel channel();
 
     ChannelType type();
 
