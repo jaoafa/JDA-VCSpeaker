@@ -187,10 +187,11 @@ public class VisionAPI {
     }
 
     public void saveCache(String hash, List<Result> results, JSONObject raw_object) throws IOException {
-        Path file = LibFiles.VDirectory.VISION_API_CACHES.resolve(Path.of(hash));
+        Path hashFileName = Path.of(hash);
+        Path file = LibFiles.VDirectory.VISION_API_CACHES.resolve(hashFileName);
         LibFiles.VDirectory.VISION_API_CACHES.mkdirs();
 
-        Path file_result = LibFiles.VDirectory.VISION_API_RESULTS.resolve(Path.of(hash));
+        Path file_result = LibFiles.VDirectory.VISION_API_RESULTS.resolve(hashFileName);
         LibFiles.VDirectory.VISION_API_RESULTS.mkdirs();
 
         JSONArray array = new JSONArray();
@@ -215,7 +216,17 @@ public class VisionAPI {
         );
     }
 
-    public boolean isCheckTarget(File file) {
+    public static List<String> getSupportedFileExtensions() {
+        return List.of(
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "bmp"
+        );
+    }
+
+    public static boolean isCheckTarget(File file) {
         try {
             String mime = getMimeType(file);
             return getSupportedContentType().contains(mime);
@@ -224,7 +235,11 @@ public class VisionAPI {
         }
     }
 
-    public String getMimeType(File file) throws IOException {
+    public static boolean isCheckTarget(String extension) {
+        return getSupportedFileExtensions().contains(extension);
+    }
+
+    public static String getMimeType(File file) throws IOException {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         return URLConnection.guessContentTypeFromStream(is);
     }

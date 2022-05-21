@@ -36,6 +36,8 @@ public record TrackInfo(SpeakFromType speakFromType, Message message) {
         RECEIVED_FILE,
         /** 画像が送信された */
         RECEIVED_IMAGE,
+        /** スタンプが送信された */
+        RECEIVED_STICKER,
         /** VCにユーザーが参加した */
         JOINED_VC,
         /** VCでユーザーが移動した */
@@ -47,6 +49,8 @@ public record TrackInfo(SpeakFromType speakFromType, Message message) {
         /** GoLiveを終了した */
         ENDED_GOLIVE,
         /** VCタイトルを変えた */
-        CHANGED_TITLE
+        CHANGED_TITLE,
+        /** スレッドを作成した */
+        CREATED_THREAD
     }
 }
