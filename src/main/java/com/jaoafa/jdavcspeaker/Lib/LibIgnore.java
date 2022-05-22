@@ -2,8 +2,13 @@ package com.jaoafa.jdavcspeaker.Lib;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LibIgnore {
     private static final LibFiles.VFile vFile = LibFiles.VFile.IGNORE;
+    public static final List<String> contains = new ArrayList<>();
+    public static final List<String> equals = new ArrayList<>();
 
     public static void fetchMap() {
         LibFlow ignoreFlow = new LibFlow("LibIgnore");
@@ -17,8 +22,8 @@ public class LibIgnore {
             }
         }
 
-        LibValue.ignoreContains.clear();
-        LibValue.ignoreEquals.clear();
+        contains.clear();
+        equals.clear();
 
         JSONObject obj = vFile.readJSONObject();
         if (obj == null) {
@@ -27,38 +32,45 @@ public class LibIgnore {
         }
 
         for (int i = 0; i < obj.getJSONArray("contain").length(); i++) {
-            LibValue.ignoreContains.add(obj.getJSONArray("contain").getString(i));
+            contains.add(obj.getJSONArray("contain").getString(i));
         }
         for (int i = 0; i < obj.getJSONArray("equal").length(); i++) {
-            LibValue.ignoreEquals.add(obj.getJSONArray("equal").getString(i));
+            equals.add(obj.getJSONArray("equal").getString(i));
         }
-        ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(LibValue.ignoreContains.size(), LibValue.ignoreEquals.size()));
+        ignoreFlow.success("除外設定をロードしました（含む: %d / 一致: %d）。".formatted(contains.size(), equals.size()));
     }
 
     public static void saveJson() {
         JSONObject obj = new JSONObject();
-        obj.put("contain", LibValue.ignoreContains);
-        obj.put("equal", LibValue.ignoreEquals);
+        obj.put("contain", contains);
+        obj.put("equal", equals);
         vFile.write(obj);
     }
 
     public static void addToContainIgnore(String value) {
-        LibValue.ignoreContains.add(value);
+        contains.add(value);
         saveJson();
     }
 
     public static void addToEqualIgnore(String value) {
-        LibValue.ignoreEquals.add(value);
+        equals.add(value);
         saveJson();
     }
 
     public static void removeToContainIgnore(String value) {
-        LibValue.ignoreContains.remove(value);
+        contains.remove(value);
         saveJson();
     }
 
     public static void removeToEqualIgnore(String value) {
-        LibValue.ignoreEquals.remove(value);
+        equals.remove(value);
         saveJson();
+    }
+
+    public static boolean isIgnoreMessage(String content) {
+        boolean isEquals = equals.contains(content);
+        boolean isContain = contains.stream().anyMatch(content::contains);
+
+        return isEquals || isContain;
     }
 }

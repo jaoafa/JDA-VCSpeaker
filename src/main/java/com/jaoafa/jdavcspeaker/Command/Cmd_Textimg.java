@@ -50,8 +50,8 @@ public class Cmd_Textimg implements CmdSubstrate {
             return;
         }
         String url = Main.getExistsOption(event, "messagelink").getAsString();
-        Pattern msgUrlPattern = Pattern.compile("^https://discord\\.com/channels/([0-9]+)/([0-9]+)/([0-9]+)$");
-        Pattern mediaUrlPattern = Pattern.compile("^https://cdn\\.discordapp\\.com/attachments/([0-9]+)/([0-9]+)/(.+)$");
+        Pattern msgUrlPattern = Pattern.compile("^https://discord(?:app)?\\.com/channels/(\\d+)/(\\d+)/(\\d+)$");
+        Pattern mediaUrlPattern = Pattern.compile("^https://cdn\\.discordapp\\.com/attachments/(\\d+)/(\\d+)/(.+)$");
 
         String imageUrl;
         Matcher msgUrlMatcher = msgUrlPattern.matcher(url);

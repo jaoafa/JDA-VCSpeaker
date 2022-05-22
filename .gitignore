@@ -1,6 +1,7 @@
 /.idea/libraries
 /.idea/*.xml
 /.idea/.gitignore
+/.idea/shelf
 
 *.iml
 

@@ -26,6 +26,7 @@ public class VoiceText {
     Emotion emotion = null;
     EmotionLevel emotionLevel = EmotionLevel.NORMAL;
     int pitch = 100;
+    final LibFlow vtFlow = new LibFlow("VoiceText");
 
     /**
      * Initialize Voice Text object
@@ -247,14 +248,15 @@ public class VoiceText {
         if (speakText.length() == 0) {
             return;
         }
-        System.out.printf("[VoiceText.play] %s by %s (%s)%n", message.getContentDisplay().length() >= 10 ? message.getContentDisplay().substring(0, 10) : message.getContentDisplay(), message.getAuthor().getAsTag(), speakFromType.name());
+
+        vtFlow.success("[VoiceText.play] %s by %s (%s)", message.getContentDisplay().length() >= 10 ? message.getContentDisplay().substring(0, 10) : message.getContentDisplay(), message.getAuthor().getAsTag(), speakFromType.name());
 
         VoiceText vt;
         try {
             vt = parseMessage(speakText);
         } catch (WrongSpeakerException e) {
-            String allowParams = Arrays.stream(VoiceText.Speaker.values())
-                .filter(s -> !s.equals(VoiceText.Speaker.__WRONG__))
+            String allowParams = Arrays.stream(Speaker.values())
+                .filter(s -> !s.equals(Speaker.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
             message.replyEmbeds(new EmbedBuilder()
@@ -271,8 +273,8 @@ public class VoiceText {
                 .build()).queue();
             return;
         } catch (WrongEmotionException e) {
-            String allowParams = Arrays.stream(VoiceText.Emotion.values())
-                .filter(s -> !s.equals(VoiceText.Emotion.__WRONG__))
+            String allowParams = Arrays.stream(Emotion.values())
+                .filter(s -> !s.equals(Emotion.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
             message.replyEmbeds(new EmbedBuilder()
@@ -282,8 +284,8 @@ public class VoiceText {
                 .build()).queue();
             return;
         } catch (WrongEmotionLevelException e) {
-            String allowParams = Arrays.stream(VoiceText.EmotionLevel.values())
-                .filter(s -> !s.equals(VoiceText.EmotionLevel.__WRONG__))
+            String allowParams = Arrays.stream(EmotionLevel.values())
+                .filter(s -> !s.equals(EmotionLevel.__WRONG__))
                 .map(Enum::name)
                 .collect(Collectors.joining("`, `"));
             message.replyEmbeds(new EmbedBuilder()
@@ -306,8 +308,6 @@ public class VoiceText {
         emotionLevel = vt.getEmotionLevel();
         pitch = vt.getPitch();
 
-        System.out.println(this);
-
         speakText = Main.getArgs().formatMessage
             .replace("{username}", message.getAuthor().getName())
             .replace("{nickname}", message.getMember() != null && message.getMember().getNickname() != null ? message.getMember().getNickname() : message.getAuthor().getName())
@@ -320,12 +320,13 @@ public class VoiceText {
             emotionLevel != null ? emotionLevel.name() : "null",
             pitch));
 
-        if (LibFiles.VDirectory.VOICETEXT_CACHES.exists(Path.of("%s.mp3".formatted(hash)))) {
+        Path fileName = Path.of("%s.mp3".formatted(hash));
+        if (LibFiles.VDirectory.VOICETEXT_CACHES.exists(fileName)) {
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
             PlayerManager.getINSTANCE().loadAndPlay(
                 info,
-                LibFiles.VDirectory.VOICETEXT_CACHES.resolve(Path.of("%s.mp3".formatted(hash))).toString()
+                LibFiles.VDirectory.VOICETEXT_CACHES.resolve(fileName).toString()
             );
             return;
         }
@@ -344,8 +345,8 @@ public class VoiceText {
                 .add("pitch", String.valueOf(pitch))
                 .add("format", "mp3");
             if (emotion != null && emotionLevel != null) {
-                form = form.add("emotion", emotion.name().toLowerCase());
-                form = form.add("emotion_level", String.valueOf(emotionLevel.getLevel()));
+                form.add("emotion", emotion.name().toLowerCase());
+                form.add("emotion_level", String.valueOf(emotionLevel.getLevel()));
             }
 
             Request request = new Request.Builder()
@@ -353,19 +354,20 @@ public class VoiceText {
                 .url("https://api.voicetext.jp/v1/tts")
                 .header("Authorization", Credentials.basic(Main.getSpeakToken(), ""))
                 .build();
+            Path hashFileName = Path.of(hash);
             try (Response response = client.newCall(request).execute()) {
                 ResponseBody body = response.body();
                 if (body == null) {
-                    System.out.println("Warning: response.body() is null.");
+                    vtFlow.error("Warning: response.body() is null.");
                     return;
                 }
                 if (!response.isSuccessful()) {
-                    System.out.println("Error: " + response.code());
-                    System.out.println(body.string());
+                    vtFlow.error("Error: " + response.code());
+                    vtFlow.error(body.string());
                     return;
                 }
                 System.setProperty("file.encoding", "UTF-8");
-                Files.write(LibFiles.VDirectory.VOICETEXT_CACHES.resolve(Path.of(hash)), body.bytes());
+                Files.write(LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName), body.bytes());
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -375,7 +377,7 @@ public class VoiceText {
                 .queue(null, Throwable::printStackTrace);
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
-            PlayerManager.getINSTANCE().loadAndPlay(info, LibFiles.VDirectory.VOICETEXT_CACHES.resolve(Path.of(hash)).toString());
+            PlayerManager.getINSTANCE().loadAndPlay(info, LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName).toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }

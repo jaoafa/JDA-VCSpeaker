@@ -27,7 +27,6 @@ public class Cmd_Summon implements CmdSubstrate {
         summon(guild, member, event);
     }
 
-
     void summon(Guild guild, Member member, SlashCommandInteractionEvent event) {
         if (member == null || member.getVoiceState() == null) {
             event.replyEmbeds(new EmbedBuilder()

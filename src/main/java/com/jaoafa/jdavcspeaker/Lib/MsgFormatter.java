@@ -13,7 +13,7 @@ public class MsgFormatter {
         text = EmojiWrapper.parseToAliases(text);
 
         // ReplaceCustomEmoji
-        String regex = "<a?:(.+?):([0-9]+)>";
+        String regex = "<a?:(.+?):(\\d+)>";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
         while (m.find()) {
