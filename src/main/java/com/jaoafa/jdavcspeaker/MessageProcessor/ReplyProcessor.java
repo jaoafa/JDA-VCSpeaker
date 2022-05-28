@@ -2,16 +2,13 @@ package com.jaoafa.jdavcspeaker.MessageProcessor;
 
 import com.jaoafa.jdavcspeaker.Lib.UserVoiceTextResult;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 
 /**
  * ユーザーのリプライメッセージプロセッサ
  * <p>
- * ・全部 DefaltProcessor で処理する
- * ・今後、必要に応じてリプライであることを明示的に発言するようにするかも…しれない
+ * ・全部 DefaultProcessor で処理する
+ * ・「DiscordTag へのリプライ、」を最初に入れる
  */
 public class ReplyProcessor implements BaseProcessor {
     @Override
@@ -21,7 +18,12 @@ public class ReplyProcessor implements BaseProcessor {
 
     @Override
     public void execute(JDA jda, Guild guild, TextChannel channel, Member member, Message message, UserVoiceTextResult uvtr) {
+        MessageReference reference = message.getMessageReference();
+        String content = message.getContentDisplay();
+        if (reference != null && reference.getMessage() != null) {
+            content = reference.getMessage().getAuthor().getAsTag() + " へのリプライ、" + content;
+        }
         new DefaultMessageProcessor()
-            .execute(jda, guild, channel, member, message, uvtr);
+            .speak(jda, guild, message, uvtr, content);
     }
 }
