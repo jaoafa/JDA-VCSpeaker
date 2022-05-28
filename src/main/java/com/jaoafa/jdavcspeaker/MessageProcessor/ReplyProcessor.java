@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.*;
  * ユーザーのリプライメッセージプロセッサ
  * <p>
  * ・全部 DefaultProcessor で処理する
- * ・「DiscordTag へのリプライ、」を最初に入れる
+ * ・「DiscordName へのリプライ、」を最初に入れる
  */
 public class ReplyProcessor implements BaseProcessor {
     @Override
@@ -21,7 +21,7 @@ public class ReplyProcessor implements BaseProcessor {
         MessageReference reference = message.getMessageReference();
         String content = message.getContentDisplay();
         if (reference != null && reference.getMessage() != null) {
-            content = reference.getMessage().getAuthor().getAsTag() + " へのリプライ、" + content;
+            content = reference.getMessage().getAuthor().getName() + " へのリプライ、" + content;
         }
         new DefaultMessageProcessor()
             .speak(jda, guild, message, uvtr, content);
