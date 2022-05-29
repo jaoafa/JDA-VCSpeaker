@@ -46,8 +46,10 @@ public class DefaultMessageProcessor implements BaseProcessor {
 
     @Override
     public void execute(JDA jda, Guild guild, TextChannel channel, Member member, Message message, UserVoiceTextResult uvtr) {
-        String speakContent = message.getContentDisplay();
+        speak(jda, guild, message, uvtr, message.getContentDisplay());
+    }
 
+    public void speak(JDA jda, Guild guild, Message message, UserVoiceTextResult uvtr, String speakContent) {
         if (LibIgnore.isIgnoreMessage(speakContent)) {
             return;
         }
