@@ -146,6 +146,19 @@ public class VisionAPI {
         return obj.optInt(new SimpleDateFormat("yyyy/MM").format(new Date()), 0);
     }
 
+    public Map<String, Integer> getPastRequestCounts() {
+        JSONObject obj = vApiFile.readJSONObject(new JSONObject());
+        LinkedHashMap<String, Integer> ret = new LinkedHashMap<>();
+        String nowMonth = new SimpleDateFormat("yyyy/MM").format(new Date());
+        for (String key : obj.keySet().stream().sorted(Comparator.reverseOrder()).toList()) {
+            if (nowMonth.equals(key)) {
+                continue;
+            }
+            ret.put(key, obj.getInt(key));
+        }
+        return ret;
+    }
+
     private void requested() {
         String date = new SimpleDateFormat("yyyy/MM").format(new Date());
         JSONObject obj = vApiFile.readJSONObject(new JSONObject());
