@@ -36,7 +36,7 @@ public class DefaultMessageProcessor implements BaseProcessor {
     final Pattern inviteLinkUrlPattern = Pattern.compile("^(?:https?://)?(?:www\\.)?(?:discord(?:app)?\\.com/invite|discord\\.gg)/(\\w+)$", Pattern.CASE_INSENSITIVE);
     final Pattern tweetUrlPattern = Pattern.compile("^https://twitter\\.com/(\\w){1,15}/status/(\\d+)\\??(.*)$", Pattern.CASE_INSENSITIVE);
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
-    final Pattern spoilerPattern = Pattern.compile("\\|\\|.+\\|\\|");
+    final Pattern spoilerPattern = Pattern.compile("\\|\\|[\\s\\S]+?\\|\\|");
     final Pattern channelReplyPattern = Pattern.compile("<#(\\d+)>");
 
     @Override
