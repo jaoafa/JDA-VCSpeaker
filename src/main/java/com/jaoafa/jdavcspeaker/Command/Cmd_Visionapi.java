@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 public class Cmd_Visionapi implements CmdSubstrate {
     @Override
@@ -50,9 +51,17 @@ public class Cmd_Visionapi implements CmdSubstrate {
             ).queue();
             return;
         }
+
+        Map<String, Integer> pastMap = visionAPI.getPastRequestCounts();
+        String past = pastMap
+            .entrySet()
+            .stream()
+            .map(e -> e.getKey() + ": " + e.getValue())
+            .reduce("", (a, b) -> a + "\n" + b);
         EmbedBuilder embed = new EmbedBuilder()
             .setTitle("VisionAPI")
-            .addField("今月利用数", visionAPI.getRequestCount() + " / 950", false);
+            .addField("今月利用数", visionAPI.getRequestCount() + " / 950", false)
+            .addField("過去利用数", past.length() < 1024 ? past : past.substring(0, 1023), false);
 
         JSONObject when = LibFiles.VFile.VISION_API_WHEN.readJSONObject(new JSONObject());
         if (when.has(new SimpleDateFormat("yyyy/MM").format(new Date()))) {
