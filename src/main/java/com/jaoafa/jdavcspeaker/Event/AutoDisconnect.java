@@ -1,24 +1,51 @@
 package com.jaoafa.jdavcspeaker.Event;
 
-import com.jaoafa.jdavcspeaker.Util.EmbedColors;
+import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
+import com.jaoafa.jdavcspeaker.Lib.LibFlow;
+import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
+import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
-public class AutoDisconnect {
-    @SubscribeEvent
-    public void onMemberLeft(GuildVoiceLeaveEvent event) {
-        //VCに残ったメンバーが1人かつBot(VCSpeaker)
-        if (event.getChannelLeft().getMembers().size()==1&&event.getChannelLeft().getMembers().get(0).getUser().isBot()){
-            if (event.getMember().getUser().isBot()){
-                return;
-            }
-            event.getGuild().getAudioManager().closeAudioConnection();
-
-            EmbedBuilder disconSuccess = new EmbedBuilder();
-            disconSuccess.setTitle(":white_check_mark: AutoDisconnected");
-            disconSuccess.setColor(EmbedColors.success);
-            event.getJDA().getTextChannelById("623153228267388958").sendMessage(disconSuccess.build()).queue();
+/**
+ * If someone disconnects, it will also exit itself if there are no users other than the bot.
+ */
+public class AutoDisconnect extends ListenerAdapter {
+    @Override
+    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
+        if (Main.getArgs().isDisableAutoDisconnect) {
+            return;
         }
+        if (!MultipleServer.isTargetServer(event.getGuild())) {
+            return;
+        }
+        if (event.getGuild().getSelfMember().getVoiceState() == null ||
+            event.getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+            return; // 自身がどのVCにも参加していない
+        }
+        if (event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong() != event.getChannelLeft().getIdLong()) {
+            return; // 退出されたチャンネルが自身のいるVCと異なる
+        }
+
+        // VCに残ったユーザーが全員Bot、または誰もいなくなった
+        boolean existsUser = event
+            .getChannelLeft()
+            .getMembers()
+            .stream()
+            .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
+
+        if (existsUser) {
+            return;
+        }
+        new LibFlow("AutoDisconnect").success("退出に伴い、VCから誰もいなくなったため切断します。");
+        event.getGuild().getAudioManager().closeAudioConnection();
+
+        if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
+        EmbedBuilder embed = new EmbedBuilder()
+            .setTitle(":white_check_mark: AutoDisconnected")
+            .setColor(LibEmbedColor.success);
+        MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
     }
 }

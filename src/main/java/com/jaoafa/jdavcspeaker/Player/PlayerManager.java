@@ -8,7 +8,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,16 +43,13 @@ public class PlayerManager {
         return musicManager;
     }
 
-    public void loadAndPlay(TextChannel channel, String trackUrl, String userdata) {
-        GuildMusicManager musicManager = getGuildMusicManager(channel.getGuild());
+    public void loadAndPlay(TrackInfo info, String trackUrl) {
+        GuildMusicManager musicManager = getGuildMusicManager(info.getMessage().getGuild());
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                if (userdata!=null){
-                    track.setUserData(userdata);
-                }
+                track.setUserData(info);
                 play(musicManager, track);
-
             }
 
             @Override

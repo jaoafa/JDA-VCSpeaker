@@ -1,31 +1,61 @@
 package com.jaoafa.jdavcspeaker.Command;
 
-import com.jaoafa.jdavcspeaker.CmdInterface;
-import com.jaoafa.jdavcspeaker.Util.EmbedColors;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
+import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
+import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class Cmd_Summon implements CmdInterface {
+public class Cmd_Summon implements CmdSubstrate {
     @Override
-    public void onCommand(JDA jda, Guild guild, MessageChannel channel, Member member, Message message, String[] args) {
-        VoiceChannel connectedChannel = member.getVoiceState().getChannel();
-        if (connectedChannel == null) {
-            EmbedBuilder joinFailed = new EmbedBuilder();
-            joinFailed.setTitle(":x: Error");
-            joinFailed.setDescription("VCに参加してからVCSpeakerを呼び出してください。");
-            joinFailed.setColor(EmbedColors.error);
-            channel.sendMessage(joinFailed.build()).queue();
+    public CmdDetail detail() {
+        return new CmdDetail()
+            .setEmoji(":star2:")
+            .setData(
+                Commands.slash(this.getClass().getSimpleName().substring(4).toLowerCase(), "VCSpeakerを召喚します")
+            );
+    }
+
+    @Override
+    public void hooker(JDA jda, Guild guild,
+                       GuildMessageChannel channel, ChannelType type,
+                       Member member, User user,
+                       SlashCommandInteractionEvent event, String subCmd) {
+        summon(guild, member, event);
+    }
+
+    void summon(Guild guild, Member member, SlashCommandInteractionEvent event) {
+        if (member == null || member.getVoiceState() == null) {
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":warning: 何かがうまくいきませんでした…")
+                .setDescription((member == null ? "Member" : member.getVoiceState() == null ? "VoiceState" : "") + "を取得できませんでした。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
             return;
         }
-        AudioManager audioManager = guild.getAudioManager();
-        audioManager.openAudioConnection(connectedChannel);
 
-        EmbedBuilder joinSuccess = new EmbedBuilder();
-        joinSuccess.setTitle(":white_check_mark: Joined");
-        joinSuccess.setDescription("`"+connectedChannel.getName()+"`に接続しました。");
-        joinSuccess.setColor(EmbedColors.success);
-        channel.sendMessage(joinSuccess.build()).queue();
+        AudioChannel connectedChannel = member.getVoiceState().getChannel();
+        if (connectedChannel == null) {
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":warning: 接続に失敗しました")
+                .setDescription("あなたはVCに参加していません。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+
+        guild.getAudioManager().openAudioConnection(connectedChannel);
+        cmdFlow.success("%s が %s に接続するようリクエストしました。", event.getUser().getAsTag(), connectedChannel.getName());
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setDescription(":satellite: <#%s> に接続しました。".formatted(connectedChannel.getId()))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
     }
 }

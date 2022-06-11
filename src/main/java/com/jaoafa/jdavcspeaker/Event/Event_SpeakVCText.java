@@ -1,35 +1,113 @@
 package com.jaoafa.jdavcspeaker.Event;
 
-import com.jaoafa.jdavcspeaker.StaticData;
-import com.jaoafa.jdavcspeaker.Util.VoiceText;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import com.jaoafa.jdavcspeaker.Lib.*;
+import com.jaoafa.jdavcspeaker.MessageProcessor.BaseProcessor;
+import com.jaoafa.jdavcspeaker.MessageProcessor.ProcessorType;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Event_SpeakVCText {
-    @SubscribeEvent
-    public void onMsg(MessageReceivedEvent event) {
-        StaticData.jda = event.getJDA();
-        if (!event.getChannel().getId().equals(StaticData.vcTextChannel)){
+public class Event_SpeakVCText extends ListenerAdapter {
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.TEXT)) {
             return;
         }
-        if (event.getMember().getUser().isBot()){
+        Guild guild = event.getGuild();
+        if (!MultipleServer.isTargetServer(guild)) {
             return;
         }
-        if (event.getMessage().getContentRaw().equals(".")) {
+        final JDA jda = event.getJDA();
+        final TextChannel channel = event.getTextChannel();
+        final Message message = event.getMessage();
+        if (channel.getIdLong() != MultipleServer.getVCChannelId(guild)) {
+            return; // VCテキストチャンネル以外からのメッセージ
+        }
+        final Member member = event.getMember();
+        if (member == null) {
             return;
         }
-        final String[] speaktext = {event.getMessage().getContentRaw()};
 
-        Arrays.stream(speaktext[0].split(" ")).forEach(s ->{
-            if (s.startsWith("http://")||s.startsWith("https://")){
-                int last = s.split("/").length;
-                speaktext[0] = speaktext[0].replace(s,s.split("/")[last-1]);
+        User user = event.getAuthor();
+        if (user.getIdLong() == jda.getSelfUser().getIdLong()) {
+            return;
+        }
+
+        final String content = message.getContentDisplay(); // チャンネル名・リプライとかが表示通りになっている文字列が返る
+        if (content.equals(".")) {
+            return; // .のみは除外
+        }
+
+        if (guild.getSelfMember().getVoiceState() == null ||
+            guild.getSelfMember().getVoiceState().getChannel() == null) {
+            // 自身がどこにも入っていない場合
+
+            if (member.getVoiceState() != null &&
+                member.getVoiceState().getChannel() != null) {
+                // メッセージ送信者がどこかのVCに入っている場合
+
+                guild.getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
+                if (MultipleServer.getVCChannel(guild) != null) {
+                    EmbedBuilder embed = new EmbedBuilder()
+                        .setTitle(":white_check_mark: AutoJoined")
+                        .setDescription("`" + member.getVoiceState().getChannel().getName() + "`へ自動接続しました。")
+                        .setColor(LibEmbedColor.success);
+                    MultipleServer.getVCChannel(guild).sendMessageEmbeds(embed.build()).queue();
+                }
+            } else {
+                return; // 自身がどこにも入っておらず、送信者もどこにも入っていない場合
             }
-        });
+        }
 
-        VoiceText.speak(event.getTextChannel(), speaktext[0],event.getChannel().getId()+"/"+event.getMessage().getId());
+        UserVoiceTextResult uvtr = UserVoiceTextResult.getUserVoiceText(user);
+        if (uvtr.isReset()) {
+            message.reply("デフォルトパラメーターが不正であるため、リセットしました。").queue();
+        }
+
+        List<ProcessorType> processorTypes = ProcessorType.getMatchProcessor(message);
+        for (BaseProcessor processor : getMessageProcessors()) {
+            if (!processorTypes.contains(processor.getType())) {
+                continue;
+            }
+
+            processor.execute(
+                jda,
+                guild,
+                channel,
+                member,
+                message,
+                uvtr
+            );
+        }
+    }
+
+    List<BaseProcessor> getMessageProcessors() {
+        List<BaseProcessor> list = new ArrayList<>();
+        try {
+            for (Class<?> eventClass : new LibClassFinder().findClasses("com.jaoafa.jdavcspeaker.MessageProcessor")) {
+                if (eventClass.isInterface() ||
+                    !eventClass.getSimpleName().endsWith("Processor")
+                    || eventClass.getEnclosingClass() != null
+                    || eventClass.getName().contains("$")) {
+                    continue;
+                }
+                Object instance = ((Constructor<?>) eventClass.getConstructor()).newInstance();
+                if (!(instance instanceof BaseProcessor)) {
+                    continue;
+                }
+
+                list.add((BaseProcessor) eventClass.getConstructor().newInstance());
+            }
+        } catch (Exception e) {
+            new LibReporter(null, e);
+        }
+        return list;
     }
 }
