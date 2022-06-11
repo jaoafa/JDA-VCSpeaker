@@ -2,3 +2,6 @@
 VCSpeaker.json
 target/*
 speak.wav
+.idea
+Temp
+/*.json
