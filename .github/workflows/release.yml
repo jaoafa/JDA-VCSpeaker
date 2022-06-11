@@ -47,7 +47,7 @@ jobs:
           project_version: ${{ steps.version.outputs.new_version }}
         run: |
           cd ./project
-          mvn ${{ maven_cmd }}
+          mvn ${{ env.maven_cmd }}
       - name: 🗃️ Publish Release (main)
         env:
           project_version: ${{ steps.version.outputs.new_version }}
