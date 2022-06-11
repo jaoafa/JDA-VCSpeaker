@@ -10,7 +10,7 @@ jobs:
   Publish:
     env:
       jdk: 16
-      maven_cmd: install
+      maven_cmd: clean package
       ref_main: "main"
       ref_dev: "dev"
       files: |
@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/caches
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/*.gradle.kts') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: 📦 Package
