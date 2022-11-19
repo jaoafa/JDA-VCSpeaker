@@ -99,7 +99,7 @@ public class Event_Disconnect extends ListenerAdapter {
         Process p;
         try {
             ProcessBuilder builder = new ProcessBuilder();
-            builder.command(List.of("node", LibFiles.VFile.EXTERNAL_SCRIPT_DESTINATION_CHANNEL.getPath().toString(), "--userId", userId));
+            builder.command(List.of("node", "--no-warnings", LibFiles.VFile.EXTERNAL_SCRIPT_DESTINATION_CHANNEL.getPath().toString(), "--userId", userId));
             builder.redirectErrorStream(true);
             builder.directory(new File("."));
             p = builder.start();
