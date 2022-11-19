@@ -80,7 +80,7 @@ public class AttachmentsProcessor implements BaseProcessor {
                         .orElse(null);
 
                     if (text != null) {
-                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%sを含む画像」が送信されました。".formatted(text.length() > 30 ? text.substring(0, 30) : text));
+                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%s を含む画像」が送信されました。".formatted(text.length() > 30 ? text.substring(0, 30) : text));
 
                         message
                             .getChannel()
@@ -89,7 +89,7 @@ public class AttachmentsProcessor implements BaseProcessor {
                             .mentionRepliedUser(false)
                             .queue();
                     } else {
-                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%s」が送信されました。".formatted(attachment.getFileName()));
+                        vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「 %s 」が送信されました。".formatted(attachment.getFileName()));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -98,7 +98,7 @@ public class AttachmentsProcessor implements BaseProcessor {
     }
 
     void processFile(Message message, VoiceText vt, Message.Attachment attachment) {
-        vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「%s」が送信されました。".formatted(attachment.getFileName()));
+        vt.play(TrackInfo.SpeakFromType.RECEIVED_FILE, message, "ファイル「 %s 」が送信されました。".formatted(attachment.getFileName()));
     }
 
     String safeSubstring(String str) {

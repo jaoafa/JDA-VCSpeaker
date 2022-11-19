@@ -25,6 +25,6 @@ public class CreatedThreadProcessor implements BaseProcessor {
 
         String threadName = message.getContentRaw(); // message.getStartedThread() が必ず null になるので、暫定的にこれで代用
 
-        uvtr.vt().play(TrackInfo.SpeakFromType.CREATED_THREAD, message, "%sがスレッド「%s」を開始しました。".formatted(member.getUser().getName(), threadName));
+        uvtr.vt().play(TrackInfo.SpeakFromType.CREATED_THREAD, message, "%s がスレッド「 %s 」を開始しました。".formatted(member.getUser().getName(), threadName));
     }
 }
