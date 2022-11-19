@@ -333,7 +333,7 @@ public class VoiceText {
 
         message
             .addReaction("\uD83D\uDC40") // :eyes:
-            .queue(null, Throwable::printStackTrace);
+            .queue(null);
 
         try {
             OkHttpClient client = new OkHttpClient();
@@ -374,7 +374,7 @@ public class VoiceText {
             }
             message
                 .removeReaction("\uD83D\uDC40") // :eyes:
-                .queue(null, Throwable::printStackTrace);
+                .queue(null);
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
             PlayerManager.getINSTANCE().loadAndPlay(info, LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName).toString());

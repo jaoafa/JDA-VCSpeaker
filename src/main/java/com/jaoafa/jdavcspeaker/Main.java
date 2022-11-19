@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.internal.requests.RestActionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -42,6 +43,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -168,6 +170,32 @@ public class Main extends ListenerAdapter {
 
                 if (prevHandler != null)
                     prevHandler.uncaughtException(t, e);
+            });
+            final Consumer<? super Throwable> prevDefaultFailure = RestActionImpl.getDefaultFailure();
+            RestActionImpl.setDefaultFailure((e) -> {
+                e.printStackTrace();
+                LibValue.rollbar.critical(e);
+
+                TextChannel channel = LibValue.jda.getTextChannelById(921841152355864586L);
+                if (channel != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    pw.flush();
+                    String details = sw.toString();
+                    InputStream is = new ByteArrayInputStream(details.getBytes(StandardCharsets.UTF_8));
+                    channel.sendMessageEmbeds(new EmbedBuilder()
+                            .setTitle("JDA-VCSpeaker Error Reporter")
+                            .addField("Summary", String.format("%s (%s)", e.getMessage(), e.getClass().getName()), false)
+                            .addField("Details", details.substring(0, 1000), false)
+                            .setColor(Color.RED)
+                            .build())
+                        .addFile(is, "stacktrace.txt")
+                        .queue();
+                }
+
+                if (prevDefaultFailure != null)
+                    prevDefaultFailure.accept(e);
             });
         }
 
