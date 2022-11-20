@@ -41,9 +41,9 @@ public class Event_GoLiveNotify extends ListenerAdapter {
                 channel.getId());
 
         String speakText = isStream ?
-            "%sがGoLiveを開始しました。".formatted(
+            "%s がGoLiveを開始しました。".formatted(
                 member.getUser().getName()) :
-            "%sがGoLiveを終了しました。".formatted(
+            "%s がGoLiveを終了しました。".formatted(
                 member.getUser().getName());
 
         MultipleServer

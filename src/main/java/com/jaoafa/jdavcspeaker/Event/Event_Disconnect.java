@@ -56,7 +56,7 @@ public class Event_Disconnect extends ListenerAdapter {
             new VoiceText().play(
                 TrackInfo.SpeakFromType.QUITED_VC,
                 message,
-                "%sが%sから退出しました。".formatted(
+                "%s が %s から退出しました。".formatted(
                     user.getName(),
                     MsgFormatter.formatChannelName(channel.getName()))
             );
@@ -80,7 +80,7 @@ public class Event_Disconnect extends ListenerAdapter {
                         new VoiceText().play(
                             TrackInfo.SpeakFromType.QUITED_VC,
                             message,
-                            "%sは%sの%sへ移動しました。".formatted(
+                            "%s は %s の %s へ移動しました。".formatted(
                                 user.getName(),
                                 destinationChannel.getString("guildName"),
                                 MsgFormatter.formatChannelName(destinationChannel.getString("channelName")))

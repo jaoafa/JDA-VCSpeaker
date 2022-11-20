@@ -44,7 +44,7 @@ public class Event_Move extends ListenerAdapter {
                         new VoiceText().play(
                             TrackInfo.SpeakFromType.MOVED_VC,
                             message,
-                            "%sが%sから%sに移動しました。".formatted(
+                            "%s が %s から %s に移動しました。".formatted(
                                 user.getName(),
                                 MsgFormatter.formatChannelName(oldChannel.getName()),
                                 MsgFormatter.formatChannelName(newChannel.getName()))

@@ -90,7 +90,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (channel == null) return;
         channel.retrieveMessageById(info.getMessage().getIdLong())
             .queue(msg -> msg.removeReaction("\uD83D\uDDE3", LibValue.jda.getSelfUser()) // :speaking_head:
-                .queue(null, Throwable::printStackTrace));
+                .queue(null));
     }
 
     boolean reactionSpeaking(AudioTrack track) {
@@ -107,7 +107,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 return false;
             }
             message.addReaction("\uD83D\uDDE3") // :speaking_head:
-                .queue(null, Throwable::printStackTrace);
+                .queue(null);
         } catch (ErrorResponseException e) {
             return false;
         }

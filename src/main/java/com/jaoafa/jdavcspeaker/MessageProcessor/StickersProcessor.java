@@ -19,7 +19,7 @@ public class StickersProcessor implements BaseProcessor {
     @Override
     public void execute(JDA jda, Guild guild, TextChannel channel, Member member, Message message, UserVoiceTextResult uvtr) {
         for (MessageSticker sticker : message.getStickers()) {
-            uvtr.vt().play(TrackInfo.SpeakFromType.RECEIVED_STICKER, message, "スタンプ「%s」が送信されました。".formatted(sticker.getName()));
+            uvtr.vt().play(TrackInfo.SpeakFromType.RECEIVED_STICKER, message, "スタンプ「 %s 」が送信されました。".formatted(sticker.getName()));
         }
     }
 }

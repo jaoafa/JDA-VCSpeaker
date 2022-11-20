@@ -112,7 +112,7 @@ public class Cmd_Title implements CmdSubstrate {
                 origin_msg -> new VoiceText().play(
                     TrackInfo.SpeakFromType.CHANGED_TITLE,
                     origin_msg,
-                    String.format("タイトルを%sに変更しました", title)
+                    String.format("タイトルを %s に変更しました", title)
                 )
             )
         );
