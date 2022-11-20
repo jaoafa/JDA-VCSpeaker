@@ -35,7 +35,7 @@ public class Event_Join extends ListenerAdapter {
                             .play(
                                 TrackInfo.SpeakFromType.JOINED_VC,
                                 message,
-                                "%sが%sに参加しました。".formatted(
+                                "%s が %s に参加しました。".formatted(
                                     user.getName(),
                                     MsgFormatter.formatChannelName(channel.getName()))
                             );
