@@ -17,15 +17,15 @@ public enum ProcessorType {
     /** Bot がメッセージに対して返信したメッセージ (Embed メッセージを含む) */
     BOT_REPLY((message) -> message.getType() == MessageType.INLINE_REPLY && message.getAuthor().isBot() && !message.getType().isSystem()),
     /** Bot に対してのコマンドと思われるメッセージ */
-    BOT_COMMAND((message) -> message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY && getBotCommandPrefix(message.getContentDisplay()) && !message.getType().isSystem()),
+    BOT_COMMAND((message) -> (message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY) && getBotCommandPrefix(message.getContentDisplay()) && !message.getType().isSystem()),
     /** ユーザーが送信したEmbedメッセージ */
-    EMBED((message) -> message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY && message.getEmbeds().size() > 0 && !message.getAuthor().isBot() && !message.getType().isSystem()),
+    EMBED((message) -> (message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY) && message.getEmbeds().size() > 0 && !message.getAuthor().isBot() && !message.getType().isSystem()),
     /** Bot が送信したEmbedメッセージ */
-    BOT_EMBED((message) -> message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY && message.getEmbeds().size() > 0 && message.getAuthor().isBot() && !message.getType().isSystem()),
+    BOT_EMBED((message) -> (message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY) && message.getEmbeds().size() > 0 && message.getAuthor().isBot() && !message.getType().isSystem()),
     /** スタンプ (Sticker) メッセージ */
-    STICKERS((message) -> message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY && message.getStickers().size() > 0 && !message.getType().isSystem()),
+    STICKERS((message) -> (message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY) && message.getStickers().size() > 0 && !message.getType().isSystem()),
     /** 添付ファイル (メッセージ) */
-    ATTACHMENTS((message) -> message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY && message.getAttachments().size() > 0 && !message.getType().isSystem()),
+    ATTACHMENTS((message) -> (message.getType() == MessageType.DEFAULT || message.getType() == MessageType.INLINE_REPLY) && message.getAttachments().size() > 0 && !message.getType().isSystem()),
     /** スレッド開始通知メッセージ (メッセージ派生かどうかを問わない) */
     CREATED_THREAD((message) -> message.getType() == MessageType.THREAD_CREATED),
     /** スラッシュコマンドによるメッセージ */
