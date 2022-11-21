@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -100,7 +101,7 @@ public class Event_Disconnect extends ListenerAdapter {
         try {
             ProcessBuilder builder = new ProcessBuilder();
             builder.command(List.of("node", "--no-warnings", LibFiles.VFile.EXTERNAL_SCRIPT_DESTINATION_CHANNEL.getPath().toString(), "--userId", userId));
-            builder.redirectErrorStream(true);
+            builder.redirectErrorStream(false);
             builder.directory(new File("."));
             p = builder.start();
             boolean bool = p.waitFor(3, TimeUnit.MINUTES);
@@ -115,7 +116,13 @@ public class Event_Disconnect extends ListenerAdapter {
                 System.out.println(streamToString);
                 return null;
             }
-            return new JSONArray(streamToString);
+            try {
+                return new JSONArray(streamToString);
+            } catch (JSONException e) {
+                System.out.println("JSON Error: " + e.getMessage());
+                System.out.println(streamToString);
+                return null;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             return null;
