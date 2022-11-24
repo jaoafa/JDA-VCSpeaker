@@ -2,10 +2,7 @@ package com.jaoafa.jdavcspeaker.Command;
 
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
-import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
-import com.jaoafa.jdavcspeaker.Lib.LibFlow;
-import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
-import com.jaoafa.jdavcspeaker.Lib.VisionAPI;
+import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -14,16 +11,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Cmd_Textimg implements CmdSubstrate {
     @Override
@@ -110,7 +101,7 @@ public class Cmd_Textimg implements CmdSubstrate {
 
         File file;
         try {
-            file = getTempimgPath(imageUrl);
+            file = LibTextImg.getTempimgPath(imageUrl);
         } catch (IOException e) {
             e.printStackTrace();
             event.getHook().editOriginalEmbeds(new EmbedBuilder()
@@ -130,31 +121,5 @@ public class Cmd_Textimg implements CmdSubstrate {
         new LibFlow("textimg").success("File: %s", file.getAbsolutePath());
 
         event.getHook().editOriginal(file, "output.png").queue();
-    }
-
-    private File getTempimgPath(String mediaUrl) throws IOException {
-        File tmp = File.createTempFile("textimg", ".png");
-        Process p;
-        try {
-            ProcessBuilder builder = new ProcessBuilder();
-            builder.command(List.of("php", "external_scripts/image-text.php", mediaUrl, tmp.getAbsolutePath()));
-            builder.redirectErrorStream(true);
-            builder.directory(new File("."));
-            p = builder.start();
-            boolean bool = p.waitFor(3, TimeUnit.MINUTES);
-            if (!bool) {
-                return null;
-            }
-            InputStreamReader inputStreamReader = new InputStreamReader(p.getInputStream());
-            Stream<String> streamOfString = new BufferedReader(inputStreamReader).lines();
-            String streamToString = streamOfString.collect(Collectors.joining("\n"));
-            System.out.println(streamToString);
-            if (p.exitValue() != 0) {
-                return null;
-            }
-        } catch (InterruptedException e) {
-            return null;
-        }
-        return tmp;
     }
 }

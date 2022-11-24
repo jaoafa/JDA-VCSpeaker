@@ -3,12 +3,15 @@ package com.jaoafa.jdavcspeaker.MessageProcessor;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -82,12 +85,28 @@ public class AttachmentsProcessor implements BaseProcessor {
                     if (text != null) {
                         vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「%s を含む画像」が送信されました。".formatted(text.length() > 30 ? text.substring(0, 30) : text));
 
-                        message
-                            .getChannel()
-                            .sendMessage("```\n" + safeSubstring(text.replaceAll("\n", " ")) + "\n```")
+                        File outputFile = null;
+                        try {
+                            // 本来はこのタイミングでダウンロードが完了しているので、PHP側でもダウンロードするのではなくダウンロード済みファイルを利用するべき
+                            // 気が向いたら修正
+                            outputFile = LibTextImg.getTempimgPath(attachment.getUrl());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        MessageAction action;
+                        EmbedBuilder embed = new EmbedBuilder()
+                            .setDescription("```\n" + safeSubstring(text.replaceAll("\n", " ")) + "\n```");
+                        if (outputFile != null) {
+                            action = message.getChannel().sendFile(outputFile, "output.png");
+                            embed = embed.setThumbnail("attachment://output.png");
+                        } else {
+                            action = message.getChannel().sendMessageEmbeds(embed.build());
+                        }
+                        action
+                            .setEmbeds(embed.build())
                             .reference(message)
-                            .mentionRepliedUser(false)
-                            .queue();
+                            .mentionRepliedUser(false).queue();
                     } else {
                         vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「 %s 」が送信されました。".formatted(attachment.getFileName()));
                     }
