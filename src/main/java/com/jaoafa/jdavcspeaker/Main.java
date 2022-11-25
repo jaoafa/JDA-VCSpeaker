@@ -42,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
@@ -139,7 +138,7 @@ public class Main extends ListenerAdapter {
             LibValue.rollbar = Rollbar.init(ConfigBuilder
                 .withAccessToken(tokenConfig.getString("rollbar"))
                 .environment(getLocalHostName())
-                .codeVersion(getGitHash())
+                .codeVersion(Main.class.getPackage().getImplementationVersion())
                 .handleUncaughtErrors(false)
                 .build());
 
@@ -162,6 +161,7 @@ public class Main extends ListenerAdapter {
                             .addField("Summary", String.format("%s (%s)", e.getMessage(), e.getClass().getName()), false)
                             .addField("Details", details.substring(0, 1000), false)
                             .addField("Thread Name", t.getName(), false)
+                            .setFooter("JDA-VCSpeaker %s".formatted(Main.class.getPackage().getImplementationVersion()))
                             .setColor(Color.RED)
                             .build())
                         .addFile(is, "stacktrace.txt")
@@ -188,6 +188,7 @@ public class Main extends ListenerAdapter {
                             .setTitle("JDA-VCSpeaker Error Reporter")
                             .addField("Summary", String.format("%s (%s)", e.getMessage(), e.getClass().getName()), false)
                             .addField("Details", details.substring(0, 1000), false)
+                            .setFooter("JDA-VCSpeaker %s".formatted(Main.class.getPackage().getImplementationVersion()))
                             .setColor(Color.RED)
                             .build())
                         .addFile(is, "stacktrace.txt")
@@ -305,39 +306,6 @@ public class Main extends ListenerAdapter {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            return "Unknown";
-        }
-    }
-
-    private static String getGitHash() {
-        try {
-            Process p;
-            try {
-                ProcessBuilder builder = new ProcessBuilder();
-                builder.command("git", "rev-parse", "--short", "HEAD");
-                builder.redirectErrorStream(true);
-                p = builder.start();
-                boolean bool = p.waitFor(10, TimeUnit.SECONDS);
-                if (!bool) {
-                    return null;
-                }
-            } catch (InterruptedException e) {
-                return null;
-            }
-            try (InputStream is = p.getInputStream()) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                    StringBuilder text = new StringBuilder();
-                    while (true) {
-                        String line = br.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        text.append(line).append("\n");
-                    }
-                    return text.toString().trim();
-                }
-            }
-        } catch (IOException e) {
             return "Unknown";
         }
     }
