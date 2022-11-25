@@ -52,6 +52,8 @@
                     <archive>
                         <manifest>
                             <mainClass>com.jaoafa.jdavcspeaker.Main</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>
