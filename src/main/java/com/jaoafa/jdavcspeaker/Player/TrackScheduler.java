@@ -9,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -90,7 +91,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (channel == null) return;
         channel.retrieveMessageById(info.getMessage().getIdLong())
             .queue(msg -> msg.removeReaction("\uD83D\uDDE3", LibValue.jda.getSelfUser()) // :speaking_head:
-                .queue(null));
+                .queue());
     }
 
     boolean reactionSpeaking(AudioTrack track) {
@@ -107,8 +108,12 @@ public class TrackScheduler extends AudioEventAdapter {
                 return false;
             }
             message.addReaction("\uD83D\uDDE3") // :speaking_head:
-                .queue(null);
+                .queue();
         } catch (ErrorResponseException e) {
+            // メッセージが削除されていて見つからないだけだったらスタックトレースを出さない
+            if (e.getErrorResponse() != ErrorResponse.UNKNOWN_MESSAGE) {
+                e.printStackTrace();
+            }
             return false;
         }
         return true;
