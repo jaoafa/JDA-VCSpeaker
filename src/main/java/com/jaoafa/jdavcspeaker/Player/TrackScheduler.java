@@ -59,7 +59,11 @@ public class TrackScheduler extends AudioEventAdapter {
             nextTrack();
             return; // 投稿が削除されているかもしれない
         }
-        player.startTrack(track, false);
+        if (player.startTrack(track, true)) {
+            return;
+        }
+        new LibFlow("TrackScheduler.nextTrack")
+            .error("トラックの再生に失敗しました。");
     }
 
     @Override
