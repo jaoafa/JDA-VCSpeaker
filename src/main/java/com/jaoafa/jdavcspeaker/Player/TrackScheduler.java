@@ -110,8 +110,8 @@ public class TrackScheduler extends AudioEventAdapter {
             message.addReaction("\uD83D\uDDE3") // :speaking_head:
                 .queue();
         } catch (ErrorResponseException e) {
-            // メッセージが削除されていて見つからないだけだったらスタックトレースを出さない
-            if (e.getErrorResponse() != ErrorResponse.UNKNOWN_MESSAGE) {
+            // メッセージが削除されていて見つからない or ブロックされていてリアクションできないだけだったらスタックトレースを出さない
+            if (e.getErrorResponse() != ErrorResponse.UNKNOWN_MESSAGE && e.getErrorResponse() != ErrorResponse.REACTION_BLOCKED) {
                 e.printStackTrace();
             }
             return false;
