@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
@@ -173,6 +174,12 @@ public class Main extends ListenerAdapter {
             });
             final Consumer<? super Throwable> prevDefaultFailure = RestActionImpl.getDefaultFailure();
             RestActionImpl.setDefaultFailure((e) -> {
+                if (e instanceof ErrorResponseException ere) {
+                    // 当該ユーザーからブロックされているためにリアクションをつけられない場合、または当該メッセージが存在しない場合は無視
+                    if (ere.getErrorResponse() == ErrorResponse.REACTION_BLOCKED || ere.getErrorResponse() == ErrorResponse.UNKNOWN_MESSAGE) {
+                        return;
+                    }
+                }
                 e.printStackTrace();
                 LibValue.rollbar.critical(e);
 
