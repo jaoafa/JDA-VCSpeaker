@@ -261,7 +261,7 @@ public class DefaultMessageProcessor implements BaseProcessor {
 
     VoiceText changeEmphasizeSpeed(VoiceText vt) {
         try {
-            return vt.setSpeed(Math.max(vt.getSpeed() / 2, 50));
+            return vt.setSpeed((int) Math.max(vt.getSpeed() / 1.75, 50));
         } catch (VoiceText.WrongSpeedException e) {
             return vt;
         }
