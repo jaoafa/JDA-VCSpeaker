@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
+import java.util.stream.Collectors;
+
 public class Cmd_Ignore implements CmdSubstrate {
     @Override
     public CmdDetail detail() {
@@ -28,21 +30,26 @@ public class Cmd_Ignore implements CmdSubstrate {
                                 new SubcommandData("contain", "内容を含むテキストの無視設定")
                                     .addOption(OptionType.STRING, "text", "内容", true),
                                 new SubcommandData("equal", "内容に一致するテキストの無視設定")
-                                    .addOption(OptionType.STRING, "text", "内容", true)
+                                    .addOption(OptionType.STRING, "text", "内容", true),
+                                new SubcommandData("regex", "正規表現にマッチするテキストの無視設定")
+                                    .addOption(OptionType.STRING, "regex", "正規表現", true)
                             ),
                         new SubcommandGroupData("remove", "設定を消去")
                             .addSubcommands(
                                 new SubcommandData("contain", "内容を含むテキストの無視設定")
                                     .addOption(OptionType.STRING, "text", "内容", true),
                                 new SubcommandData("equal", "内容に一致するテキストの無視設定")
-                                    .addOption(OptionType.STRING, "text", "内容", true)
+                                    .addOption(OptionType.STRING, "text", "内容", true),
+                                new SubcommandData("regex", "正規表現にマッチするテキストの無視設定")
+                                    .addOption(OptionType.STRING, "regex", "正規表現", true)
                             ),
                         new SubcommandGroupData("list", "設定の閲覧")
                             .addSubcommands(
                                 new SubcommandData("type", "無視設定の種別")
-                                    .addOptions(new OptionData(OptionType.STRING, "type", "無視設定の種別（contain、もしくはequal）を指定します", true)
+                                    .addOptions(new OptionData(OptionType.STRING, "type", "無視設定の種別（contain equal regex）を指定します", true)
                                         .addChoice("含む (contain)", "contain")
-                                        .addChoice("一致 (equal)", "equal"))
+                                        .addChoice("一致 (equal)", "equal")
+                                        .addChoice("正規表現 (regex)", "regex"))
                             )
                     )
             );
@@ -56,8 +63,10 @@ public class Cmd_Ignore implements CmdSubstrate {
         switch (subCmd) {
             case "add:contain" -> addContains(event);
             case "add:equal" -> addEquals(event);
+            case "add:regex" -> addRegex(event);
             case "remove:contain" -> removeContains(event);
             case "remove:equal" -> removeEquals(event);
+            case "remove:regex" -> removeRegex(event);
             case "list:type" -> list(event);
         }
     }
@@ -85,6 +94,30 @@ public class Cmd_Ignore implements CmdSubstrate {
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":pencil: 無視項目を設定しました！")
             .setDescription(String.format("`%s`に一致するメッセージは読み上げません。", text))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
+    void addRegex(SlashCommandInteractionEvent event) {
+        String regex = Main.getExistsOption(event, "regex").getAsString();
+
+        try {
+            LibIgnore.addToRegexIgnore(regex);
+        } catch (IllegalArgumentException e) {
+            event.replyEmbeds(new EmbedBuilder()
+                .setTitle(":x: 正規表現の構文エラー")
+                .setDescription("正規表現の構文が不適切です。")
+                .setColor(LibEmbedColor.error)
+                .build()
+            ).queue();
+            return;
+        }
+        cmdFlow.success("%s が正規表現除外設定しました: %s", event.getUser().getAsTag(), regex);
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle(":pencil: 無視項目を設定しました！")
+            .setDescription(String.format("`%s`に正規表現でマッチするメッセージは読み上げません。", regex))
             .setColor(LibEmbedColor.success)
             .build()
         ).queue();
@@ -118,22 +151,38 @@ public class Cmd_Ignore implements CmdSubstrate {
         ).queue();
     }
 
+    void removeRegex(SlashCommandInteractionEvent event) {
+        String regex = Main.getExistsOption(event, "regex").getAsString();
+
+        LibIgnore.removeToRegexIgnore(regex);
+        cmdFlow.success("%s が正規表現除外設定を解除しました: %s", event.getUser().getAsTag(), regex);
+
+        event.replyEmbeds(new EmbedBuilder()
+            .setTitle(":wastebasket: 無視項目を削除しました！")
+            .setDescription(String.format("今後は`%s`と正規表現で一致するメッセージも読み上げます。", regex))
+            .setColor(LibEmbedColor.success)
+            .build()
+        ).queue();
+    }
+
     void list(SlashCommandInteractionEvent event) {
         String type = Main.getExistsOption(event, "type").getAsString();
 
         String list;
-        if (type.equals("contain")) {
-            list = String.join("\n", LibIgnore.contains);
-        } else if (type.equals("equal")) {
-            list = String.join("\n", LibIgnore.equals);
-        } else {
-            event.replyEmbeds(new EmbedBuilder()
-                .setTitle(":x: 指定された type が正しくありません")
-                .setDescription("type には `contain` と `equal` を指定できます。")
-                .setColor(LibEmbedColor.success)
-                .build()
-            ).queue();
-            return;
+        switch (type) {
+            case "contain" ->
+                list = LibIgnore.contains.stream().map(s -> "`" + s + "`").collect(Collectors.joining("\n"));
+            case "equal" -> list = LibIgnore.equals.stream().map(s -> "`" + s + "`").collect(Collectors.joining("\n"));
+            case "regex" -> list = LibIgnore.regexs.stream().map(s -> "`" + s + "`").collect(Collectors.joining("\n"));
+            default -> {
+                event.replyEmbeds(new EmbedBuilder()
+                    .setTitle(":x: 指定された type が正しくありません")
+                    .setDescription("type には `contain` か `equal` か `regex` を指定できます。")
+                    .setColor(LibEmbedColor.success)
+                    .build()
+                ).queue();
+                return;
+            }
         }
 
         event.replyEmbeds(new EmbedBuilder()
