@@ -18,6 +18,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +40,68 @@ public class DefaultMessageProcessor implements BaseProcessor {
     final Pattern titlePattern = Pattern.compile("<title>([^<]+)</title>", Pattern.CASE_INSENSITIVE);
     final Pattern spoilerPattern = Pattern.compile("\\|\\|[\\s\\S]+?\\|\\|");
     final Pattern channelReplyPattern = Pattern.compile("<#(\\d+)>");
+    final Map<String, String> extNameMap = new HashMap<>();
+
+    {
+        extNameMap.put("jpg", "JPEG 画像ファイル");
+        extNameMap.put("jpeg", "JPEG 画像ファイル");
+        extNameMap.put("png", "PNG 画像ファイル");
+        extNameMap.put("gif", "GIF 画像ファイル");
+        extNameMap.put("mp4", "MP4 動画ファイル");
+        extNameMap.put("mov", "MOV 動画ファイル");
+        extNameMap.put("webm", "WEBM 動画ファイル");
+        extNameMap.put("mp3", "MP3 音声ファイル");
+        extNameMap.put("wav", "WAV 音声ファイル");
+        extNameMap.put("ogg", "OGG 音声ファイル");
+        extNameMap.put("flac", "FLAC 音声ファイル");
+        extNameMap.put("txt", "テキストファイル");
+        extNameMap.put("pdf", "PDF ファイル");
+        extNameMap.put("doc", "Word ファイル");
+        extNameMap.put("docx", "Word ファイル");
+        extNameMap.put("xls", "Excel ファイル");
+        extNameMap.put("xlsx", "Excel ファイル");
+        extNameMap.put("ppt", "PowerPoint ファイル");
+        extNameMap.put("pptx", "PowerPoint ファイル");
+        extNameMap.put("zip", "ZIP ファイル");
+        extNameMap.put("rar", "RAR ファイル");
+        extNameMap.put("7z", "7z ファイル");
+        extNameMap.put("tar", "tar ファイル");
+        extNameMap.put("gz", "gz ファイル");
+        extNameMap.put("xz", "xz ファイル");
+        extNameMap.put("exe", "実行ファイル");
+        extNameMap.put("jar", "Java ファイル");
+        extNameMap.put("ps1", "PowerShell スクリプトファイル");
+        extNameMap.put("bat", "バッチファイル");
+        extNameMap.put("cmd", "コマンドファイル");
+        extNameMap.put("sh", "シェルスクリプトファイル");
+        extNameMap.put("js", "JavaScript ファイル");
+        extNameMap.put("html", "HTML ファイル");
+        extNameMap.put("htm", "HTML ファイル");
+        extNameMap.put("css", "CSS ファイル");
+        extNameMap.put("php", "PHP ファイル");
+        extNameMap.put("py", "Python ファイル");
+        extNameMap.put("rb", "Ruby ファイル");
+        extNameMap.put("java", "Java ファイル");
+        extNameMap.put("c", "C ファイル");
+        extNameMap.put("cpp", "C++ ファイル");
+        extNameMap.put("cs", "C# ファイル");
+        extNameMap.put("go", "Go ファイル");
+        extNameMap.put("swift", "Swift ファイル");
+        extNameMap.put("kt", "Kotlin ファイル");
+        extNameMap.put("rs", "Rust ファイル");
+        extNameMap.put("lua", "Lua ファイル");
+        extNameMap.put("json", "JSON ファイル");
+        extNameMap.put("xml", "XML ファイル");
+        extNameMap.put("yml", "YAML ファイル");
+        extNameMap.put("yaml", "YAML ファイル");
+        extNameMap.put("toml", "TOML ファイル");
+        extNameMap.put("ini", "INI ファイル");
+        extNameMap.put("conf", "設定ファイル");
+        extNameMap.put("config", "設定ファイル");
+        extNameMap.put("log", "ログファイル");
+        extNameMap.put("md", "Markdown ファイル");
+        extNameMap.put("markdown", "Markdown ファイル");
+    }
 
     @Override
     public ProcessorType getType() {
@@ -61,7 +125,7 @@ public class DefaultMessageProcessor implements BaseProcessor {
         // Spoiler
         speakContent = replacerSpoiler(speakContent);
         // Thread reply
-        speakContent = replacerChannelThreadLink(jda, speakContent);
+        speakContent = replacerChannelThreadLink(jda, guild, speakContent);
         // Emphasize
         boolean isEmphasize = isEmphasizeMessage(speakContent);
         if (isEmphasize) {
@@ -153,35 +217,33 @@ public class DefaultMessageProcessor implements BaseProcessor {
                     System.out.println(tweet);
                     content = content.replace(url, "%sのツイート「%s」へのリンク".formatted(
                         EmojiWrapper.removeAllEmojis(tweet.authorName()),
-                        tweet.plainText()
+                        tweet.plainText().substring(0, Math.min(70, tweet.plainText().length())) + (tweet.plainText().length() > 70 ? " 以下略" : "")
                     ));
                     continue;
                 }
             }
 
-            // GIFリンク
-            if (url.endsWith(".gif")) {
-                content = content.replace(url, "GIF画像へのリンク");
-                continue;
-            }
-
             // Webページのタイトル取得
             String title = getTitle(url);
             if (title != null) {
-                System.out.println("title: " + title);
-                if (title.length() >= 30) {
-                    title = title.substring(0, 30) + "以下略";
-                }
-                System.out.println("title 2: " + title);
+                title = title.substring(0, Math.min(30, title.length())) + (title.length() > 30 ? " 以下略" : "");
                 content = content.replace(url, "Webページ「%s」へのリンク".formatted(title));
-            } else {
-                content = content.replace(url, "Webページへのリンク");
+                continue;
             }
+
+            // 拡張子で判定
+            String extension = url.substring(url.lastIndexOf(".") + 1);
+            if (extNameMap.containsKey(extension)) {
+                content = content.replace(url, "%sへのリンク".formatted(extNameMap.get(extension)));
+                continue;
+            }
+
+            content = content.replace(url, "Webページへのリンク");
         }
         return content;
     }
 
-    String replacerChannelThreadLink(JDA jda, String content) {
+    String replacerChannelThreadLink(JDA jda, Guild guild, String content) {
         return channelReplyPattern.matcher(content).replaceAll(result -> {
             String channelId = result.group(1);
             Channel channel = getTextVoiceChannelOrThread(jda, channelId);
@@ -190,7 +252,11 @@ public class DefaultMessageProcessor implements BaseProcessor {
             if (channel instanceof ThreadChannel) {
                 channelName = "チャンネル「%s」のスレッド「%s」へのリンク".formatted(((ThreadChannel) channel).getParentChannel().getName(), channel.getName());
             }
-            return channelName;
+            String guildName = "";
+            if (channel instanceof GuildChannel && guild.getIdLong() != ((GuildChannel) channel).getGuild().getIdLong()) {
+                guildName = "サーバ「%s」の".formatted(((GuildChannel) channel).getGuild().getName());
+            }
+            return guildName + channelName;
         });
     }
 
