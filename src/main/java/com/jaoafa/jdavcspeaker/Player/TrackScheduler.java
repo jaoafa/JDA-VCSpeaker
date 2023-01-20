@@ -37,7 +37,7 @@ public class TrackScheduler extends AudioEventAdapter {
      * @param track The track to play or add to queue.
      */
     public void queue(AudioTrack track) {
-        if (player.startTrack(track, true)) {
+        if (this.queue.isEmpty() && player.startTrack(track, true)) {
             // トラックが開始された場合
             reactionSpeaking(track);
         } else {
