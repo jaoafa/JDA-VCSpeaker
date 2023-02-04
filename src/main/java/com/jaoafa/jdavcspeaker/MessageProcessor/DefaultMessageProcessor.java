@@ -43,64 +43,38 @@ public class DefaultMessageProcessor implements BaseProcessor {
     final Map<String, String> extNameMap = new HashMap<>();
 
     {
-        extNameMap.put("jpg", "JPEG 画像ファイル");
-        extNameMap.put("jpeg", "JPEG 画像ファイル");
-        extNameMap.put("png", "PNG 画像ファイル");
-        extNameMap.put("gif", "GIF 画像ファイル");
-        extNameMap.put("mp4", "MP4 動画ファイル");
-        extNameMap.put("mov", "MOV 動画ファイル");
-        extNameMap.put("webm", "WEBM 動画ファイル");
-        extNameMap.put("mp3", "MP3 音声ファイル");
-        extNameMap.put("wav", "WAV 音声ファイル");
-        extNameMap.put("ogg", "OGG 音声ファイル");
-        extNameMap.put("flac", "FLAC 音声ファイル");
+        // 拡張子は小文字で登録する
+        // 拡張子をそのまま読み上げる（.png の場合 PNGファイル と読ましたい）場合は定義しないこと。
+
+        extNameMap.put("jpg", "JPEGファイル");
+        extNameMap.put("apng", "アニメーションPNGファイル");
         extNameMap.put("txt", "テキストファイル");
-        extNameMap.put("pdf", "PDF ファイル");
-        extNameMap.put("doc", "Word ファイル");
-        extNameMap.put("docx", "Word ファイル");
-        extNameMap.put("xls", "Excel ファイル");
-        extNameMap.put("xlsx", "Excel ファイル");
-        extNameMap.put("ppt", "PowerPoint ファイル");
-        extNameMap.put("pptx", "PowerPoint ファイル");
-        extNameMap.put("zip", "ZIP ファイル");
-        extNameMap.put("rar", "RAR ファイル");
-        extNameMap.put("7z", "7z ファイル");
-        extNameMap.put("tar", "tar ファイル");
-        extNameMap.put("gz", "gz ファイル");
-        extNameMap.put("xz", "xz ファイル");
+        extNameMap.put("doc", "Wordファイル");
+        extNameMap.put("docx", "Wordファイル");
+        extNameMap.put("xls", "Excelファイル");
+        extNameMap.put("xlsx", "Excelファイル");
+        extNameMap.put("ppt", "PowerPointファイル");
+        extNameMap.put("pptx", "PowerPointファイル");
         extNameMap.put("exe", "実行ファイル");
-        extNameMap.put("jar", "Java ファイル");
-        extNameMap.put("ps1", "PowerShell スクリプトファイル");
+        extNameMap.put("7z", "7Zipファイル");
+        extNameMap.put("ps1", "PowerShellスクリプトファイル");
         extNameMap.put("bat", "バッチファイル");
         extNameMap.put("cmd", "コマンドファイル");
         extNameMap.put("sh", "シェルスクリプトファイル");
-        extNameMap.put("js", "JavaScript ファイル");
-        extNameMap.put("html", "HTML ファイル");
-        extNameMap.put("htm", "HTML ファイル");
-        extNameMap.put("css", "CSS ファイル");
-        extNameMap.put("php", "PHP ファイル");
-        extNameMap.put("py", "Python ファイル");
-        extNameMap.put("rb", "Ruby ファイル");
-        extNameMap.put("java", "Java ファイル");
-        extNameMap.put("c", "C ファイル");
-        extNameMap.put("cpp", "C++ ファイル");
-        extNameMap.put("cs", "C# ファイル");
-        extNameMap.put("go", "Go ファイル");
-        extNameMap.put("swift", "Swift ファイル");
-        extNameMap.put("kt", "Kotlin ファイル");
-        extNameMap.put("rs", "Rust ファイル");
-        extNameMap.put("lua", "Lua ファイル");
-        extNameMap.put("json", "JSON ファイル");
-        extNameMap.put("xml", "XML ファイル");
-        extNameMap.put("yml", "YAML ファイル");
-        extNameMap.put("yaml", "YAML ファイル");
-        extNameMap.put("toml", "TOML ファイル");
-        extNameMap.put("ini", "INI ファイル");
+        extNameMap.put("js", "JavaScriptファイル");
+        extNameMap.put("htm", "HTMLファイル");
+        extNameMap.put("py", "Pythonファイル");
+        extNameMap.put("rb", "Rubyファイル");
+        extNameMap.put("java", "Javaファイル");
+        extNameMap.put("cpp", "Cプラスプラスファイル");
+        extNameMap.put("cs", "C#ファイル");
+        extNameMap.put("kt", "Kotlinファイル");
+        extNameMap.put("rs", "Rustファイル");
+        extNameMap.put("yml", "ヤメルファイル"); // YAML (pronounced "yaamel")
+        extNameMap.put("yaml", "ヤメルファイル"); // ref: https://yaml.org/spec/history/2001-05-26.html
         extNameMap.put("conf", "設定ファイル");
         extNameMap.put("config", "設定ファイル");
-        extNameMap.put("log", "ログファイル");
-        extNameMap.put("md", "Markdown ファイル");
-        extNameMap.put("markdown", "Markdown ファイル");
+        extNameMap.put("md", "Markdownファイル");
     }
 
     @Override
@@ -232,9 +206,17 @@ public class DefaultMessageProcessor implements BaseProcessor {
             }
 
             // 拡張子で判定
-            String extension = url.substring(url.lastIndexOf(".") + 1);
-            if (extNameMap.containsKey(extension)) {
+            String filename = url.lastIndexOf('/') != -1 ?
+                url.substring(url.lastIndexOf('/') + 1) :
+                null;
+            String extension = filename != null && filename.lastIndexOf(".") != -1 ?
+                filename.substring(filename.lastIndexOf(".") + 1) :
+                null;
+            if (extension != null && extNameMap.containsKey(extension.toLowerCase())) {
                 content = content.replace(url, "%sへのリンク".formatted(extNameMap.get(extension)));
+                continue;
+            } else if (extension != null) {
+                content = content.replace(url, extension.toUpperCase() + "ファイルへのリンク");
                 continue;
             }
 
