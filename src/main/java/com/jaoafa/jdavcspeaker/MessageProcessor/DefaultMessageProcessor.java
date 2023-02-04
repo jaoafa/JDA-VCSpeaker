@@ -43,17 +43,17 @@ public class DefaultMessageProcessor implements BaseProcessor {
     final Map<String, String> extNameMap = new HashMap<>();
 
     {
-        extNameMap.put("jpg", "JPEG 画像ファイル");
-        extNameMap.put("jpeg", "JPEG 画像ファイル");
-        extNameMap.put("png", "PNG 画像ファイル");
-        extNameMap.put("gif", "GIF 画像ファイル");
-        extNameMap.put("mp4", "MP4 動画ファイル");
-        extNameMap.put("mov", "MOV 動画ファイル");
-        extNameMap.put("webm", "WEBM 動画ファイル");
-        extNameMap.put("mp3", "MP3 音声ファイル");
-        extNameMap.put("wav", "WAV 音声ファイル");
-        extNameMap.put("ogg", "OGG 音声ファイル");
-        extNameMap.put("flac", "FLAC 音声ファイル");
+        extNameMap.put("jpg", "画像ファイル");
+        extNameMap.put("jpeg", "画像ファイル");
+        extNameMap.put("png", "画像ファイル");
+        extNameMap.put("gif", "画像ファイル");
+        extNameMap.put("mp4", "動画ファイル");
+        extNameMap.put("mov", "動画ファイル");
+        extNameMap.put("webm", "動画ファイル");
+        extNameMap.put("mp3", "音声ファイル");
+        extNameMap.put("wav", "音声ファイル");
+        extNameMap.put("ogg", "音声ファイル");
+        extNameMap.put("flac", "音声ファイル");
         extNameMap.put("txt", "テキストファイル");
         extNameMap.put("pdf", "PDF ファイル");
         extNameMap.put("doc", "Word ファイル");
