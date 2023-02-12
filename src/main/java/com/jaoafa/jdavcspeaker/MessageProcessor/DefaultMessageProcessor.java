@@ -1,9 +1,6 @@
 package com.jaoafa.jdavcspeaker.MessageProcessor;
 
-import com.jaoafa.jdavcspeaker.Lib.EmojiWrapper;
-import com.jaoafa.jdavcspeaker.Lib.LibIgnore;
-import com.jaoafa.jdavcspeaker.Lib.UserVoiceTextResult;
-import com.jaoafa.jdavcspeaker.Lib.VoiceText;
+import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
 import net.dv8tion.jda.api.JDA;
@@ -84,13 +81,15 @@ public class DefaultMessageProcessor implements BaseProcessor {
 
     @Override
     public void execute(JDA jda, Guild guild, TextChannel channel, Member member, Message message, UserVoiceTextResult uvtr) {
-        speak(jda, guild, message, uvtr, message.getContentDisplay());
+        speak(jda, guild, message, uvtr, message.getContentRaw());
     }
 
-    public void speak(JDA jda, Guild guild, Message message, UserVoiceTextResult uvtr, String speakContent) {
-        if (LibIgnore.isIgnoreMessage(speakContent)) {
+    public void speak(JDA jda, Guild guild, Message message, UserVoiceTextResult uvtr, String rawContent) {
+        if (LibIgnore.isIgnoreMessage(rawContent)) {
             return;
         }
+
+        String speakContent = MsgFormatter.getDisplayContent(message, true, false, true, true);
 
         // Replace discord invite(include event) url
         speakContent = replacerDiscordInviteLink(jda, guild, speakContent);

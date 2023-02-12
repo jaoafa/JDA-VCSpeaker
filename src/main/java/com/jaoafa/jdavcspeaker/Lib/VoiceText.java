@@ -249,7 +249,7 @@ public class VoiceText {
             return;
         }
 
-        vtFlow.success("[VoiceText.play] %s by %s (%s)", message.getContentDisplay().length() >= 10 ? message.getContentDisplay().substring(0, 10) : message.getContentDisplay(), message.getAuthor().getAsTag(), speakFromType.name());
+        vtFlow.success("[VoiceText.play] %s by %s (%s)", speakText.length() >= 10 ? speakText.substring(0, 10) : speakText, message.getAuthor().getAsTag(), speakFromType.name());
 
         VoiceText vt;
         try {
