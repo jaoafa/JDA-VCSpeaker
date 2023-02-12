@@ -1,5 +1,7 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import net.dv8tion.jda.api.entities.*;
+
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +13,9 @@ public class MsgFormatter {
     public static String format(String text) {
         // ReplaceUnicodeEmoji
         text = EmojiWrapper.parseToAliases(text);
+
+        // Alias
+        text = LibAlias.applyAlias(text);
 
         // ReplaceCustomEmoji
         String regex = "<a?:(.+?):(\\d+)>";
@@ -41,9 +46,6 @@ public class MsgFormatter {
             }
         }
 
-        // Alias
-        text = LibAlias.applyAlias(text);
-
         // LengthCheck
         if (text.length() >= 180) {
             text = text.substring(0, 180);
@@ -55,5 +57,51 @@ public class MsgFormatter {
         channelName = EmojiWrapper.removeAllEmojis(channelName); // 絵文字の削除
         channelName = parenthesesPattern.matcher(channelName).replaceAll(""); // かっこの削除
         return channelName;
+    }
+
+    public static String getDisplayContent(
+        Message message,
+        boolean replaceUserMentions,
+        boolean replaceEmote,
+        boolean replaceChannelMentions,
+        boolean replaceRoleMentions
+    ) {
+        String content = message.getContentRaw();
+        if (replaceUserMentions) {
+            for (User user : message.getMentions().getUsers()) {
+                String name;
+                if (message.isFromGuild()) {
+                    Member member = message.getGuild().getMember(user);
+                    if (member != null) {
+                        name = member.getEffectiveName();
+                    } else {
+                        name = user.getName();
+                    }
+                } else {
+                    name = user.getName();
+                }
+                content = content.replaceAll("<@!?" + Pattern.quote(user.getId()) + '>', '@' + Matcher.quoteReplacement(name));
+            }
+        }
+
+        if (replaceEmote) {
+            for (Emote emote : message.getMentions().getEmotes()) {
+                content = content.replace(emote.getAsMention(), ":" + emote.getName() + ":");
+            }
+        }
+
+        if (replaceChannelMentions) {
+            for (GuildChannel mentionedChannel : message.getMentions().getChannels()) {
+                content = content.replace(mentionedChannel.getAsMention(), '#' + mentionedChannel.getName());
+            }
+        }
+
+        if (replaceRoleMentions) {
+            for (Role role : message.getMentions().getRoles()) {
+                content = content.replace(role.getAsMention(), '@' + role.getName());
+            }
+        }
+
+        return content;
     }
 }

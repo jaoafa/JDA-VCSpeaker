@@ -24,6 +24,8 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class Cmd_Alias implements CmdSubstrate {
+    private final Pattern emojiPattern = Pattern.compile("^<:.+?:[0-9]+?>$");
+
     @Override
     public CmdDetail detail() {
         return new CmdDetail()
@@ -70,16 +72,24 @@ public class Cmd_Alias implements CmdSubstrate {
                 .build()).queue();
             return;
         }
+
         LibAlias.addToAlias(from, to);
 
+        boolean isOnlyEmoji = emojiPattern.matcher(from).matches();
+        String fromDisplay = isOnlyEmoji ? from : "`" + from + "`";
+
         cmdFlow.success("%s がエイリアスを設定しました: %s -> %s", event.getUser().getAsTag(), from, to);
-        event.replyEmbeds(new EmbedBuilder()
+        EmbedBuilder builder = new EmbedBuilder()
             .setTitle(":pencil: エイリアスを設定しました！")
-            .addField(":repeat: 置き換え", "`%s` → `%s`".formatted(from, to), false)
+            .addField(":repeat: 置き換え", "%s → `%s`".formatted(fromDisplay, to), false)
             .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
-            .setColor(LibEmbedColor.success)
-            .build()
-        ).queue();
+            .setColor(LibEmbedColor.success);
+
+        if (isOnlyEmoji) {
+            builder.setFooter("Botが参加していないサーバのサーバ絵文字をエイリアス元としている場合、上手く表示されませんが正常に登録されています。");
+        }
+
+        event.replyEmbeds(builder.build()).queue();
     }
 
     void removeAlias(SlashCommandInteractionEvent event, User user) {
@@ -102,9 +112,12 @@ public class Cmd_Alias implements CmdSubstrate {
         LibAlias.removeFromAlias(from);
         cmdFlow.success("%s がエイリアスを削除しました: %s", event.getUser().getAsTag(), from);
 
+        boolean isOnlyEmoji = emojiPattern.matcher(from).matches();
+        String fromDisplay = isOnlyEmoji ? from : "`" + from + "`";
+
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":wastebasket: エイリアスを削除しました！")
-            .setDescription("次のエイリアスを削除: `%s` -> `%s`".formatted(from, to))
+            .setDescription("次のエイリアスを削除: %s -> `%s`".formatted(fromDisplay, to))
             .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
             .setColor(LibEmbedColor.success)
             .build()
@@ -121,7 +134,12 @@ public class Cmd_Alias implements CmdSubstrate {
 
         List<String> list = LibAlias.getAliases().entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
-            .map(entry -> "`%s` -> `%s`".formatted(entry.getKey(), entry.getValue())) // keyとvalueを繋げる
+            .map(entry -> {
+                String from = entry.getKey();
+                boolean isOnlyEmoji = emojiPattern.matcher(from).matches();
+                String fromDisplay = isOnlyEmoji ? from : "`" + from + "`";
+                return "%s -> `%s`".formatted(fromDisplay, entry.getValue());
+            }) // keyとvalueを繋げる
             .collect(Collectors.toList());
         LinkedList<String> paginated = split2000(list);
         if (indexPage < 0 || indexPage >= paginated.size()) {
@@ -136,7 +154,7 @@ public class Cmd_Alias implements CmdSubstrate {
 
         event.replyEmbeds(new EmbedBuilder()
             .setTitle(":bookmark_tabs: 現在のエイリアス")
-            .setDescription(String.join("\n", paginated.get(indexPage)))
+            .setDescription("Botが参加していないサーバのサーバ絵文字をエイリアス元としている場合、上手く表示されませんが正常に登録されています。\n\n" + String.join("\n", paginated.get(indexPage)))
             .setFooter("Page: " + page + " / " + paginated.size())
             .setAuthor(user.getAsTag(), "https://discord.com/users/%s".formatted(user.getId()), user.getEffectiveAvatarUrl())
             .setColor(LibEmbedColor.success)
@@ -193,7 +211,7 @@ public class Cmd_Alias implements CmdSubstrate {
         List<String> temp = new LinkedList<>();
         LinkedList<String> ret = new LinkedList<>();
         for (String s : strings) {
-            if (String.join("\n", temp).length() + s.length() >= 2000) {
+            if (String.join("\n", temp).length() + s.length() >= 1900) {
                 ret.add(String.join("\n", temp));
                 temp.clear();
             }

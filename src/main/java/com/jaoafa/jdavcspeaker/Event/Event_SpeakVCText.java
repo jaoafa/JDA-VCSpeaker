@@ -44,7 +44,6 @@ public class Event_SpeakVCText extends ListenerAdapter {
         if (content.equals(".")) {
             return; // .のみは除外
         }
-
         if (guild.getSelfMember().getVoiceState() == null ||
             guild.getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
