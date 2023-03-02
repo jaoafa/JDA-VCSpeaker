@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class AutoJoin extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
-        if(event.getChannelJoined() == null) return; // 参加以外は除外
+        if (event.getChannelJoined() == null || event.getChannelLeft() != null) return; // 参加以外は除外
         if (Main.getArgs().isDisableAutoJoin) {
             return;
         }

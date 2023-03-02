@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 public class Event_Disconnect extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+        if (event.getChannelJoined() != null || event.getChannelLeft() == null) return; // 退出以外は除外
         if (Main.getArgs().isDisableUserActivityNotify) {
             return;
         }
@@ -35,9 +36,6 @@ public class Event_Disconnect extends ListenerAdapter {
             return;
         }
         AudioChannel vc = event.getChannelLeft();
-        if (vc == null) {
-            return;
-        }
 
         LibTitle libTitle = Main.getLibTitle();
         if (libTitle != null) {

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class AutoDisconnect extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
-        if(event.getChannelLeft() == null) return; // 退出以外は除外
+        if (event.getChannelJoined() != null || event.getChannelLeft() == null) return; // 退出以外は除外
         if (Main.getArgs().isDisableAutoDisconnect) {
             return;
         }

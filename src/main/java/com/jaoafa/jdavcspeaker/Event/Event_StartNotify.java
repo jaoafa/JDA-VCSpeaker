@@ -23,7 +23,7 @@ public class Event_StartNotify extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         Guild guild = event.getGuild();
-        if(event.getChannelJoined() == null) return; // 参加以外は除外
+        if (event.getChannelJoined() == null || event.getChannelLeft() != null) return; // 参加以外は除外
         if (!MultipleServer.isTargetServer(guild)) {
             return;
         }

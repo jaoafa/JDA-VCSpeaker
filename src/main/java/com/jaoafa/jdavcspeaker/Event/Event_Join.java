@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class Event_Join extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+        if (event.getChannelJoined() == null || event.getChannelLeft() != null) return; // 参加以外は除外
         if (Main.getArgs().isDisableUserActivityNotify) {
             return;
         }
@@ -22,9 +23,6 @@ public class Event_Join extends ListenerAdapter {
         }
         User user = event.getMember().getUser();
         AudioChannel channel = event.getChannelJoined();
-        if (channel == null) {
-            return;
-        }
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
         MultipleServer
             .getVCChannel(event.getGuild())
