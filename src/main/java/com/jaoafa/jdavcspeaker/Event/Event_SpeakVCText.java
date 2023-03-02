@@ -5,7 +5,12 @@ import com.jaoafa.jdavcspeaker.MessageProcessor.BaseProcessor;
 import com.jaoafa.jdavcspeaker.MessageProcessor.ProcessorType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +30,7 @@ public class Event_SpeakVCText extends ListenerAdapter {
             return;
         }
         final JDA jda = event.getJDA();
-        final TextChannel channel = event.getTextChannel();
+        final TextChannel channel = event.getChannel().asTextChannel();
         final Message message = event.getMessage();
         if (channel.getIdLong() != MultipleServer.getVCChannelId(guild)) {
             return; // VCテキストチャンネル以外からのメッセージ

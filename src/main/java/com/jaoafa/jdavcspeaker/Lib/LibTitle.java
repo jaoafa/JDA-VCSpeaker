@@ -1,9 +1,9 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import com.jaoafa.jdavcspeaker.Main;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;

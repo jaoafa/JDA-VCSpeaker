@@ -1,12 +1,11 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.annotation.Nullable;
 
 public class MultipleServer {
     private static final LibFiles.VFile vFile = LibFiles.VFile.SERVERS;

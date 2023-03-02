@@ -4,8 +4,8 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.AudioChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
@@ -14,12 +14,13 @@ import net.dv8tion.jda.api.managers.AudioManager;
  */
 public class AutoMove extends ListenerAdapter {
     @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (!MultipleServer.isTargetServer(event.getGuild())) {
             return;
         }
         AudioChannel oldChannel = event.getOldValue();
         AudioChannel newChannel = event.getNewValue();
+        if(oldChannel == null || newChannel == null) return; // 移動以外は除外
         long newUsers = newChannel.getMembers().stream()
             .filter(member -> !member.getUser().isBot())
             .count();

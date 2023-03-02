@@ -8,15 +8,17 @@ import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
-
-import java.util.Optional;
 
 public class Cmd_Vcspeaker implements CmdSubstrate {
     final EmbedBuilder NO_PERMISSION =
@@ -55,7 +57,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         switch (subCmd) {
             case "server:add" -> addServer(guild, channel, member, event);
             case "server:notify" -> removeServer(guild, member, event);
-            case "server:remove" -> setNotifyChannel(guild, channel, member, event);
+            case "server:remove" -> setNotifyChannel(guild, member, event);
         }
     }
 
@@ -81,7 +83,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
             MultipleServer
                 .addServer(
                     guild,
-                    channelOpt != null ? channelOpt.getAsMessageChannel() : channel
+                    channelOpt != null ? channelOpt.getAsChannel().asGuildMessageChannel() : channel
                 );
 
         cmdFlow.success("%s がサーバ登録をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");
@@ -120,7 +122,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         ).queue();
     }
 
-    void setNotifyChannel(Guild guild, GuildMessageChannel channel, Member member, SlashCommandInteractionEvent event) {
+    void setNotifyChannel(Guild guild, Member member, SlashCommandInteractionEvent event) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
@@ -140,10 +142,8 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
         boolean isSuccessful =
             MultipleServer
                 .setNotifyChannel(guild,
-                    Optional.ofNullable(
-                        Main.getExistsOption(event, "channel")
-                            .getAsMessageChannel()
-                    ).orElse(channel)
+                    Main.getExistsOption(event, "channel")
+                        .getAsChannel().asGuildMessageChannel()
                 );
 
         cmdFlow.success("%s が通知チャンネルの設定をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");

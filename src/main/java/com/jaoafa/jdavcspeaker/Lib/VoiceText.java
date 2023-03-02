@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class VoiceText {
@@ -332,11 +334,16 @@ public class VoiceText {
         }
 
         message
-            .addReaction("\uD83D\uDC40") // :eyes:
+            .addReaction(Emoji.fromUnicode("\uD83D\uDC40")) // :eyes:
             .queue();
 
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient()
+                .newBuilder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
 
             FormBody.Builder form = new FormBody.Builder()
                 .add("text", formattedText)
@@ -370,10 +377,15 @@ public class VoiceText {
                 Files.write(LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName), body.bytes());
             } catch (IOException e) {
                 e.printStackTrace();
+                message.replyEmbeds(new EmbedBuilder()
+                    .setTitle(":x: 音声ファイルのダウンロードに失敗しました。")
+                    .setDescription("`%s`: `%s`".formatted(e.getClass().getName(), e.getMessage()))
+                    .setColor(LibEmbedColor.error)
+                    .build()).queue();
                 return;
             }
             message
-                .removeReaction("\uD83D\uDC40") // :eyes:
+                .removeReaction(Emoji.fromUnicode("\uD83D\uDC40")) // :eyes:
                 .queue();
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
