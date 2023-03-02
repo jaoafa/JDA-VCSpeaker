@@ -222,7 +222,8 @@ public class Main extends ListenerAdapter {
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.GUILD_PRESENCES,
                 GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_VOICE_STATES
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.MESSAGE_CONTENT
             )
             //EventListeners
             .addEventListeners(new Main())
