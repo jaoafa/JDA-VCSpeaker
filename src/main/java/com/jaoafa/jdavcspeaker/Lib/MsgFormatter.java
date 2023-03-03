@@ -1,6 +1,11 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -85,8 +90,8 @@ public class MsgFormatter {
         }
 
         if (replaceEmote) {
-            for (Emote emote : message.getMentions().getEmotes()) {
-                content = content.replace(emote.getAsMention(), ":" + emote.getName() + ":");
+            for (CustomEmoji emoji : message.getMentions().getCustomEmojis()) {
+                content = content.replace(emoji.getAsMention(), ":" + emoji.getName() + ":");
             }
         }
 

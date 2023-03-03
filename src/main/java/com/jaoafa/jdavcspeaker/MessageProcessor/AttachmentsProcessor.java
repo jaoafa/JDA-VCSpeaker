@@ -8,8 +8,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,18 +95,18 @@ public class AttachmentsProcessor implements BaseProcessor {
                             e.printStackTrace();
                         }
 
-                        MessageAction action;
+                        MessageCreateAction action;
                         EmbedBuilder embed = new EmbedBuilder()
                             .setDescription("```\n" + safeSubstring(text.replaceAll("\n", " ")) + "\n```");
                         if (outputFile != null) {
-                            action = message.getChannel().sendFile(outputFile, "output.png");
+                            action = message.getChannel().sendFiles(FileUpload.fromData(outputFile, "output.png"));
                             embed = embed.setThumbnail("attachment://output.png");
                         } else {
                             action = message.getChannel().sendMessageEmbeds(embed.build());
                         }
                         action
                             .setEmbeds(embed.build())
-                            .reference(message)
+                            .setMessageReference(message)
                             .mentionRepliedUser(false).queue();
                     } else {
                         vt.play(TrackInfo.SpeakFromType.RECEIVED_IMAGE, message, "画像ファイル「 %s 」が送信されました。".formatted(attachment.getFileName()));

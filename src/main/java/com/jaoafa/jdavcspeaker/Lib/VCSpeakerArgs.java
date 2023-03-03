@@ -26,6 +26,10 @@ public class VCSpeakerArgs {
             usage = "VCへの自動参加を無効化")
     public boolean isDisableAutoJoin;
 
+    @Option(name = "--disable-auto-move",
+            usage = "VC間の自動移動を無効化")
+    public boolean isDisableAutoMove;
+
     @Option(name = "--disable-auto-disconnect",
             usage = "VCからの自動退出を無効化")
     public boolean isDisableAutoDisconnect;

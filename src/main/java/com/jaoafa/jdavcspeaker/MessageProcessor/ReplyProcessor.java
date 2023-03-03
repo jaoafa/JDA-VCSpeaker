@@ -2,7 +2,11 @@ package com.jaoafa.jdavcspeaker.MessageProcessor;
 
 import com.jaoafa.jdavcspeaker.Lib.UserVoiceTextResult;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReference;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 /**
  * ユーザーのリプライメッセージプロセッサ

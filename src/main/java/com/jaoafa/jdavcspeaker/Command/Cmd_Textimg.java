@@ -6,10 +6,17 @@ import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,6 +127,6 @@ public class Cmd_Textimg implements CmdSubstrate {
         }
         new LibFlow("textimg").success("File: %s", file.getAbsolutePath());
 
-        event.getHook().editOriginal(file, "output.png").queue();
+        event.getHook().editOriginal(MessageEditData.fromFiles(FileUpload.fromData(file, "output.png"))).queue();
     }
 }

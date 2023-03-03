@@ -1,8 +1,8 @@
 package com.jaoafa.jdavcspeaker.Player;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 public record TrackInfo(SpeakFromType speakFromType, Message message) {
     public Message getMessage() {
@@ -13,8 +13,8 @@ public record TrackInfo(SpeakFromType speakFromType, Message message) {
         return message.getAuthor();
     }
 
-    public TextChannel getChannel() {
-        return message.getTextChannel();
+    public MessageChannelUnion getChannel() {
+        return message.getChannel();
     }
 
     public SpeakFromType getSpeakFromType() {

@@ -1,11 +1,11 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,7 +75,7 @@ public class LibFiles {
          *
          * @return 書き込めたかどうか
          */
-        public boolean write(@Nonnull JSONObject json) {
+        public boolean write(@NotNull JSONObject json) {
             try {
                 Files.writeString(path, json.toString());
                 return true;
@@ -93,7 +93,7 @@ public class LibFiles {
          * @return 書き込めたかどうか
          */
         @CheckReturnValue
-        public boolean write(@Nonnull JSONArray json) {
+        public boolean write(@NotNull JSONArray json) {
             try {
                 Files.writeString(path, json.toString());
                 return true;
@@ -125,8 +125,8 @@ public class LibFiles {
          * @return ファイルの内容 (読み込めない場合はdefaultValueの値)
          */
         @CheckReturnValue
-        @Nonnull
-        public JSONObject readJSONObject(@Nonnull JSONObject defaultValue) {
+        @NotNull
+        public JSONObject readJSONObject(@NotNull JSONObject defaultValue) {
             try {
                 return new JSONObject(Files.readString(path));
             } catch (IOException e) {
@@ -157,8 +157,8 @@ public class LibFiles {
          * @return ファイルの内容 (読み込めない場合はdefaultValueの値)
          */
         @CheckReturnValue
-        @Nonnull
-        public JSONArray readJSONArray(@Nonnull JSONArray defaultValue) {
+        @NotNull
+        public JSONArray readJSONArray(@NotNull JSONArray defaultValue) {
             try {
                 return new JSONArray(Files.readString(path));
             } catch (IOException e) {
@@ -242,7 +242,7 @@ public class LibFiles {
          * @return 書き込めたかどうか
          */
         @CheckReturnValue
-        public boolean writeFile(@Nonnull Path file, @Nonnull JSONObject json) {
+        public boolean writeFile(@NotNull Path file, @NotNull JSONObject json) {
             try {
                 Path filePath = path.resolve(file);
                 Files.writeString(filePath, json.toString());
@@ -261,7 +261,7 @@ public class LibFiles {
          * @return 書き込めたかどうか
          */
         @CheckReturnValue
-        public boolean writeFile(@Nonnull Path file, @Nonnull JSONArray json) {
+        public boolean writeFile(@NotNull Path file, @NotNull JSONArray json) {
             try {
                 Path filePath = path.resolve(file);
                 Files.writeString(filePath, json.toString());
@@ -280,7 +280,7 @@ public class LibFiles {
          */
         @CheckReturnValue
         @Nullable
-        public JSONObject readJSONObject(@Nonnull Path file) {
+        public JSONObject readJSONObject(@NotNull Path file) {
             try {
                 Path filePath = path.resolve(file);
                 return new JSONObject(Files.readString(filePath));
@@ -298,8 +298,8 @@ public class LibFiles {
          * @return ファイルの内容 (読み込めない場合はdefaultValueの値)
          */
         @CheckReturnValue
-        @Nonnull
-        public JSONObject readJSONObject(@Nonnull Path file, @Nonnull JSONObject defaultValue) {
+        @NotNull
+        public JSONObject readJSONObject(@NotNull Path file, @NotNull JSONObject defaultValue) {
             try {
                 Path filePath = path.resolve(file);
                 return new JSONObject(Files.readString(filePath));
@@ -317,7 +317,7 @@ public class LibFiles {
          */
         @CheckReturnValue
         @Nullable
-        public JSONArray readJSONArray(@Nonnull Path file) {
+        public JSONArray readJSONArray(@NotNull Path file) {
             try {
                 Path filePath = path.resolve(file);
                 return new JSONArray(Files.readString(filePath));
@@ -335,8 +335,8 @@ public class LibFiles {
          * @return ファイルの内容 (読み込めない場合はdefaultValueの値)
          */
         @CheckReturnValue
-        @Nonnull
-        public JSONArray readJSONArray(@Nonnull Path file, JSONArray defaultValue) {
+        @NotNull
+        public JSONArray readJSONArray(@NotNull Path file, JSONArray defaultValue) {
             try {
                 Path filePath = path.resolve(file);
                 return new JSONArray(Files.readString(filePath));

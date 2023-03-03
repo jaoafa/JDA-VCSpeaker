@@ -1,7 +1,7 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 public class LibReporter {
     public LibReporter(GuildMessageChannel channel, Exception e) {

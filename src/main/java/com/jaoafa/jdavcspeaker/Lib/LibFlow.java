@@ -1,7 +1,6 @@
 package com.jaoafa.jdavcspeaker.Lib;
 
-
-import javax.annotation.CheckReturnValue;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 import static com.jaoafa.jdavcspeaker.Lib.LibTextColor.*;
 

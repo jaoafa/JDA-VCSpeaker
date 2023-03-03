@@ -7,7 +7,8 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.internal.requests.RestActionImpl;
 
@@ -94,7 +95,7 @@ public class TrackScheduler extends AudioEventAdapter {
         TextChannel channel = LibValue.jda.getTextChannelById(info.getChannel().getIdLong());
         if (channel == null) return;
         channel.retrieveMessageById(info.getMessage().getIdLong())
-            .queue(msg -> msg.removeReaction("\uD83D\uDDE3", LibValue.jda.getSelfUser()) // :speaking_head:
+            .queue(msg -> msg.removeReaction(Emoji.fromUnicode("\uD83D\uDDE3"), LibValue.jda.getSelfUser()) // :speaking_head:
                 .queue());
     }
 
@@ -111,7 +112,7 @@ public class TrackScheduler extends AudioEventAdapter {
             if (message == null) {
                 return false;
             }
-            message.addReaction("\uD83D\uDDE3") // :speaking_head:
+            message.addReaction(Emoji.fromUnicode("\uD83D\uDDE3")) // :speaking_head:
                 .queue();
         } catch (ErrorResponseException e) {
             RestActionImpl.getDefaultFailure().accept(e);

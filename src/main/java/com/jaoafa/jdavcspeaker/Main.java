@@ -13,9 +13,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.internal.requests.RestActionImpl;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,6 @@ import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
-import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.io.*;
 import java.net.InetAddress;
@@ -165,7 +165,7 @@ public class Main extends ListenerAdapter {
                             .setFooter("JDA-VCSpeaker %s".formatted(Main.class.getPackage().getImplementationVersion()))
                             .setColor(Color.RED)
                             .build())
-                        .addFile(is, "stacktrace.txt")
+                        .setFiles(FileUpload.fromData(is, "stacktrace.txt"))
                         .queue();
                 }
 
@@ -198,7 +198,7 @@ public class Main extends ListenerAdapter {
                             .setFooter("JDA-VCSpeaker %s".formatted(Main.class.getPackage().getImplementationVersion()))
                             .setColor(Color.RED)
                             .build())
-                        .addFile(is, "stacktrace.txt")
+                        .setFiles(FileUpload.fromData(is, "stacktrace.txt"))
                         .queue();
                 }
 
@@ -222,7 +222,8 @@ public class Main extends ListenerAdapter {
                 GatewayIntent.GUILD_MEMBERS,
                 GatewayIntent.GUILD_PRESENCES,
                 GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_VOICE_STATES
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.MESSAGE_CONTENT
             )
             //EventListeners
             .addEventListeners(new Main())
@@ -239,7 +240,7 @@ public class Main extends ListenerAdapter {
         JDA jda;
         try {
             jda = builder.build().awaitReady();
-        } catch (InterruptedException | LoginException e) {
+        } catch (InterruptedException e) {
             setupFlow.error("Discordへのログインに失敗しました。");
             new LibReporter(null, e);
             System.exit(1);
@@ -304,7 +305,7 @@ public class Main extends ListenerAdapter {
                     180000
                 );
             }
-        } catch (InterruptedException | LoginException e) {
+        } catch (InterruptedException e) {
             new LibReporter(null, e);
         }
     }
@@ -357,7 +358,7 @@ public class Main extends ListenerAdapter {
                 },
                 t -> removeCmdFlow.error("削除中にエラーが発生しました: %s", t.getMessage())
             );
-        } catch (InterruptedException | LoginException e) {
+        } catch (InterruptedException e) {
             removeCmdFlow.error("Discordへのログインに失敗しました。");
             new LibReporter(null, e);
         }

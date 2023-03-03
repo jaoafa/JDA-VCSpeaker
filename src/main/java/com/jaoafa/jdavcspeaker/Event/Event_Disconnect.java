@@ -3,10 +3,10 @@ package com.jaoafa.jdavcspeaker.Event;
 import com.jaoafa.jdavcspeaker.Lib.*;
 import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.TrackInfo;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -27,7 +27,8 @@ import java.util.stream.Stream;
  */
 public class Event_Disconnect extends ListenerAdapter {
     @Override
-    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
+    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+        if (event.getChannelJoined() != null || event.getChannelLeft() == null) return; // 退出以外は除外
         if (Main.getArgs().isDisableUserActivityNotify) {
             return;
         }
