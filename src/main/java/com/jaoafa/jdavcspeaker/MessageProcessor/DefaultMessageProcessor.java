@@ -18,10 +18,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -212,13 +215,7 @@ public class DefaultMessageProcessor implements BaseProcessor {
                 continue;
             }
 
-            // 拡張子で判定
-            String filename = url.lastIndexOf('/') != -1 ?
-                url.substring(url.lastIndexOf('/') + 1) :
-                null;
-            String extension = filename != null && filename.lastIndexOf(".") != -1 ?
-                filename.substring(filename.lastIndexOf(".") + 1) :
-                null;
+            String extension = getExtension(url);
             if (extension != null && extNameMap.containsKey(extension.toLowerCase())) {
                 content = content.replace(url, "%sへのリンク".formatted(extNameMap.get(extension)));
                 continue;
@@ -230,6 +227,16 @@ public class DefaultMessageProcessor implements BaseProcessor {
             content = content.replace(url, "Webページへのリンク");
         }
         return content;
+    }
+
+    String getExtension(String url) {
+        if (url == null) return null;
+        try {
+            URL urlObj = new URL(url);
+            return FilenameUtils.getExtension(urlObj.getPath());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     String replacerChannelThreadLink(JDA jda, Guild guild, String content) {
