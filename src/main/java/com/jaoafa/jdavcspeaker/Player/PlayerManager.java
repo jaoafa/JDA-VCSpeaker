@@ -43,6 +43,11 @@ public class PlayerManager {
         return musicManager;
     }
 
+    public synchronized void destroyGuildMusicManager(Guild guild) {
+        getGuildMusicManager(guild).player.destroy();
+        musicManagers.remove(guild.getIdLong());
+    }
+
     public void loadAndPlay(TrackInfo info, String trackUrl) {
         GuildMusicManager musicManager = getGuildMusicManager(info.getMessage().getGuild());
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
