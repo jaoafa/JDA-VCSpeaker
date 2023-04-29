@@ -4,6 +4,7 @@ import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -41,6 +42,8 @@ public class AutoDisconnect extends ListenerAdapter {
             return;
         }
         new LibFlow("AutoDisconnect").success("退出に伴い、VCから誰もいなくなったため切断します。");
+
+        PlayerManager.getINSTANCE().destroyGuildMusicManager(event.getGuild());
         event.getGuild().getAudioManager().closeAudioConnection();
 
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
