@@ -19,7 +19,7 @@ public class Event_DeletedMessage extends ListenerAdapter {
         }
         final Guild guild = event.getGuild();
         final long messageId = event.getMessageIdLong();
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getGuildMusicManager(guild);
+        GuildMusicManager musicManager = PlayerManager.getGuildMusicManager(guild);
 
         new LibFlow("DeletedMessage").action("メッセージ(ID: " + messageId + ")が削除されました。");
 

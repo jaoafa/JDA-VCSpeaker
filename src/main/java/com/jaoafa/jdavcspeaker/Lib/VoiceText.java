@@ -326,7 +326,7 @@ public class VoiceText {
         if (LibFiles.VDirectory.VOICETEXT_CACHES.exists(fileName)) {
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
-            PlayerManager.getINSTANCE().loadAndPlay(
+            PlayerManager.loadAndPlay(
                 info,
                 LibFiles.VDirectory.VOICETEXT_CACHES.resolve(fileName).toString()
             );
@@ -389,14 +389,14 @@ public class VoiceText {
                 .queue();
             filteringQueue(speakFromType, message);
             TrackInfo info = new TrackInfo(speakFromType, message);
-            PlayerManager.getINSTANCE().loadAndPlay(info, LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName).toString());
+            PlayerManager.loadAndPlay(info, LibFiles.VDirectory.VOICETEXT_CACHES.resolve(hashFileName).toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     private void filteringQueue(TrackInfo.SpeakFromType speakFromType, Message message) {
-        GuildMusicManager musicManager = PlayerManager.getINSTANCE().getGuildMusicManager(message.getGuild());
+        GuildMusicManager musicManager = PlayerManager.getGuildMusicManager(message.getGuild());
         Map<TrackInfo.SpeakFromType, List<TrackInfo.SpeakFromType>> filterRules = new HashMap<>();
         // VC退出時、参加・移動メッセージ読み上げを削除する
         filterRules.put(TrackInfo.SpeakFromType.QUITED_VC,

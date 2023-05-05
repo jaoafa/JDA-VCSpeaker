@@ -54,7 +54,14 @@ public class Event_Disconnect extends ListenerAdapter {
             .sendMessage("%s移動先を探しています…。".formatted(defaultContent))
             .complete();
 
-        if (!event.getMember().getUser().isBot()) {
+        // VCに残ったユーザーが全員Bot、または誰もいなくなった
+        boolean existsUser = event
+            .getChannelLeft()
+            .getMembers()
+            .stream()
+            .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
+
+        if (!event.getMember().getUser().isBot() && existsUser) {
             new VoiceText().play(
                 TrackInfo.SpeakFromType.QUITED_VC,
                 message,

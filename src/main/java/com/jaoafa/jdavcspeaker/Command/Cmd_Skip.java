@@ -34,7 +34,7 @@ public class Cmd_Skip implements CmdSubstrate {
     }
 
     void skip(Guild guild, SlashCommandInteractionEvent event) {
-        TrackScheduler scheduler = PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler;
+        TrackScheduler scheduler = PlayerManager.getGuildMusicManager(guild).scheduler;
         if (scheduler.queue.isEmpty()) {
             scheduler.player.destroy();
         } else {

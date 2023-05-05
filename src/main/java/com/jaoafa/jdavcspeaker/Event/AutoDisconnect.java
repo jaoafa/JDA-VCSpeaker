@@ -43,7 +43,7 @@ public class AutoDisconnect extends ListenerAdapter {
         }
         new LibFlow("AutoDisconnect").success("退出に伴い、VCから誰もいなくなったため切断します。");
 
-        PlayerManager.getINSTANCE().destroyGuildMusicManager(event.getGuild());
+        PlayerManager.destroyGuildMusicManager(event.getGuild());
         event.getGuild().getAudioManager().closeAudioConnection();
 
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
