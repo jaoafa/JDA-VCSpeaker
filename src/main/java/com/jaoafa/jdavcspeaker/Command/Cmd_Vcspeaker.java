@@ -5,6 +5,9 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Main;
+import com.jaoafa.jdavcspeaker.Player.GuildMusicManager;
+import com.jaoafa.jdavcspeaker.Player.PlayerManager;
+import com.jaoafa.jdavcspeaker.Player.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -19,6 +22,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Cmd_Vcspeaker implements CmdSubstrate {
     final EmbedBuilder NO_PERMISSION =
@@ -44,6 +50,10 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
                                 new SubcommandData("notify", "通知チャンネルを設定します")
                                     .addOption(OptionType.CHANNEL, "channel", "設定するチャンネル", false),
                                 new SubcommandData("remove", "サーバーからVCSpeakerの設定を削除します")
+                            ),
+                        new SubcommandGroupData("debug", "デバッグ用")
+                            .addSubcommands(
+                                new SubcommandData("queue", "キューを表示します")
                             )
                     )
             );
@@ -58,6 +68,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
             case "server:add" -> addServer(guild, channel, member, event);
             case "server:notify" -> removeServer(guild, member, event);
             case "server:remove" -> setNotifyChannel(guild, member, event);
+            case "debug:queue" -> showDebugQueue(member, event);
         }
     }
 
@@ -158,4 +169,21 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
             .build()
         ).queue();
     }
+
+    void showDebugQueue(Member member, SlashCommandInteractionEvent event) {
+        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+            event.replyEmbeds(NO_PERMISSION.build()).queue();
+            return;
+        }
+        Map<Long, GuildMusicManager> managers = PlayerManager.getMusicManagers();
+        if (managers.isEmpty()) {
+            event.reply("empty managers").queue();
+            return;
+        }
+        event.reply(managers.entrySet().stream().map(entry -> {
+            TrackScheduler scheduler = entry.getValue().scheduler;
+            return entry.getKey() + ": " + scheduler.getQueue().size() + " (isPaused: " + scheduler.player.isPaused() + ")";
+        }).collect(Collectors.joining("\n"))).queue();
+    }
 }
+

@@ -13,26 +13,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerManager {
-    private static PlayerManager INSTANCE;
-    private final AudioPlayerManager playerManager;
-    private final Map<Long, GuildMusicManager> musicManagers;
+    private static final AudioPlayerManager playerManager;
+    private static final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
 
-
-    private PlayerManager() {
-        this.musicManagers = new HashMap<>();
-        this.playerManager = new DefaultAudioPlayerManager();
+    static {
+        playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
     }
 
-    public static synchronized PlayerManager getINSTANCE() {
-        if (INSTANCE == null) {
-            INSTANCE = new PlayerManager();
-        }
-        return INSTANCE;
-    }
-
-    public synchronized GuildMusicManager getGuildMusicManager(Guild guild) {
+    public static GuildMusicManager getGuildMusicManager(Guild guild) {
         long guildID = guild.getIdLong();
         GuildMusicManager musicManager = musicManagers.get(guildID);
         if (musicManager == null) {
@@ -43,12 +33,12 @@ public class PlayerManager {
         return musicManager;
     }
 
-    public synchronized void destroyGuildMusicManager(Guild guild) {
+    public static void destroyGuildMusicManager(Guild guild) {
         getGuildMusicManager(guild).player.destroy();
         musicManagers.remove(guild.getIdLong());
     }
 
-    public void loadAndPlay(TrackInfo info, String trackUrl) {
+    public static void loadAndPlay(TrackInfo info, String trackUrl) {
         GuildMusicManager musicManager = getGuildMusicManager(info.getMessage().getGuild());
         playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
@@ -75,8 +65,11 @@ public class PlayerManager {
         });
     }
 
-    private void play(GuildMusicManager musicManager, AudioTrack track) {
+    private static void play(GuildMusicManager musicManager, AudioTrack track) {
         musicManager.scheduler.queue(track);
     }
 
+    public static Map<Long, GuildMusicManager> getMusicManagers() {
+        return musicManagers;
+    }
 }

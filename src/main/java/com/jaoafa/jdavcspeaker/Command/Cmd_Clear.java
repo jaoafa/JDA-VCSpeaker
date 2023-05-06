@@ -33,8 +33,8 @@ public class Cmd_Clear implements CmdSubstrate {
     }
 
     void clear(Guild guild, SlashCommandInteractionEvent event) {
-        PlayerManager.getINSTANCE().getGuildMusicManager(guild).scheduler.queue.clear();
-        PlayerManager.getINSTANCE().getGuildMusicManager(guild).player.destroy();
+        PlayerManager.getGuildMusicManager(guild).scheduler.queue.clear();
+        PlayerManager.getGuildMusicManager(guild).player.destroy();
 
         cmdFlow.success("%s が読み上げキューをクリアしました。", event.getUser().getAsTag());
         event.replyEmbeds(new EmbedBuilder()

@@ -120,5 +120,9 @@ public class TrackScheduler extends AudioEventAdapter {
         }
         return true;
     }
+
+    public BlockingQueue<AudioTrack> getQueue() {
+        return queue;
+    }
 }
 
