@@ -71,6 +71,10 @@ public class Event_Disconnect extends ListenerAdapter {
             );
         }
 
+        if (user.isBot()) {
+            return; // Botは別鯖の移動検知をしない
+        }
+
         new Thread(() -> {
             try {
                 JSONArray destinationChannels = getDestinationChannels(user.getId());
