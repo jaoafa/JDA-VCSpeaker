@@ -4,7 +4,6 @@ import com.jaoafa.jdavcspeaker.Framework.Command.CmdDetail;
 import com.jaoafa.jdavcspeaker.Framework.Command.CmdSubstrate;
 import com.jaoafa.jdavcspeaker.Lib.LibEmbedColor;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
-import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.Player.GuildMusicManager;
 import com.jaoafa.jdavcspeaker.Player.PlayerManager;
 import com.jaoafa.jdavcspeaker.Player.TrackScheduler;
@@ -66,8 +65,8 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
                        SlashCommandInteractionEvent event, String subCmd) {
         switch (subCmd) {
             case "server:add" -> addServer(guild, channel, member, event);
-            case "server:notify" -> removeServer(guild, member, event);
-            case "server:remove" -> setNotifyChannel(guild, member, event);
+            case "server:notify" -> setNotifyChannel(guild, member, event);
+            case "server:remove" -> removeServer(guild, member, event);
             case "debug:queue" -> showDebugQueue(member, event);
         }
     }
@@ -150,11 +149,11 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
             return;
         }
 
+        OptionMapping channelOpt = event.getOption("channel");
         boolean isSuccessful =
             MultipleServer
                 .setNotifyChannel(guild,
-                    Main.getExistsOption(event, "channel")
-                        .getAsChannel().asGuildMessageChannel()
+                    channelOpt != null ? channelOpt.getAsChannel().asGuildMessageChannel() : null
                 );
 
         cmdFlow.success("%s が通知チャンネルの設定をリクエストしました: %s", event.getUser().getAsTag(), isSuccessful ? "成功" : "失敗");
