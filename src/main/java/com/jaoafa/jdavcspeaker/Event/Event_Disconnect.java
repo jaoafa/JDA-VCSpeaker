@@ -46,12 +46,16 @@ public class Event_Disconnect extends ListenerAdapter {
         AudioChannel channel = event.getChannelLeft();
         if (MultipleServer.getVCChannel(event.getGuild()) == null) return;
 
+        // 別鯖への移動検知をするかどうかのフラグ
+        boolean isCheckWhereMoved = !user.isBot();
+
         String defaultContent = ":outbox_tray: `%s` が <#%s> から退出しました。".formatted(
             user.getName(),
             channel.getId());
+        String content = isCheckWhereMoved ? defaultContent + "移動先を探しています…。" : defaultContent;
         Message message = MultipleServer
             .getVCChannel(event.getGuild())
-            .sendMessage("%s移動先を探しています…。".formatted(defaultContent))
+            .sendMessage(content)
             .complete();
 
         // VCに残ったユーザーが全員Bot、または誰もいなくなった
@@ -71,7 +75,7 @@ public class Event_Disconnect extends ListenerAdapter {
             );
         }
 
-        if (user.isBot()) {
+        if (!isCheckWhereMoved) {
             return; // Botは別鯖の移動検知をしない
         }
 
