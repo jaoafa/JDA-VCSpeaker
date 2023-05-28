@@ -28,6 +28,7 @@ public class VoiceText {
     Emotion emotion = null;
     EmotionLevel emotionLevel = EmotionLevel.NORMAL;
     int pitch = 100;
+    int volume = 100;
     final LibFlow vtFlow = new LibFlow("VoiceText");
 
     /**
@@ -161,6 +162,28 @@ public class VoiceText {
             throw new WrongPitchException();
         }
         this.pitch = pitch;
+        return this;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
+    /**
+     * Set the volume
+     *
+     * @param volume Volume
+     *
+     * @return VoiceText object after the volume has been set
+     *
+     * @throws WrongVolumeException if the value is incorrect
+     */
+    @CheckReturnValue
+    public VoiceText setVolume(int volume) throws WrongVolumeException {
+        if (volume < 50 || volume > 200) {
+            throw new WrongVolumeException();
+        }
+        this.volume = volume;
         return this;
     }
 
@@ -350,6 +373,7 @@ public class VoiceText {
                 .add("speaker", speaker.name().toLowerCase())
                 .add("speed", String.valueOf(speed))
                 .add("pitch", String.valueOf(pitch))
+                .add("volume", String.valueOf(volume))
                 .add("format", "mp3");
             if (emotion != null && emotionLevel != null) {
                 form.add("emotion", emotion.name().toLowerCase());
@@ -535,6 +559,11 @@ public class VoiceText {
 
     public static class WrongSpeedException extends WrongException {
         public WrongSpeedException() {
+        }
+    }
+
+    public static class WrongVolumeException extends WrongException {
+        public WrongVolumeException() {
         }
     }
 }

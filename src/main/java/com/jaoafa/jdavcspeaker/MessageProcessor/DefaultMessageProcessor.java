@@ -115,8 +115,17 @@ public class DefaultMessageProcessor implements BaseProcessor {
         if (isEmphasize) {
             speakContent = replacerEmphasizeMessage(speakContent);
         }
+        // Markdown heading
+        int headingLevel = getMarkdownHeading(speakContent);
+        if (headingLevel > 0) {
+            speakContent = replacerMarkdownHeading(speakContent);
+        }
 
-        VoiceText vt = isEmphasize ? changeEmphasizeSpeed(uvtr.getVoiceText()) : uvtr.getVoiceText();
+        VoiceText vt = uvtr.getVoiceText();
+        vt = isEmphasize ? changeEmphasizeSpeed(vt) : vt;
+        vt = headingLevel > 0 ? changeHeadingVolume(vt, headingLevel) : vt;
+        vt = !isEmphasize && headingLevel == 1 ? changeEmphasizeSpeed(vt) : vt;
+
         vt.play(
             TrackInfo.SpeakFromType.RECEIVED_MESSAGE,
             message,
@@ -323,8 +332,42 @@ public class DefaultMessageProcessor implements BaseProcessor {
 
     VoiceText changeEmphasizeSpeed(VoiceText vt) {
         try {
-            return vt.setSpeed((int) Math.max(vt.getSpeed() / 1.75, 50));
+            return vt.setSpeed((int) Math.max(vt.getSpeed() / 1.30, 50));
         } catch (VoiceText.WrongSpeedException e) {
+            return vt;
+        }
+    }
+
+    int getMarkdownHeading(String content) {
+        // 1行かつ、先頭が# で始まる場合。#の数を返す
+        if (content == null) return 0;
+        if (content.split("\n").length != 1) return 0;
+        if (!content.startsWith("# ")) return 0;
+        // すべての文字が # であること
+        if (content.split(" ")[0].replace("#", "").trim().length() != 0) return 0;
+        if (content.split(" ")[0].length() > 2) return 0;
+        return content.split(" ")[0].length();
+    }
+
+    String replacerMarkdownHeading(String content) {
+        // 最初の#のみを削除。#は複数ある可能性あり。スペースまでを対象とする
+        return content.replaceFirst("^#+ ", "");
+    }
+
+    VoiceText changeHeadingVolume(VoiceText vt, int heading) {
+        try {
+            // 0: 100%
+            // 1: 200%
+            // 2: 175%
+            // 3: 150%
+            int newVolume = switch (heading) {
+                case 1 -> 200;
+                case 2 -> 175;
+                case 3 -> 150;
+                default -> 100;
+            };
+            return vt.setVolume(newVolume);
+        } catch (VoiceText.WrongVolumeException e) {
             return vt;
         }
     }
