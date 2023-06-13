@@ -5,6 +5,7 @@ import com.jaoafa.jdavcspeaker.Lib.LibFlow;
 import com.jaoafa.jdavcspeaker.Lib.MultipleServer;
 import com.jaoafa.jdavcspeaker.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -28,6 +29,10 @@ public class AutoJoin extends ListenerAdapter {
             return; // 自身がいずれかのVCに参加している
         }
 
+        if (isAfkChannel(event.getChannelJoined())) {
+            return; // AFKチャンネルに接続した場合は除外
+        }
+
         AudioManager audioManager = event.getGuild().getAudioManager();
         audioManager.openAudioConnection(event.getChannelJoined());
 
@@ -39,5 +44,10 @@ public class AutoJoin extends ListenerAdapter {
             .setDescription("<#%s> に接続しました。".formatted(event.getChannelJoined().getId()))
             .setColor(LibEmbedColor.success);
         MultipleServer.getVCChannel(event.getGuild()).sendMessageEmbeds(embed.build()).queue();
+    }
+
+    boolean isAfkChannel(AudioChannel channel) {
+        if (channel.getGuild().getAfkChannel() == null) return false;
+        return channel.getIdLong() == channel.getGuild().getAfkChannel().getIdLong();
     }
 }
