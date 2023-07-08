@@ -23,8 +23,12 @@ public class VCSpeakerArgs {
     public boolean isOnlyRemoveCmd;
 
     @Option(name = "--disable-auto-join",
-            usage = "VCへの自動参加を無効化")
+            usage = "ユーザのVC参加によるVCへの自動参加を無効化")
     public boolean isDisableAutoJoin;
+
+    @Option(name = "--disable-auto-join-by-message",
+            usage = "メッセージ送信によるVCへの自動参加を無効化")
+    public boolean isDisableAutoJoinByMessage;
 
     @Option(name = "--disable-auto-move",
             usage = "VC間の自動移動を無効化")
