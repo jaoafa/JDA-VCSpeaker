@@ -1,6 +1,7 @@
 package com.jaoafa.jdavcspeaker.Event;
 
 import com.jaoafa.jdavcspeaker.Lib.*;
+import com.jaoafa.jdavcspeaker.Main;
 import com.jaoafa.jdavcspeaker.MessageProcessor.BaseProcessor;
 import com.jaoafa.jdavcspeaker.MessageProcessor.ProcessorType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,9 +54,10 @@ public class Event_SpeakVCText extends ListenerAdapter {
             guild.getSelfMember().getVoiceState().getChannel() == null) {
             // 自身がどこにも入っていない場合
 
-            if (member.getVoiceState() != null &&
+            if (!Main.getArgs().isDisableAutoJoinByMessage &&
+                member.getVoiceState() != null &&
                 member.getVoiceState().getChannel() != null) {
-                // メッセージ送信者がどこかのVCに入っている場合
+                // メッセージ送信者がどこかのVCに入っている場合（機能が有効な場合に限る）
 
                 guild.getAudioManager().openAudioConnection(member.getVoiceState().getChannel()); // 参加
                 if (MultipleServer.getVCChannel(guild) != null) {
