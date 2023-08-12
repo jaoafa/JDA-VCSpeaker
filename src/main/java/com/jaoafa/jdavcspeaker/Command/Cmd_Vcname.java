@@ -45,7 +45,7 @@ public class Cmd_Vcname implements CmdSubstrate {
 
 
     void save(Member member, SlashCommandInteractionEvent event) {
-        if (!member.getId().equals("492088741167366144") && !member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":no_pedestrians: 実行する権限がありません！")
                 .setColor(LibEmbedColor.error)
@@ -90,7 +90,7 @@ public class Cmd_Vcname implements CmdSubstrate {
     }
 
     void saveall(Guild guild, Member member, SlashCommandInteractionEvent event) {
-        if (!member.getId().equals("492088741167366144") && !member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(new EmbedBuilder()
                 .setTitle(":no_pedestrians: 実行する権限がありません！")
                 .setColor(LibEmbedColor.error)
