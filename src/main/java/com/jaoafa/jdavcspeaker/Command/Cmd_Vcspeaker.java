@@ -29,7 +29,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
     final EmbedBuilder NO_PERMISSION =
         new EmbedBuilder()
             .setDescription("""
-                あなたは管理者権限を所持していないため、
+                あなたはサーバ管理権限を所持していないため、
                 このサーバでVCSpeakerの設定をすることはできません。
                 """)
             .setColor(LibEmbedColor.error);
@@ -72,7 +72,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
     }
 
     void addServer(Guild guild, GuildMessageChannel channel, Member member, SlashCommandInteractionEvent event) {
-        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
@@ -110,7 +110,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
     }
 
     void removeServer(Guild guild, Member member, SlashCommandInteractionEvent event) {
-        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
@@ -133,7 +133,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
     }
 
     void setNotifyChannel(Guild guild, Member member, SlashCommandInteractionEvent event) {
-        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
@@ -170,7 +170,7 @@ public class Cmd_Vcspeaker implements CmdSubstrate {
     }
 
     void showDebugQueue(Member member, SlashCommandInteractionEvent event) {
-        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
             event.replyEmbeds(NO_PERMISSION.build()).queue();
             return;
         }
