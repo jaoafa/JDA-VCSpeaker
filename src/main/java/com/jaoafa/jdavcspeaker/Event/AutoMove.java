@@ -71,11 +71,12 @@ public class AutoMove extends ListenerAdapter {
 
         if (isAfkChannel(newChannel)) {
             // VCに残ったユーザーが全員Bot、または誰もいなくなった
-            boolean existsUser = newChannel
+            boolean existsUser = oldChannel
                 .getMembers()
                 .stream()
                 .anyMatch(member -> !member.getUser().isBot()); // Bot以外がいるかどうか
-            if (!existsUser) {
+
+            if (existsUser) {
                 return;
             }
 
